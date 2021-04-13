@@ -7,6 +7,7 @@ from c7n.registry import PluginRegistry
 
 from cli.context import StackletContext
 from cli.formatter import Formatter
+from cli.fragments import StackletFragment
 from cli.utils import get_token
 
 
@@ -29,7 +30,12 @@ class StackletFragmentExecutor:
     def run(self, fragment, variables=None):
         if variables is None:
             variables = {}
-        res = self.session.post(self.api, json={"query": fragment(variables).fragment})
+
+        payload = fragment
+        if not isinstance(fragment, StackletFragment):
+            payload = fragment(variables=variables)
+
+        res = self.session.post(self.api, json={"query": payload.fragment})
         res.raise_for_status()
         self.log.info("Response: %s" % json.dumps(res.json(), indent=2))
         return res.json()
@@ -51,12 +57,17 @@ def fragment_options(*args, **kwargs):
     return wrapper
 
 
-def _run_fragment(ctx, name, variables=None):
+def _run_fragment(ctx, name=None, variables=None, fragment=None):
     with StackletContext(ctx.obj["config"]) as context:
         token = get_token()
         executor = StackletFragmentExecutor(context, token)
-        res = executor.run(
-            StackletFragmentExecutor.registry.get(name), variables=variables
-        )
+
+        registry_fragment = StackletFragmentExecutor.registry.get(name)
+        if name and registry_fragment:
+            fragment = registry_fragment
+        elif name and registry_fragment is None:
+            raise Exception
+
+        res = executor.run(fragment=fragment, variables=variables)
         fmt = Formatter.registry.get(ctx.obj["output"])()
         return fmt(res)

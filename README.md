@@ -96,3 +96,32 @@ $ stacklet admin --config /foo/bar/config.json --output json show
   "region": "us-east-1"
 }
 ```
+
+Run arbitrary fragments from stdin or from an option:
+
+```
+$ cat my-fragment
+{
+  accounts {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+```
+$ stacklet fragment run < my-fragment
+data:
+  accounts:
+    edges:
+    - node:
+        id: account:aws:532725030595
+        key: '532725030595'
+        name: stacklet-sonny
+        path: /
+        provider: AWS
+        securityContext: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
+```
