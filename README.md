@@ -32,6 +32,14 @@ Email: sonny@stacklet.io
 Phone Number: +15551234567
 ```
 
+After that, we can login:
+
+```
+$ stacklet user login
+Username: test-user
+Password:
+```
+
 Now you can get started with stacklet cli! Add an account by following the prompts:
 
 ```

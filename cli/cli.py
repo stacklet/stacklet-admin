@@ -1,8 +1,6 @@
 import click
 
-from cli.commands.account import account
-from cli.commands.admin import admin
-from cli.commands.repository import repository
+from cli.commands import commands
 
 
 @click.group()
@@ -13,9 +11,8 @@ def cli():
     pass
 
 
-cli.add_command(admin)
-cli.add_command(account)
-cli.add_command(repository)
+for c in commands:
+    cli.add_command(c)
 
 
 if __name__ == "__main__":
