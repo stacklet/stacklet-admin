@@ -31,7 +31,7 @@ def admin(ctx, config, output):
     "--location", prompt="Config File Location", default="~/.stacklet/config.json"
 )  # noqa
 @click.pass_context
-def save_config(
+def configure(
     ctx,
     api,
     region,

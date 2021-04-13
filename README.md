@@ -8,11 +8,11 @@ $ just install
 
 Usage:
 
-To inialize your stacklet cli, follow the prompts in the `save-config` command:
+To inialize your stacklet cli, follow the prompts in the `configure` command:
 
 ```
 $ poetry shell
-$ stacklet admin save-config
+$ stacklet admin configure
 Stacklet API endpoint: https://ltudy56p2b.execute-api.us-east-1.amazonaws.com/api
 Cognito Region: us-east-1
 Cognito User Pool Client ID: ag9dia42qootqgmvvdk0fb5np
