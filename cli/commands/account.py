@@ -1,17 +1,61 @@
 import click
 
-from cli.context import StackletContext
-from cli.formatter import Formatter
-from cli.fragments import _run_fragment, fragment_options
+from cli.executor import (StackletFragmentExecutor, _run_fragment,
+                          fragment_options)
+from cli.utils import default_options
+from cli.fragments import StackletFragment
+
+
+@StackletFragmentExecutor.registry.register("list-accounts")
+class QueryAccountFragment(StackletFragment):
+    name = "list-accounts"
+    fragment = """
+        query {
+            accounts {
+                edges {
+                    node {
+                        name
+                        id
+                        key
+                        provider
+                        path
+                        securityContext
+                    }
+                }
+            }
+        }
+    """
+    required = {}
+
+
+@StackletFragmentExecutor.registry.register("add-account")
+class AddAccountFragment(StackletFragment):
+    name = "add-account"
+    fragment = """
+    mutation {
+      addAccount(input:{
+        provider: AWS,
+        key:"$key",
+        name:"$name",
+        path:"$path",
+        email:"$email",
+        securityContext:"$security_context"
+      }){
+        status
+      }
+    }
+    """
+    required = {
+        "key": "Account Key in Stacklet, e.g. Account ID in AWS",
+        "name": "Account Name in Stacklet",
+        "path": "Account Path",
+        "email": "Account Email Address",
+        "security_context": "Role for Custodian policy execution",
+    }
 
 
 @click.group()
-@click.option("--config", default=StackletContext.DEFAULT_CONFIG)
-@click.option(
-    "--output",
-    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-    default=StackletContext.DEFAULT_OUTPUT,
-)
+@default_options()
 @click.pass_context
 def account(ctx, config, output):
     """
@@ -35,11 +79,17 @@ def account(ctx, config, output):
 @fragment_options("list-accounts")
 @click.pass_context
 def list(ctx):
+    """
+    List cloud accounts in Stacklet
+    """
     click.echo(_run_fragment(ctx=ctx, name="list-accounts", variables=None))
 
 
 @account.command()
 @fragment_options("add-account")
 @click.pass_context
-def add_account(ctx, **kwargs):
+def add(ctx, **kwargs):
+    """
+    Add an account to Stacklet
+    """
     click.echo(_run_fragment(ctx=ctx, name="add-account", variables=dict(**kwargs)))

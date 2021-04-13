@@ -1,18 +1,14 @@
-import click
 import os
 
-from cli.formatter import Formatter
+import click
+
 from cli.cognito import CognitoUserManager
 from cli.context import StackletContext
+from cli.utils import default_options
 
 
 @click.group()
-@click.option("--config", default=StackletContext.DEFAULT_CONFIG)
-@click.option(
-    "--output",
-    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-    default=StackletContext.DEFAULT_OUTPUT,
-)
+@default_options()
 @click.pass_context
 def user(ctx, config, output):
     """

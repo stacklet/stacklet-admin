@@ -43,7 +43,7 @@ Password:
 Now you can get started with stacklet cli! Add an account by following the prompts:
 
 ```
-$ stacklet account add-account
+$ stacklet account add
 Security context: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
 Email: sonny@stacklet.io
 Path: /

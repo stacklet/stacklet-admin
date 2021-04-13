@@ -7,15 +7,11 @@ from cli.cognito import CognitoUserManager
 from cli.config import StackletConfig
 from cli.context import StackletContext
 from cli.formatter import Formatter
+from cli.utils import default_options
 
 
 @click.group()
-@click.option("--config", default=StackletContext.DEFAULT_CONFIG)
-@click.option(
-    "--output",
-    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-    default=StackletContext.DEFAULT_OUTPUT,
-)
+@default_options()
 @click.pass_context
 def admin(ctx, config, output):
     """

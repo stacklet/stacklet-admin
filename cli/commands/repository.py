@@ -1,17 +1,47 @@
 import click
 
-from cli.context import StackletContext
-from cli.formatter import Formatter
-from cli.fragments import _run_fragment, fragment_options
+from cli.executor import (StackletFragmentExecutor, _run_fragment,
+                          fragment_options)
+from cli.fragments import StackletFragment
+from cli.utils import default_options
+
+
+@StackletFragmentExecutor.registry.register("add-repository")
+class AddRepositoryFragment(StackletFragment):
+    name = "add-repository"
+    fragment = """
+    mutation {
+      addRepository(
+        input: {
+          url: "$url"
+          name: "$name"
+        }
+      ) {
+        status
+      }
+    }
+    """
+    required = {
+        "url": "Policy Repository URL",
+        "name": "Human Readable Policy Repository Name",
+    }
+
+
+@StackletFragmentExecutor.registry.register("process-repository")
+class ProcessRepositoryFragment(StackletFragment):
+    name = "process-repository"
+    fragment = """
+    mutation {
+      processRepository(input:{url: "$url"}) {
+        status
+      }
+    }
+    """
+    required = {"url": "Repository URL to process"}
 
 
 @click.group()
-@click.option("--config", default=StackletContext.DEFAULT_CONFIG)
-@click.option(
-    "--output",
-    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-    default=StackletContext.DEFAULT_OUTPUT,
-)
+@default_options()
 @click.pass_context
 def repository(ctx, config, output):
     """
@@ -34,5 +64,8 @@ def repository(ctx, config, output):
 @repository.command()
 @fragment_options("add-repository")
 @click.pass_context
-def add_repository(ctx, **kwargs):
+def add(ctx, **kwargs):
+    """
+    Add a Policy Repository to Stacklet
+    """
     click.echo(_run_fragment(ctx=ctx, name="add-repository", variables=dict(**kwargs)))
