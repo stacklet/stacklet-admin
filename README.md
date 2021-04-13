@@ -35,7 +35,7 @@ Phone Number: +15551234567
 Now you can get started with stacklet cli! Add an account by following the prompts:
 
 ```
-$ stacklet accounts add-account
+$ stacklet account add-account
 Security context: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
 Email: sonny@stacklet.io
 Path: /
@@ -49,7 +49,7 @@ data:
 View the accounts easily:
 
 ```
-$ stacklet accounts list
+$ stacklet account list
 data:
   accounts:
     edges:

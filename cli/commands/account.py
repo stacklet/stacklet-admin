@@ -13,7 +13,7 @@ from cli.fragments import _run_fragment, fragment_options
     default=StackletContext.DEFAULT_OUTPUT,
 )
 @click.pass_context
-def accounts(ctx, config, output):
+def account(ctx, config, output):
     """
     Query against and Run mutations against Account objects in Stacklet.
 
@@ -31,14 +31,14 @@ def accounts(ctx, config, output):
     ctx.obj["output"] = output
 
 
-@accounts.command()
+@account.command()
 @fragment_options("list-accounts")
 @click.pass_context
 def list(ctx):
     click.echo(_run_fragment(ctx=ctx, name="list-accounts", variables=None))
 
 
-@accounts.command()
+@account.command()
 @fragment_options("add-account")
 @click.pass_context
 def add_account(ctx, **kwargs):
