@@ -113,15 +113,17 @@ $ cat my-fragment
 ```
 
 ```
+$ stacklet fragment run --fragment "{ accounts { edges { node { id } } } }"
+data:
+  accounts:
+    edges:
+    - node:
+        id: account:aws:532725030595
+
 $ stacklet fragment run < my-fragment
 data:
   accounts:
     edges:
     - node:
         id: account:aws:532725030595
-        key: '532725030595'
-        name: stacklet-sonny
-        path: /
-        provider: AWS
-        securityContext: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
 ```

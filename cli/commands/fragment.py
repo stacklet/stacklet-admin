@@ -20,7 +20,7 @@ def fragment(ctx, config, output):
 
 
 @fragment.command()
-@click.option('--fragment', help='', default=sys.stdin)
+@click.option('--fragment', help='fragment text', default=sys.stdin)
 @click.pass_context
 def run(ctx, fragment):
     if isinstance(fragment, io.IOBase):
