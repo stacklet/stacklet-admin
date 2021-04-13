@@ -1,5 +1,20 @@
 # Stacklet CLI
 
+```
+Usage: stacklet [OPTIONS] COMMAND [ARGS]...
+
+  Stacklet CLI
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  account     Query against and Run mutations against Account objects in...
+  admin       Run administrative actions against Stacklet
+  repository  Query against and Run mutations against Repository objects in...
+  user        Execute User Operations
+```
+
 Installation:
 
 ```
