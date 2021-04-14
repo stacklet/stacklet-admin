@@ -67,7 +67,7 @@ def cli():
 @cli.command(cls=CustodianCommand)
 def custodian(*args, **kwargs):
     """
-    Entrypoint for the custodian cli from stacklet cli
+    Cloud Custodian CLI
     """
 
 
