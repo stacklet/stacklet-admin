@@ -39,22 +39,22 @@ _DEFAULT_OPTIONS = [
     click.option(
         "--first",
         default="20",
-        help="",
+        help="For use with pagination.",
     ),
     click.option(
         "--last",
         default="20",
-        help="",
+        help="For use with pagination.",
     ),
     click.option(
         "--before",
         default="",
-        help="",
+        help="For use with pagination.",
     ),
     click.option(
         "--after",
         default="",
-        help="",
+        help="For use with pagination.",
     ),
     click.option(
         "-v",

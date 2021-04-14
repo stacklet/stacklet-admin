@@ -1,6 +1,6 @@
 import click
 
-from cli.commands import commands, CustodianCommand
+from cli.commands import CustodianCommand, commands
 
 
 @click.group()

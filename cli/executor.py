@@ -41,6 +41,29 @@ class StackletGraphqlExecutor:
         return res.json()
 
 
+def wrap_command(func, options, required=False, prompt=False):
+    for name, details in options.items():
+        if isinstance(details, str):
+            click.option(
+                f'--{name.replace("_", "-")}',
+                required=required,
+                help=details,
+                prompt=prompt,
+            )(func)
+        elif isinstance(details, dict):
+            click.option(
+                f'--{name.replace("_", "-")}',
+                required=required,
+                prompt=prompt,
+                **details,
+            )(func)
+        else:
+            raise Exception(
+                "Options should be of type str or dict, got %s" % type(details)
+            )
+    return func
+
+
 def snippet_options(*args, **kwargs):
     snippet_name = args[0]
     snippet = StackletGraphqlExecutor.registry.get(snippet_name)
@@ -48,10 +71,8 @@ def snippet_options(*args, **kwargs):
     def wrapper(func):
         if not snippet:
             return func
-        for option, help in snippet.required.items():
-            click.option(
-                f'--{option.replace("_", "-")}', required=True, help=help, prompt=True
-            )(func)
+        func = wrap_command(func, snippet.required, required=True, prompt=True)
+        func = wrap_command(func, snippet.optional)
         return func
 
     return wrapper
@@ -66,8 +87,11 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None):
         if name and registry_snippet:
             snippet = registry_snippet
         elif name and registry_snippet is None:
-            raise Exception
+            raise Exception(
+                "No snippet found, got name:%s snippet:%s" % (name, registry_snippet)
+            )
 
+        variables.update(ctx.obj["page_variables"])
         res = executor.run(snippet=snippet, variables=variables)
 
         fmt = Formatter.registry.get(ctx.obj["output"])()

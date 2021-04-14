@@ -3,6 +3,47 @@ from string import Template
 
 
 class StackletGraphqlSnippet:
+    """
+    A resusable Graphql Snippet
+
+    Define required variables with the required class attribute and optional
+    variables with the optional class attribute. The value can either be a string
+    or a dict. If the type is string, the value is passed in as the help text for
+    the option. See example:
+
+    .. code-block:: python
+
+        class MySnippet(StackletGraphqlSnippet):
+
+            name = 'my-snippet'
+            snippet = '''
+                query {
+                    foo(
+                        id: $id
+                        bar: $bar
+                        baz: $baz
+                    ) {
+                        id
+                        description
+                    }
+                }
+            '''
+
+            required = {
+                'id': {
+                    'help': 'the id',
+                    'type': click.Choice(['foo', 'bar'])
+                },
+                "bar": 'Another variable'
+            }
+
+            optional = {
+                'baz': {
+                    'help': 'An optional variable',
+                    'default': 'blah'
+                }
+            }
+    """
 
     name = None
     snippet = None

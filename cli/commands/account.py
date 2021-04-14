@@ -11,7 +11,7 @@ class QueryAccountFragment(StackletGraphqlSnippet):
     snippet = """
         query {
           accounts(
-            provider: AWS
+            provider: $provider
             first: $first
             last: $last
             before: "$before"
@@ -37,6 +37,12 @@ class QueryAccountFragment(StackletGraphqlSnippet):
         }
     """
     pagination = True
+    required = {
+        "provider": {
+            "help": "Cloud Provider",
+            "type": click.Choice(["AWS", "GCP", "Azure", "Kubernetes"]),
+        }
+    }
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
@@ -45,7 +51,7 @@ class AddAccountFragment(StackletGraphqlSnippet):
     snippet = """
     mutation {
       addAccount(input:{
-        provider: AWS,
+        provider: $provider,
         key:"$key",
         name:"$name",
         path:"$path",
@@ -62,6 +68,7 @@ class AddAccountFragment(StackletGraphqlSnippet):
         "path": "Account Path",
         "email": "Account Email Address",
         "security_context": "Role for Custodian policy execution",
+        "provider": "Cloud Provider",
     }
 
 
@@ -87,13 +94,11 @@ def account(*args, **kwargs):
 @account.command()
 @snippet_options("list-accounts")
 @click.pass_context
-def list(ctx):
+def list(ctx, **kwargs):
     """
     List cloud accounts in Stacklet
     """
-    click.echo(
-        _run_graphql(ctx=ctx, name="list-accounts", variables=ctx.obj["page_variables"])
-    )
+    click.echo(_run_graphql(ctx=ctx, name="list-accounts", variables=kwargs))
 
 
 @account.command()
@@ -103,4 +108,4 @@ def add(ctx, **kwargs):
     """
     Add an account to Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-account", variables=dict(**kwargs)))
+    click.echo(_run_graphql(ctx=ctx, name="add-account", variables=kwargs))

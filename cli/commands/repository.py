@@ -65,4 +65,4 @@ def add(ctx, **kwargs):
     """
     Add a Policy Repository to Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=dict(**kwargs)))
+    click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))

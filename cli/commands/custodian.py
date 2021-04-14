@@ -1,6 +1,6 @@
-import click
 import sys
 
+import click
 from c7n import cli as c7n_cli
 
 
