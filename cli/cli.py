@@ -31,7 +31,6 @@ def cli():
 
     To specify a different configuration file or different API endpoint/Cognito Configuration:
 
-
     \b
         $ stacklet user \\
             --api $stacklet_api \\
@@ -60,6 +59,11 @@ def cli():
             --before $before_token \\
             --after $after_token \\
             list
+
+    You can also use Stacklet CLI to run Cloud Custodian commands:
+
+    \b
+        $ stacklet custodian schema aws
     """
     pass
 
