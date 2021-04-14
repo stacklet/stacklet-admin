@@ -1,6 +1,6 @@
 import click
 
-from cli.commands import commands
+from cli.commands import commands, CustodianCommand
 
 
 @click.group()
@@ -62,6 +62,13 @@ def cli():
             list
     """
     pass
+
+
+@cli.command(cls=CustodianCommand)
+def custodian(*args, **kwargs):
+    """
+    Entrypoint for the custodian cli from stacklet cli
+    """
 
 
 for c in commands:
