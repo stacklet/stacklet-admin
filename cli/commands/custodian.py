@@ -11,8 +11,7 @@ class CustodianCommand(click.Command):
 
     def parse_args(self, ctx, args):
         # because we're running this in the stacklet cli, we need to shift the args
-        # over by one index, then run custodian's index over by invoking the c7n cli
-        # main entrypoint:
+        # over by one index, then run custodian's cli main entrypoint.
         #
         # example:
         #
