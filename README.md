@@ -8,7 +8,8 @@ $ just install
 
 Usage:
 
-To inialize your stacklet cli, follow the prompts in the `configure` command:
+To inialize your stacklet cli, either follow the prompts in the `configure` command or pass
+the values into the cli through options, e.g. `--api https://staging.stacklet.dev/api`:
 
 ```
 $ poetry shell
@@ -43,7 +44,7 @@ Password:
 Now you can get started with stacklet cli! Add an account by following the prompts:
 
 ```
-$ stacklet account add
+$ stacklet account add --provider AWS
 Security context: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
 Email: sonny@stacklet.io
 Path: /
@@ -57,7 +58,7 @@ data:
 View the accounts easily:
 
 ```
-$ stacklet account list
+$ stacklet account list --provider AWS
 data:
   accounts:
     edges:
