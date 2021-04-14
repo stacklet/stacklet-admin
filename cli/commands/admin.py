@@ -7,19 +7,17 @@ from cli.cognito import CognitoUserManager
 from cli.config import StackletConfig
 from cli.context import StackletContext
 from cli.formatter import Formatter
-from cli.utils import default_options
+from cli.utils import click_group_entry, default_options
 
 
 @click.group()
 @default_options()
 @click.pass_context
-def admin(ctx, config, output):
+def admin(*args, **kwargs):
     """
     Run administrative actions against Stacklet
     """
-    ctx.ensure_object(dict)
-    ctx.obj["config"] = config
-    ctx.obj["output"] = output
+    click_group_entry(*args, **kwargs)
 
 
 @admin.command()
@@ -72,7 +70,7 @@ def create_user(ctx, username, password, email, phone_number):
     """
     Create a user for use with Stacklet.
     """
-    with StackletContext(ctx.obj["config"]) as context:
+    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         manager = CognitoUserManager.from_context(context)
         manager.create_user(
             user=username, password=password, email=email, phone_number=phone_number
@@ -82,6 +80,6 @@ def create_user(ctx, username, password, email, phone_number):
 @admin.command()
 @click.pass_context
 def show(ctx):
-    with StackletContext(ctx.obj["config"]) as context:
+    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         fmt = Formatter.registry.get(ctx.obj["output"])()
         click.echo(fmt(context.config.to_json()))

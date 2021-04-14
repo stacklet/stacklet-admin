@@ -1,15 +1,14 @@
 import click
 
-from cli.executor import (StackletFragmentExecutor, _run_fragment,
-                          fragment_options)
-from cli.fragments import StackletFragment
-from cli.utils import default_options
+from cli.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from cli.graphql import StackletGraphqlSnippet
+from cli.utils import click_group_entry, default_options
 
 
-@StackletFragmentExecutor.registry.register("add-repository")
-class AddRepositoryFragment(StackletFragment):
+@StackletGraphqlExecutor.registry.register("add-repository")
+class AddRepositoryFragment(StackletGraphqlSnippet):
     name = "add-repository"
-    fragment = """
+    snippet = """
     mutation {
       addRepository(
         input: {
@@ -27,10 +26,10 @@ class AddRepositoryFragment(StackletFragment):
     }
 
 
-@StackletFragmentExecutor.registry.register("process-repository")
-class ProcessRepositoryFragment(StackletFragment):
+@StackletGraphqlExecutor.registry.register("process-repository")
+class ProcessRepositoryFragment(StackletGraphqlSnippet):
     name = "process-repository"
-    fragment = """
+    snippet = """
     mutation {
       processRepository(input:{url: "$url"}) {
         status
@@ -43,7 +42,7 @@ class ProcessRepositoryFragment(StackletFragment):
 @click.group()
 @default_options()
 @click.pass_context
-def repository(ctx, config, output):
+def repository(*args, **kwargs):
     """
     Query against and Run mutations against Repository objects in Stacklet
 
@@ -56,16 +55,14 @@ def repository(ctx, config, output):
         $ stacklet accounts --output json list
 
     """
-    ctx.ensure_object(dict)
-    ctx.obj["config"] = config
-    ctx.obj["output"] = output
+    click_group_entry(*args, **kwargs)
 
 
 @repository.command()
-@fragment_options("add-repository")
+@snippet_options("add-repository")
 @click.pass_context
 def add(ctx, **kwargs):
     """
     Add a Policy Repository to Stacklet
     """
-    click.echo(_run_fragment(ctx=ctx, name="add-repository", variables=dict(**kwargs)))
+    click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=dict(**kwargs)))

@@ -1,20 +1,5 @@
 # Stacklet CLI
 
-```
-Usage: stacklet [OPTIONS] COMMAND [ARGS]...
-
-  Stacklet CLI
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  account     Query against and Run mutations against Account objects in...
-  admin       Run administrative actions against Stacklet
-  repository  Query against and Run mutations against Repository objects in...
-  user        Execute User Operations
-```
-
 Installation:
 
 ```
@@ -97,10 +82,10 @@ $ stacklet admin --config /foo/bar/config.json --output json show
 }
 ```
 
-Run arbitrary fragments from stdin or from an option:
+Run arbitrary snippets from stdin or from an option:
 
 ```
-$ cat my-fragment
+$ cat my-snippet
 {
   accounts {
     edges {
@@ -113,14 +98,14 @@ $ cat my-fragment
 ```
 
 ```
-$ stacklet fragment run --fragment "{ accounts { edges { node { id } } } }"
+$ stacklet graphql run --snippet "{ accounts { edges { node { id } } } }"
 data:
   accounts:
     edges:
     - node:
         id: account:aws:532725030595
 
-$ stacklet fragment run < my-fragment
+$ stacklet graphql run < my-snippet
 data:
   accounts:
     edges:
