@@ -6,7 +6,7 @@ from cli.utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-accounts")
-class QueryAccountFragment(StackletGraphqlSnippet):
+class QueryAccountSnippet(StackletGraphqlSnippet):
     name = "list-accounts"
     snippet = """
         query {
@@ -46,7 +46,7 @@ class QueryAccountFragment(StackletGraphqlSnippet):
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
-class AddAccountFragment(StackletGraphqlSnippet):
+class AddAccountSnippet(StackletGraphqlSnippet):
     name = "add-account"
     snippet = """
     mutation {

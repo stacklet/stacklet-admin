@@ -6,7 +6,7 @@ from cli.utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("add-repository")
-class AddRepositoryFragment(StackletGraphqlSnippet):
+class AddRepositorySnippet(StackletGraphqlSnippet):
     name = "add-repository"
     snippet = """
     mutation {
@@ -27,7 +27,7 @@ class AddRepositoryFragment(StackletGraphqlSnippet):
 
 
 @StackletGraphqlExecutor.registry.register("process-repository")
-class ProcessRepositoryFragment(StackletGraphqlSnippet):
+class ProcessRepositorySnippet(StackletGraphqlSnippet):
     name = "process-repository"
     snippet = """
     mutation {
