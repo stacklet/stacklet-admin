@@ -48,12 +48,12 @@ _DEFAULT_OPTIONS = [
     ),
     click.option(
         "--before",
-        default='',
+        default="",
         help="",
     ),
     click.option(
         "--after",
-        default='',
+        default="",
         help="",
     ),
     click.option(
@@ -62,7 +62,7 @@ _DEFAULT_OPTIONS = [
         default=0,
         count=True,
         help="Verbosity level, increase verbosity by appending v, e.g. -vvv",
-    )
+    ),
 ]
 
 
@@ -102,7 +102,7 @@ def click_group_entry(
     last,
     before,
     after,
-    verbose
+    verbose,
 ):
     logging.basicConfig(level=get_log_level(verbose))
     ctx.ensure_object(dict)
