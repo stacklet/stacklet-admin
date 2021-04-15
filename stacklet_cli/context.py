@@ -1,4 +1,4 @@
-from cli.config import StackletConfig
+from stacklet_cli.config import StackletConfig
 
 
 class StackletContext:

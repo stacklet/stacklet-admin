@@ -4,4 +4,4 @@ install:
   poetry run pre-commit install
 
 test:
-  poetry run pytest --cov=cli tests
+  poetry run pytest --cov=stacklet_cli tests

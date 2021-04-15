@@ -4,10 +4,10 @@ import logging
 import requests
 from c7n.registry import PluginRegistry
 
-from cli.context import StackletContext
-from cli.formatter import Formatter
-from cli.graphql import StackletGraphqlSnippet
-from cli.utils import _PAGINATION_OPTIONS, get_token, wrap_command
+from stacklet_cli.context import StackletContext
+from stacklet_cli.formatter import Formatter
+from stacklet_cli.graphql import StackletGraphqlSnippet
+from stacklet_cli.utils import _PAGINATION_OPTIONS, get_token, wrap_command
 
 
 class StackletGraphqlExecutor:

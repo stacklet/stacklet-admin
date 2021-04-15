@@ -3,8 +3,8 @@ import os
 
 import click
 
-from cli.context import StackletContext
-from cli.formatter import Formatter
+from stacklet_cli.context import StackletContext
+from stacklet_cli.formatter import Formatter
 
 _DEFAULT_OPTIONS = {
     "config": {"default": "", "help": ""},

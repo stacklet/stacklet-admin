@@ -3,12 +3,12 @@ import os
 
 import click
 
-from cli.cognito import CognitoUserManager
-from cli.commands import commands
-from cli.config import StackletConfig
-from cli.context import StackletContext
-from cli.formatter import Formatter
-from cli.utils import click_group_entry, default_options
+from stacklet_cli.cognito import CognitoUserManager
+from stacklet_cli.commands import commands
+from stacklet_cli.config import StackletConfig
+from stacklet_cli.context import StackletContext
+from stacklet_cli.formatter import Formatter
+from stacklet_cli.utils import click_group_entry, default_options
 
 
 @click.group()
