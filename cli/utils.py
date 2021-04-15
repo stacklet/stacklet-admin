@@ -19,22 +19,26 @@ _DEFAULT_OPTIONS = [
     click.option(
         "--cognito-user-pool-id",
         default="",
-        help="If set, --cognito-client-id, --cognito-region, and --api must also be set.",
+        help=("If set, --cognito-user-pool-id, --cognito-client-id, "
+              "--cognito-region, and --api must also be set."),
     ),
     click.option(
         "--cognito-client-id",
         default="",
-        help="If set, --cognito-client-id, --cognito-region, and --api must also be set.",
+        help=("If set, --cognito-user-pool-id, --cognito-client-id, "
+              "--cognito-region, and --api must also be set."),
     ),
     click.option(
         "--cognito-region",
         default="",
-        help="If set, --cognito-client-id, --cognito-region, and --api must also be set.",
+        help=("If set, --cognito-user-pool-id, --cognito-client-id, "
+              "--cognito-region, and --api must also be set."),
     ),
     click.option(
         "--api",
         default="",
-        help="If set, --cognito-client-id, --cognito-region, and --api must also be set.",
+        help=("If set, --cognito-user-pool-id, --cognito-client-id, "
+              "--cognito-region, and --api must also be set."),
     ),
     click.option(
         "--first",
