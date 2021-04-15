@@ -65,7 +65,6 @@ def cli():
     \b
         $ stacklet custodian -h
     """
-    pass
 
 
 @cli.command(cls=CustodianCommand)
