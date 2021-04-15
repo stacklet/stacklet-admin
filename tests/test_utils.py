@@ -7,7 +7,7 @@ from cli.formatter import JsonFormatter, RawFormatter, YamlFormatter
 from cli.utils import get_log_level, get_token
 
 
-class TestUtils(TestCase):
+class UtilsTest(TestCase):
     def setUp(self):
         self.credential_file = NamedTemporaryFile(mode="w+", delete=False)
         with open(self.credential_file.name, "w+") as f:

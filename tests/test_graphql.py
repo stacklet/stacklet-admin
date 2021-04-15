@@ -3,7 +3,7 @@ from unittest.mock import patch
 from utils import BaseCliTest, get_executor_adapter
 
 
-class TestGraphql(BaseCliTest):
+class GraphqlTest(BaseCliTest):
     def test_executor_run(self):
         executor, adapter = get_executor_adapter()
         self.assertEqual(executor.token, "foo")
