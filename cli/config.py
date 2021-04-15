@@ -18,7 +18,6 @@ class StackletConfig:
             "cognito_user_pool_id": {"type": "string"},
             "cognito_client_id": {"type": "string"},
             "region": {"type": "string"},
-            "username": {"type": "string"},
         },
     }
 
@@ -28,13 +27,11 @@ class StackletConfig:
         cognito_user_pool_id=None,
         cognito_client_id=None,
         region=None,
-        username=None,
     ):
         self.api = api
         self.cognito_user_pool_id = cognito_user_pool_id
         self.cognito_client_id = cognito_client_id
         self.region = region
-        self.username = username
 
         if not all(
             [self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]

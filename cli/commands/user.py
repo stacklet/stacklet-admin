@@ -4,19 +4,17 @@ import click
 
 from cli.cognito import CognitoUserManager
 from cli.context import StackletContext
-from cli.utils import default_options
+from cli.utils import click_group_entry, default_options
 
 
 @click.group()
 @default_options()
 @click.pass_context
-def user(ctx, config, output):
+def user(*args, **kwargs):
     """
     Execute User Operations
     """
-    ctx.ensure_object(dict)
-    ctx.obj["config"] = config
-    ctx.obj["output"] = output
+    click_group_entry(*args, **kwargs)
 
 
 @user.command()
@@ -24,7 +22,7 @@ def user(ctx, config, output):
 @click.option("--password", prompt="Password", hide_input=True)
 @click.pass_context
 def login(ctx, username, password):
-    with StackletContext(ctx.obj["config"]) as context:
+    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         if username == "" and context.config.username is None:
             raise Exception("No username specified")
         manager = CognitoUserManager.from_context(context)

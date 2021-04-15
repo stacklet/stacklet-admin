@@ -1,40 +1,57 @@
 import click
 
-from cli.executor import (StackletFragmentExecutor, _run_fragment,
-                          fragment_options)
-from cli.utils import default_options
-from cli.fragments import StackletFragment
+from cli.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from cli.graphql import StackletGraphqlSnippet
+from cli.utils import click_group_entry, default_options
 
 
-@StackletFragmentExecutor.registry.register("list-accounts")
-class QueryAccountFragment(StackletFragment):
+@StackletGraphqlExecutor.registry.register("list-accounts")
+class QueryAccountSnippet(StackletGraphqlSnippet):
     name = "list-accounts"
-    fragment = """
+    snippet = """
         query {
-            accounts {
-                edges {
-                    node {
-                        name
-                        id
-                        key
-                        provider
-                        path
-                        securityContext
-                    }
-                }
+          accounts(
+            provider: $provider
+            first: $first
+            last: $last
+            before: "$before"
+            after: "$after"
+          ) {
+            edges {
+              node {
+                key
+                id
+                name
+                email
+                provider
+                path
+              }
             }
+            pageInfo {
+              hasPreviousPage
+              hasNextPage
+              startCursor
+              endCursor
+            }
+          }
         }
     """
-    required = {}
+    pagination = True
+    required = {
+        "provider": {
+            "help": "Cloud Provider",
+            "type": click.Choice(["AWS", "GCP", "Azure", "Kubernetes"]),
+        }
+    }
 
 
-@StackletFragmentExecutor.registry.register("add-account")
-class AddAccountFragment(StackletFragment):
+@StackletGraphqlExecutor.registry.register("add-account")
+class AddAccountSnippet(StackletGraphqlSnippet):
     name = "add-account"
-    fragment = """
+    snippet = """
     mutation {
       addAccount(input:{
-        provider: AWS,
+        provider: $provider,
         key:"$key",
         name:"$name",
         path:"$path",
@@ -51,13 +68,14 @@ class AddAccountFragment(StackletFragment):
         "path": "Account Path",
         "email": "Account Email Address",
         "security_context": "Role for Custodian policy execution",
+        "provider": "Cloud Provider",
     }
 
 
 @click.group()
 @default_options()
 @click.pass_context
-def account(ctx, config, output):
+def account(*args, **kwargs):
     """
     Query against and Run mutations against Account objects in Stacklet.
 
@@ -70,26 +88,24 @@ def account(ctx, config, output):
         $ stacklet accounts --output json list
 
     """
-    ctx.ensure_object(dict)
-    ctx.obj["config"] = config
-    ctx.obj["output"] = output
+    click_group_entry(*args, **kwargs)
 
 
 @account.command()
-@fragment_options("list-accounts")
+@snippet_options("list-accounts")
 @click.pass_context
-def list(ctx):
+def list(ctx, **kwargs):
     """
     List cloud accounts in Stacklet
     """
-    click.echo(_run_fragment(ctx=ctx, name="list-accounts", variables=None))
+    click.echo(_run_graphql(ctx=ctx, name="list-accounts", variables=kwargs))
 
 
 @account.command()
-@fragment_options("add-account")
+@snippet_options("add-account")
 @click.pass_context
 def add(ctx, **kwargs):
     """
     Add an account to Stacklet
     """
-    click.echo(_run_fragment(ctx=ctx, name="add-account", variables=dict(**kwargs)))
+    click.echo(_run_graphql(ctx=ctx, name="add-account", variables=kwargs))

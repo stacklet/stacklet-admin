@@ -48,13 +48,13 @@ class CognitoUserManager:
                 MessageAction="SUPPRESS",
                 DesiredDeliveryMediums=["SMS", "EMAIL"],
             )
-            self.log.info(res)
+            self.log.debug(res)
         except self.client.exceptions.UsernameExistsException:
-            self.log.info("User:%s already exists, skipping" % user)
+            self.log.debug("User:%s already exists, skipping" % user)
             return True
 
         # update the password so it's set permantently
-        self.log.info(
+        self.log.debug(
             "Resetting admin password to disable temporary password for %s" % user
         )
         res = self.client.admin_set_user_password(
@@ -63,7 +63,7 @@ class CognitoUserManager:
             Password=password,
             Permanent=True,
         )
-        self.log.info(res)
+        self.log.debug(res)
         return True
 
     def login(self, user, password):
@@ -72,5 +72,5 @@ class CognitoUserManager:
             AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={"USERNAME": user, "PASSWORD": password},
         )
-        self.log.info("Authentication Success")
+        self.log.debug("Authentication Success")
         return res["AuthenticationResult"]["AccessToken"]
