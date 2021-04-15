@@ -34,6 +34,3 @@ build-backend = "poetry.core.masonry.api"
 [tool.isort]
 src_paths = ["tests", "stacklet_cli"]
 line_length = 100
-
-[tool.flake8]
-line_length = 100
