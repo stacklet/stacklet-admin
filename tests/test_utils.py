@@ -42,4 +42,4 @@ class TestUtils(TestCase):
         self.assertEqual(result, '{\n  "foo": "bar"\n}')
 
         result = YamlFormatter()(input_string)
-        self.assertEqual(result, 'foo: bar\n')
+        self.assertEqual(result, "foo: bar\n")
