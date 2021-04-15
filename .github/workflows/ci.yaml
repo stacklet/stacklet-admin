@@ -62,4 +62,4 @@ jobs:
 
       - name: Pytest run
         shell: bash
-        run: poetry run pytest --cov=cli -v tests
+        run: poetry run pytest --cov=stacklet_cli -v tests
