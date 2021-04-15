@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
+from cli.formatter import JsonFormatter, RawFormatter, YamlFormatter
 from cli.utils import get_log_level, get_token
 
 
@@ -22,6 +23,8 @@ class TestUtils(TestCase):
         self.assertEqual(token, "foo")
 
     def test_get_log_level(self):
+        self.assertEqual(get_log_level(-9999), 50)
+        self.assertEqual(get_log_level(0), 50)
         self.assertEqual(get_log_level(1), 40)
         self.assertEqual(get_log_level(2), 30)
         self.assertEqual(get_log_level(3), 20)
@@ -29,3 +32,14 @@ class TestUtils(TestCase):
         self.assertEqual(get_log_level(5), 0)
         self.assertEqual(get_log_level(6), 0)
         self.assertEqual(get_log_level(9999), 0)
+
+    def test_formatters(self):
+        input_string = {"foo": "bar"}
+        result = RawFormatter()(input_string)
+        self.assertEqual(result, "{'foo': 'bar'}")
+
+        result = JsonFormatter()(input_string)
+        self.assertEqual(result, '{\n  "foo": "bar"\n}')
+
+        result = YamlFormatter()(input_string)
+        self.assertEqual(result, "foo: bar\n")

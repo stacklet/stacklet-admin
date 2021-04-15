@@ -99,6 +99,8 @@ def get_log_level(verbose):
     level = 50 - (verbose * 10)
     if level < 0:
         level = 0
+    elif level > 50:
+        level = 50
     return level
 
 
