@@ -114,6 +114,7 @@ class TestGraphql(BaseCliTest):
                     f"--snippet={snippet}",
                 ],
             )
+            self.assertEqual(res.exit_code, 0)
 
             self.assertEqual(
                 res.output,
