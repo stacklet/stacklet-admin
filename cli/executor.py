@@ -83,6 +83,10 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None):
         token = get_token()
         executor = StackletGraphqlExecutor(context, token)
 
+        if variables is None:
+            variables = {}
+        variables.update(ctx.obj['page_variables'])
+
         registry_snippet = StackletGraphqlExecutor.registry.get(name)
         if name and registry_snippet:
             snippet = registry_snippet
