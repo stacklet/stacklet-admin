@@ -8,7 +8,7 @@ from unittest import TestCase
 from cli.cli import cli
 
 
-class CliTest(TestCase):
+class AdminCliTest(TestCase):
 
     runner = CliRunner()
     cli = cli
@@ -17,7 +17,7 @@ class CliTest(TestCase):
         res = self.runner.invoke(self.cli, ['--help'])
         self.assertEqual(res.exit_code, 0)
 
-    def test_cli_save_config(self):
+    def test_admin_save_config_and_show(self):
         file_location = NamedTemporaryFile(
             mode='w+',
             delete=False
