@@ -101,22 +101,23 @@ class TestGraphql(BaseCliTest):
         )
 
         with patch("cli.executor.requests.Session", autospec=True) as patched:
-            patched.return_value = executor.session
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "graphql",
-                    "--api=mock://stacklet.acme.org/api",
-                    "--cognito-region=us-east-1",
-                    "--cognito-user-pool-id=foo",
-                    "--cognito-client-id=bar",
-                    "run",
-                    f"--snippet={snippet}",
-                ],
-            )
-            self.assertEqual(res.exit_code, 0)
+            with patch("cli.executor.get_token", return_value="foo"):
+                patched.return_value = executor.session
+                res = self.runner.invoke(
+                    self.cli,
+                    [
+                        "graphql",
+                        "--api=mock://stacklet.acme.org/api",
+                        "--cognito-region=us-east-1",
+                        "--cognito-user-pool-id=foo",
+                        "--cognito-client-id=bar",
+                        "run",
+                        f"--snippet={snippet}",
+                    ],
+                )
+                self.assertEqual(res.exit_code, 0)
 
-            self.assertEqual(
-                res.output,
-                "data:\n  accounts:\n    edges:\n    - node:\n        id: account:aws:123123123123\n\n",  # noqa
-            )
+                self.assertEqual(
+                    res.output,
+                    "data:\n  accounts:\n    edges:\n    - node:\n        id: account:aws:123123123123\n\n",  # noqa
+                )
