@@ -60,6 +60,10 @@ jobs:
         shell: bash
         run: poetry install
 
+      - name: Install Package
+        shell: bash
+        run: poetry run python setup.py install
+
       - name: Pytest run
         shell: bash
         run: poetry run pytest -v tests
