@@ -68,7 +68,7 @@ class TestGraphql(BaseCliTest):
             },
         )
 
-    def test_executor_no_snippet(self):
+    def test_grpahql_executor_via_cli(self):
         snippet = """
 {
     accounts (
