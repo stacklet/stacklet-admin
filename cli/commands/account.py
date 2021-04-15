@@ -11,7 +11,6 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     snippet = """
         query {
           accounts(
-            provider: $provider
             first: $first
             last: $last
             before: "$before"
@@ -37,12 +36,6 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
         }
     """
     pagination = True
-    required = {
-        "provider": {
-            "help": "Cloud Provider",
-            "type": click.Choice(["AWS", "GCP", "Azure", "Kubernetes"]),
-        }
-    }
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
