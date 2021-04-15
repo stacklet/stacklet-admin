@@ -12,7 +12,7 @@ class Formatter:
 @Formatter.registry.register("plain")
 class RawFormatter(Formatter):
     def __call__(self, value):
-        return value
+        return str(value)
 
 
 @Formatter.registry.register("json")
