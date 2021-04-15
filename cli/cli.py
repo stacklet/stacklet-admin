@@ -27,7 +27,7 @@ def cli():
 
     Run your first query:
 
-        $ stacklet account list
+        $ stacklet account list --provider AWS
 
     To specify a different configuration file or different API endpoint/Cognito Configuration:
 
@@ -48,7 +48,7 @@ def cli():
 
     Specify different output types:
 
-        $ stacklet account --output json list
+        $ stacklet account --output json list --provider AWS
 
     Stacklet queries default to 20 entries per page. To use pagiantion:
 
@@ -63,7 +63,7 @@ def cli():
     You can also use Stacklet CLI to run Cloud Custodian commands:
 
     \b
-        $ stacklet custodian schema aws
+        $ stacklet custodian -h
     """
     pass
 
