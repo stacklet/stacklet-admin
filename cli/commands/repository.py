@@ -66,3 +66,13 @@ def add(ctx, **kwargs):
     Add a Policy Repository to Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))
+
+
+@repository.command()
+@snippet_options("process-repository")
+@click.pass_context
+def process(ctx, **kwargs):
+    """
+    Process a Policy Repository in Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="process-repository", variables=kwargs))
