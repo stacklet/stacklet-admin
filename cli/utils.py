@@ -6,76 +6,75 @@ import click
 from cli.context import StackletContext
 from cli.formatter import Formatter
 
-_DEFAULT_OPTIONS = [
-    click.option(
-        "--config", default=StackletContext.DEFAULT_CONFIG, help="Config File Location"
-    ),
-    click.option(
-        "--output",
-        type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-        default=StackletContext.DEFAULT_OUTPUT,
-        help="Ouput type",
-    ),
-    click.option(
-        "--cognito-user-pool-id",
-        default="",
-        help=(
+_DEFAULT_OPTIONS = {
+    "config": {"default": "", "help": ""},
+    "output": {
+        "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
+        "default": StackletContext.DEFAULT_OUTPUT,
+        "help": "Ouput type",
+    },
+    "cognito_user_pool_id": {
+        "help": (
             "If set, --cognito-user-pool-id, --cognito-client-id, "
             "--cognito-region, and --api must also be set."
-        ),
-    ),
-    click.option(
-        "--cognito-client-id",
-        default="",
-        help=(
+        )
+    },
+    "cognito_client_id": {
+        "help": (
             "If set, --cognito-user-pool-id, --cognito-client-id, "
             "--cognito-region, and --api must also be set."
-        ),
-    ),
-    click.option(
-        "--cognito-region",
-        default="",
-        help=(
+        )
+    },
+    "cognito_region": {
+        "help": (
             "If set, --cognito-user-pool-id, --cognito-client-id, "
             "--cognito-region, and --api must also be set."
-        ),
-    ),
-    click.option(
-        "--api",
-        default="",
-        help=(
+        )
+    },
+    "api": {
+        "help": (
             "If set, --cognito-user-pool-id, --cognito-client-id, "
             "--cognito-region, and --api must also be set."
-        ),
-    ),
-    click.option(
-        "--first",
-        default="20",
-        help="For use with pagination.",
-    ),
-    click.option(
-        "--last",
-        default="20",
-        help="For use with pagination.",
-    ),
-    click.option(
-        "--before",
-        default="",
-        help="For use with pagination.",
-    ),
-    click.option(
-        "--after",
-        default="",
-        help="For use with pagination.",
-    ),
-    click.option(
-        "-v",
-        "--verbose",
-        default=0,
-        count=True,
-        help="Verbosity level, increase verbosity by appending v, e.g. -vvv",
-    ),
-]
+        )
+    },
+    "-v": {
+        "count": True,
+        "default": 0,
+        "help": "Verbosity level, increase verbosity by appending v, e.g. -vvv",
+    },
+}
+
+_PAGINATION_OPTIONS = {
+    "first": {"help": "For use with pagination.", "default": "20"},
+    "last": {"help": "For use with pagination.", "default": "20"},
+    "before": {"help": "For use with pagination.", "default": ""},
+    "after": {"help": "For use with pagination.", "default": ""},
+}
+
+
+def wrap_command(func, options, required=False, prompt=False):
+    for name, details in options.items():
+        if not name.startswith("-"):
+            name = f'--{name.replace("_", "-")}'
+        if isinstance(details, str):
+            click.option(
+                name,
+                required=required,
+                help=details,
+                prompt=prompt,
+            )(func)
+        elif isinstance(details, dict):
+            click.option(
+                name,
+                required=required,
+                prompt=prompt,
+                **details,
+            )(func)
+        else:
+            raise Exception(
+                "Options should be of type str or dict, got %s" % type(details)
+            )
+    return func
 
 
 def get_token():
@@ -88,8 +87,7 @@ def get_token():
 
 def default_options(*args, **kwargs):
     def wrapper(func):
-        for o in _DEFAULT_OPTIONS:
-            o(func)
+        wrap_command(func, _DEFAULT_OPTIONS, required=False, prompt=False)
         return func
 
     return wrapper
@@ -112,13 +110,9 @@ def click_group_entry(
     cognito_client_id,
     cognito_region,
     api,
-    first,
-    last,
-    before,
-    after,
-    verbose,
+    v,
 ):
-    logging.basicConfig(level=get_log_level(verbose))
+    logging.basicConfig(level=get_log_level(v))
     ctx.ensure_object(dict)
     config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
     if any(config_items) and not all(config_items):
@@ -128,12 +122,6 @@ def click_group_entry(
         )
     ctx.obj["config"] = config
     ctx.obj["output"] = output
-    ctx.obj["page_variables"] = {
-        "first": first,
-        "last": last,
-        "before": before,
-        "after": after,
-    }
     ctx.obj["raw_config"] = {
         "cognito_user_pool_id": cognito_user_pool_id,
         "cognito_client_id": cognito_client_id,

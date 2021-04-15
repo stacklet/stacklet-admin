@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "cli"
+name = "stacklet.cli"
 version = "0.1.0"
 description = "Stacklet CLI"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
 
 [tool.poetry.scripts]
-stacklet = "cli.cli:cli"
+stacklet-admin = "cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.8"

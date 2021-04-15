@@ -15,7 +15,6 @@ class AdminCliTest(BaseCliTest):
         res = self.runner.invoke(
             self.cli,
             [
-                "admin",
                 "configure",
                 "--api=baz",
                 "--region=us-east-1",
@@ -35,7 +34,6 @@ class AdminCliTest(BaseCliTest):
         res = self.runner.invoke(
             self.cli,
             [
-                "admin",
                 f"--config={file_location.name}",
                 "show",
             ],

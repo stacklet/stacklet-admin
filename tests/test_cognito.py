@@ -68,7 +68,6 @@ class CognitoUserManagerTest(TestCase):
         res = self.runner.invoke(
             self.cli,
             [
-                "admin",
                 "--api=mock://stacklet.acme.org/api",
                 f"--cognito-region={self.region}",
                 f"--cognito-user-pool-id={self.cognito_user_pool_id}",
