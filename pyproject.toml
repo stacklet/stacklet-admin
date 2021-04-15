@@ -15,6 +15,7 @@ jsonschema = "^3.2.0"
 c7n = "^0.9.11"
 PyYAML = "^5.4.1"
 pyaml = "^20.4.0"
+click-help-colors = "^0.9"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.0"
