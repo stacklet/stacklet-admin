@@ -24,7 +24,9 @@ def graphql(*args, **kwargs):
 def run(ctx, snippet):
     if isinstance(snippet, io.IOBase):
         snippet = snippet.read()
-    stacklet_snippet = StackletGraphqlSnippet(name="adhoc", snippet=snippet)
+    stacklet_snippet = StackletGraphqlSnippet(
+        name="adhoc", snippet=snippet, variables=ctx.obj["page_variables"]
+    )
     click.echo(
         _run_graphql(ctx=ctx, name=None, variables=None, snippet=stacklet_snippet)
     )

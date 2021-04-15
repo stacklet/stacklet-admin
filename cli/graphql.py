@@ -59,6 +59,9 @@ class StackletGraphqlSnippet:
         if snippet:
             self.snippet = snippet
 
+        if variables is None:
+            variables = {}
+
         self.log = logging.getLogger("StackletGraphqlSnippet")
 
         # usage of string.Template is key here to prevent the need to use

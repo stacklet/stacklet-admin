@@ -91,7 +91,6 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None):
                 "No snippet found, got name:%s snippet:%s" % (name, registry_snippet)
             )
 
-        variables.update(ctx.obj["page_variables"])
         res = executor.run(snippet=snippet, variables=variables)
 
         fmt = Formatter.registry.get(ctx.obj["output"])()
