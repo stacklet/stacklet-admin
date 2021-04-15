@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
-from cli.formatter import RawFormatter, JsonFormatter, YamlFormatter
+from cli.formatter import JsonFormatter, RawFormatter, YamlFormatter
 from cli.utils import get_log_level, get_token
 
 
