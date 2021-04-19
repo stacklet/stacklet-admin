@@ -4,9 +4,9 @@ import boto3
 from click.testing import CliRunner
 from moto import mock_cognitoidp
 
-from cli.cli import cli
-from cli.cognito import CognitoUserManager
-from cli.context import StackletContext
+from stacklet_cli.cli import cli
+from stacklet_cli.cognito import CognitoUserManager
+from stacklet_cli.context import StackletContext
 
 
 class CognitoUserManagerTest(TestCase):
@@ -68,7 +68,6 @@ class CognitoUserManagerTest(TestCase):
         res = self.runner.invoke(
             self.cli,
             [
-                "admin",
                 "--api=mock://stacklet.acme.org/api",
                 f"--cognito-region={self.region}",
                 f"--cognito-user-pool-id={self.cognito_user_pool_id}",

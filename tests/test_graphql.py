@@ -3,7 +3,7 @@ from unittest.mock import patch
 from utils import BaseCliTest, get_executor_adapter
 
 
-class TestGraphql(BaseCliTest):
+class GraphqlTest(BaseCliTest):
     def test_executor_run(self):
         executor, adapter = get_executor_adapter()
         self.assertEqual(executor.token, "foo")
@@ -100,8 +100,8 @@ class TestGraphql(BaseCliTest):
             },
         )
 
-        with patch("cli.executor.requests.Session", autospec=True) as patched:
-            with patch("cli.executor.get_token", return_value="foo"):
+        with patch("stacklet_cli.executor.requests.Session", autospec=True) as patched:
+            with patch("stacklet_cli.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,

@@ -1,8 +1,8 @@
 import click
 
-from cli.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from cli.graphql import StackletGraphqlSnippet
-from cli.utils import click_group_entry, default_options
+from stacklet_cli.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from stacklet_cli.graphql import StackletGraphqlSnippet
+from stacklet_cli.utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-accounts")
@@ -11,7 +11,6 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     snippet = """
         query {
           accounts(
-            provider: $provider
             first: $first
             last: $last
             before: "$before"
@@ -37,12 +36,6 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
         }
     """
     pagination = True
-    required = {
-        "provider": {
-            "help": "Cloud Provider",
-            "type": click.Choice(["AWS", "GCP", "Azure", "Kubernetes"]),
-        }
-    }
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
