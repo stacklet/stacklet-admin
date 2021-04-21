@@ -1,26 +1,25 @@
 <script>
-	var hash = window.location.hash.substring(1);
-	var params = {}
-			hash.split('&').map(hk => {
-				let temp = hk.split('=');
-					params[temp[0]] = temp[1]
-			});
+  var hash = window.location.hash.substring(1);
+  var params = {}
+  hash.split('&').map(hk => {
+    let temp = hk.split('=');
+    params[temp[0]] = temp[1]
+  });
   postParams = {
-		body: params.access_token,
-		method: "POST"
-	}
-	fetch(
-		"http://localhost:3000/save", postParams)
-		.then(function (response) {
-			return response.json();
-		})
-		.then(function (myJson) {
-			console.log(myJson.ip);
-		})
-		.catch(function (error) {
-			console.log("Error: " + error);
-		});
+    body: params.access_token,
+    method: "POST"
+  }
+
+  fetch(
+    "http://localhost:3000", postParams)
+    .then(function (response) {
+      return response.json();
+    })
+    .catch(function (error) {
+      console.log("Error: " + error);
+    });
 </script>
+
 <body>
-success
+  success
 </body>
