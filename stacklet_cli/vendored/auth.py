@@ -14,8 +14,6 @@ from stacklet_cli.context import StackletContext
 
 logger = logging.getLogger()
 
-_CLIENT_ID = "jgimqcumvpt73vi6uq6eda7p6"
-
 
 def _get_platform_info():
     uname = platform.uname()
