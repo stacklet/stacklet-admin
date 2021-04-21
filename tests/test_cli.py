@@ -20,6 +20,8 @@ class AdminCliTest(BaseCliTest):
                 "--region=us-east-1",
                 "--cognito-user-pool-id=foo",
                 "--cognito-client-id=bar",
+                "--idp-id=foo",
+                "--auth-url=bar",
                 f"--location={file_location.name}",
             ],
         )
@@ -30,6 +32,8 @@ class AdminCliTest(BaseCliTest):
         self.assertEqual(config["region"], "us-east-1")
         self.assertEqual(config["cognito_user_pool_id"], "foo")
         self.assertEqual(config["cognito_client_id"], "bar")
+        self.assertEqual(config["idp_id"], "foo")
+        self.assertEqual(config["auth_url"], "bar")
 
         res = self.runner.invoke(
             self.cli,
