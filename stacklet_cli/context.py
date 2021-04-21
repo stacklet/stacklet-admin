@@ -23,3 +23,12 @@ class StackletContext:
 
     def __exit__(self, type, value, traceback):
         return
+
+    def can_sso_login(self):
+        return all(
+            [
+                self.config.idp_id,
+                self.config.auth_url,
+                self.config.cognito_client_id,
+            ]
+        )

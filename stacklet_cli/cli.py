@@ -78,6 +78,8 @@ def cli(*args, **kwargs):
 @click.option("--region", prompt="Cognito Region")
 @click.option("--cognito-client-id", prompt="Cognito User Pool Client ID")
 @click.option("--cognito-user-pool-id", prompt="Cognito User Pool ID")
+@click.option("--idp-id", prompt="(SSO) IDP ID")
+@click.option("--auth-url", prompt="(SSO) Auth Url")
 @click.option(
     "--location", prompt="Config File Location", default="~/.stacklet/config.json"
 )  # noqa
@@ -88,6 +90,8 @@ def configure(
     region,
     cognito_client_id,
     cognito_user_pool_id,
+    idp_id,
+    auth_url,
     location,
 ):
     """
@@ -98,6 +102,8 @@ def configure(
         "region": region,
         "cognito_client_id": cognito_client_id,
         "cognito_user_pool_id": cognito_user_pool_id,
+        "idp_id": idp_id,
+        "auth_url": auth_url,
     }
 
     StackletConfig.validate(config)
@@ -139,11 +145,26 @@ def show(ctx):
 
 
 @cli.command()
-@click.option("--username", prompt="Username")
-@click.option("--password", prompt="Password", hide_input=True)
+@click.option("--username", required=False)
+@click.option("--password", hide_input=True, required=False)
+@click.option("--sso", required=False, default=False, is_flag=True)
 @click.pass_context
-def login(ctx, username, password):
+def login(ctx, username, password, sso):
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
+        if sso and context.can_sso_login():
+            from stacklet_cli.vendored.auth import _get_authorization_code_worker
+
+            _get_authorization_code_worker(
+                authority_url=context.config.auth_url,
+                client_id=context.config.cognito_client_id,
+                idp_id=context.config.idp_id,
+            )
+            return
+        elif sso and not context.can_sso_login():
+            click.echo(
+                "To login with SSO ensure that your configuration includes idp_id, auth_url, and cognito_client_id values"  # noqa
+            )
+            raise Exception()
         if username == "" and context.config.username is None:
             raise Exception("No username specified")
         manager = CognitoUserManager.from_context(context)
