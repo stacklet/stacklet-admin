@@ -55,6 +55,8 @@ class StackletConfig:
             cognito_user_pool_id=self.cognito_user_pool_id,
             cognito_client_id=self.cognito_client_id,
             region=self.region,
+            idp_id=self.idp_id,
+            auth_url=self.auth_url,
         )
 
     @classmethod
