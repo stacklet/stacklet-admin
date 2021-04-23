@@ -82,6 +82,16 @@ def cli(*args, **kwargs):
 @click.option("--idp-id", prompt="(SSO) IDP ID", default="")
 @click.option("--auth-url", prompt="(SSO) Auth Url", default="")
 @click.option(
+    "--local-cert",
+    prompt="(SSO) localhost certficate",
+    default="~/.stacklet/localhost.pem",
+)
+@click.option(
+    "--local-cert-key",
+    prompt="(SSO) localhost certificate key",
+    default="~/.stacklet/localhost-key.pem",
+)
+@click.option(
     "--location", prompt="Config File Location", default="~/.stacklet/config.json"
 )  # noqa
 @click.pass_context
@@ -93,6 +103,8 @@ def configure(
     cognito_user_pool_id,
     idp_id,
     auth_url,
+    local_cert,
+    local_cert_key,
     location,
 ):
     """
@@ -105,6 +117,8 @@ def configure(
         "cognito_user_pool_id": cognito_user_pool_id,
         "idp_id": idp_id,
         "auth_url": auth_url,
+        "local_cert": local_cert,
+        "local_cert_key": local_cert_key,
     }
 
     StackletConfig.validate(config)
@@ -157,9 +171,13 @@ def login(ctx, username, password):
             from stacklet_cli.vendored.auth import BrowserAuthenticator
 
             BrowserAuthenticator(
+                # TODO: change this to the proper url (/cli_login)
+                redirect_uri=context.config.api + "/ok.html",
                 authority_url=context.config.auth_url,
                 client_id=context.config.cognito_client_id,
                 idp_id=context.config.idp_id,
+                certificate=context.config.local_cert,
+                certificate_key=context.config.local_cert_key,
             )()
             return
         elif not context.can_sso_login() and not any([username, password]):
