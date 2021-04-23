@@ -10,7 +10,7 @@ _DEFAULT_OPTIONS = {
     "config": {"default": "", "help": ""},
     "output": {
         "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-        "default": StackletContext.DEFAULT_OUTPUT,
+        "default": "",
         "help": "Ouput type",
     },
     "cognito_user_pool_id": {
@@ -112,7 +112,11 @@ def click_group_entry(
     api,
     v,
 ):
-    logging.basicConfig(level=get_log_level(v))
+    logging.basicConfig()
+    root_handler = logging.getLogger()
+    if v != 0:
+        root_handler.setLevel(level=get_log_level(v))
+
     ctx.ensure_object(dict)
     config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
     if any(config_items) and not all(config_items):
@@ -120,11 +124,18 @@ def click_group_entry(
             "All options must be set for config items: --cognito-user-pool-id, "
             + "--cognito-client-id, --cognito-region, and --api"
         )
-    ctx.obj["config"] = config
-    ctx.obj["output"] = output
-    ctx.obj["raw_config"] = {
-        "cognito_user_pool_id": cognito_user_pool_id,
-        "cognito_client_id": cognito_client_id,
-        "region": cognito_region,
-        "api": api,
-    }
+    # inherit the parent's configs if they exist
+    ctx.obj.setdefault("config", ctx.obj.get("config", StackletContext.DEFAULT_CONFIG))
+    ctx.obj.setdefault("output", ctx.obj.get("output", StackletContext.DEFAULT_OUTPUT))
+    ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
+    if config:
+        ctx.obj["config"] = config
+    if output:
+        ctx.obj["output"] = output
+    if all(config_items):
+        ctx.obj["raw_config"] = {
+            "cognito_user_pool_id": cognito_user_pool_id,
+            "cognito_client_id": cognito_client_id,
+            "region": cognito_region,
+            "api": api,
+        }

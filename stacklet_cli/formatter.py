@@ -9,6 +9,12 @@ class Formatter:
     registry = PluginRegistry("formats")
 
 
+@Formatter.registry.register("")
+class NullFormatter(Formatter):
+    def __call__(self, value):
+        raise NotImplementedError("Null Formatter")
+
+
 @Formatter.registry.register("plain")
 class RawFormatter(Formatter):
     def __call__(self, value):

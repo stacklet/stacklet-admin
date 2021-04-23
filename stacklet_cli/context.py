@@ -11,7 +11,7 @@ class StackletContext:
     DEFAULT_OUTPUT = "yaml"
 
     def __init__(self, config=None, raw_config=None):
-        if all(list(raw_config.values())):
+        if len(raw_config.values()) != 0:
             self.config = StackletConfig(**raw_config)
         elif config:
             self.config = StackletConfig.from_file(config)
