@@ -37,6 +37,9 @@ from stacklet_cli.context import StackletContext
 logger = logging.getLogger()
 
 
+CLI_REDIRECT_PORT = 43210
+
+
 def _get_platform_info():
     uname = platform.uname()
     # python 2, `platform.uname()` returns:
@@ -155,24 +158,23 @@ def _get_authorization_code_worker(authority_url, client_id, idp_id):
         logger.debug("WSL is detected. Set HTTPServer.allow_reuse_address to False")
         ClientRedirectServer.allow_reuse_address = False
 
-    port = 3000
+    # we reserve this port for stacklet cli communication, cognito user client must also allow
+    # redirect back to http://localhost:CLI_REDIRECT_PORT
     try:
-        web_server = ClientRedirectServer(("localhost", port), ClientRedirectHandler)
-        reply_url = "http://localhost:{}".format(port)
+        web_server = ClientRedirectServer(
+            ("localhost", CLI_REDIRECT_PORT), ClientRedirectHandler
+        )
+        reply_url = "http://localhost:{}".format(CLI_REDIRECT_PORT)
     except socket.error as ex:
-        logger.warning(
-            "Port '%s' is taken with error '%s'. Trying with the next one", port, ex
+        raise Exception(
+            "Port '%s' is taken with error '%s'. Ensure that port 63143 is open"
+            % (CLI_REDIRECT_PORT, ex)
         )
     except UnicodeDecodeError:
         logger.warning(
             "Please make sure there is no international (Unicode) character in the computer "
-            r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries. "
-            "For more details, please see https://github.com/Azure/azure-cli/issues/12957"
+            r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries."
         )
-
-    if reply_url is None:
-        logger.warning("Error: can't reserve a port for authentication reply url")
-        return
 
     # launch browser:
     url = "{0}/oauth2/authorize?response_type=token&client_id={1}&redirect_uri={2}&scope=email+openid&idp_identifier={3}"  # noqa

@@ -147,12 +147,11 @@ def show(ctx):
 @cli.command()
 @click.option("--username", required=False)
 @click.option("--password", hide_input=True, required=False)
-@click.option("--sso", required=False, default=False, is_flag=True)
 @click.pass_context
-def login(ctx, username, password, sso):
+def login(ctx, username, password):
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         # sso login
-        if sso and context.can_sso_login():
+        if context.can_sso_login() and not any([username, password]):
             from stacklet_cli.vendored.auth import _get_authorization_code_worker
 
             _get_authorization_code_worker(
@@ -161,16 +160,16 @@ def login(ctx, username, password, sso):
                 idp_id=context.config.idp_id,
             )
             return
-        elif sso and not context.can_sso_login():
+        elif not context.can_sso_login() and not any([username, password]):
             click.echo(
                 "To login with SSO ensure that your configuration includes "
-                + "idp_id, auth_url, and cognito_client_id values."
+                + "auth_url, and cognito_client_id values."
             )
             raise Exception()
 
         # handle login with username/password
         if not username:
-            raise Exception("No username specified")
+            password = click.prompt("Username")
         if not password:
             password = click.prompt("Password", hide_input=True)
         manager = CognitoUserManager.from_context(context)
