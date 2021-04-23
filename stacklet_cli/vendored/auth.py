@@ -1,9 +1,5 @@
 """
-Vendored and modified from Azure CLI
-
-https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core/_profile.py
-https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core/util.py
-"""
+Vendored and refactored from Azure CLI
 
 # MIT License
 #
@@ -27,195 +23,238 @@ https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core/_profile.py
+https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core/util.py
+"""
 
+import http.server
+import json
 import logging
 import os
 import platform
+import socket
+import subprocess
+import urllib
+import webbrowser
 
 import click
 
-from stacklet_cli.context import StackletContext
-
-logger = logging.getLogger()
+from stacklet_cli.context import StackletContext, StackletCredentialWriter
 
 
-CLI_REDIRECT_PORT = 43210
+class ClientRedirectServer(http.server.HTTPServer):
+    query_params = {}
+
+    def __init__(
+        self, auth_url, server_address, RequestHandlerClass, bind_and_activate=True
+    ):
+        super().__init__(server_address, RequestHandlerClass, bind_and_activate)
+        self.log = logging.getLogger("ClientRedirectServer")
+        self.completed = False
+
+        self.auth_url = auth_url
+
+        RequestHandlerClass.auth_url = self.auth_url
+
+        # On Windows, HTTPServer by default doesn't throw error if the port is in-use
+        # https://github.com/Azure/azure-cli/issues/10578
+        if BrowserAuthenticator.is_windows():
+            self.log.debug(
+                "Windows is detected. Set HTTPServer.allow_reuse_address to False"
+            )
+            self.allow_reuse_address = False
+        elif BrowserAuthenticator.is_wsl():
+            self.log.debug(
+                "WSL is detected. Set HTTPServer.allow_reuse_address to False"
+            )
+            self.allow_reuse_address = False
 
 
-def _get_platform_info():
-    uname = platform.uname()
-    # python 2, `platform.uname()` returns:
-    # tuple(system, node, release, version, machine, processor)
-    platform_name = getattr(uname, "system", None) or uname[0]
-    release = getattr(uname, "release", None) or uname[2]
-    return platform_name.lower(), release.lower()
+class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
+    def get_request_body(self):
+        token = self.rfile.read(int(self.headers["Content-length"]))
+        res = token.decode("utf-8")
+        return res
+
+    def do_GET(self):
+        self.route_stacklet_auth_shortlink()
+        self.route_favicon()
+        self.route_index()
+
+    def do_POST(self):
+        res = self.get_request_body()
+        res = json.loads(res)
+        StackletCredentialWriter(res["access_token"])()
+        StackletCredentialWriter(res["id_token"], StackletContext.DEFAULT_ID)()
+        self.send_response(200)
+        self.server.completed = True
+
+    def route_stacklet_auth_shortlink(self):
+        """
+        Provides a short link for users to copy and paste into the browser more easily
+
+            http://localhost:43210/stacklet_auth
+
+        """
+        if self.path == "/stacklet_auth":
+            # moved temporarily as to prevent the browser from caching the result page
+            self.send_response(302)
+            self.send_header("Location", self.auth_url)
+            self.end_headers()
+            return
+
+    def route_favicon(self):
+        # deal with legacy IE
+        if self.path.endswith("/favicon.ico"):
+            self.send_response(204)
+            return
+
+    def route_index(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+
+        landing_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "auth_landing_pages",
+            "ok.html",
+        )
+        with open(landing_file, "rb") as html_file:
+            self.wfile.write(html_file.read())
+
+    def log_message(self, format, *args):
+        """
+        Prevent http server from dumping messages to stdout
+        """
 
 
-def is_wsl():
-    platform_name, release = _get_platform_info()
-    # "Official" way of detecting WSL:
-    # https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
-    # Run `uname -a` to get 'release' without python
-    #   - WSL 1: '4.4.0-19041-Microsoft'
-    #   - WSL 2: '4.19.128-microsoft-standard'
-    return platform_name == "linux" and "microsoft" in release
+class BrowserAuthenticator:
+    """
+    Handle browser authentication for CLI
+    """
 
+    # due to limitations with cognito and defining redirect targets in the cognito
+    # client, we have to hard code a port for our own usage.
+    CLI_REDIRECT_PORT = 43210
 
-def is_windows():
-    platform_name, _ = _get_platform_info()
-    return platform_name == "windows"
+    REDIRECT_URI = f"http://localhost:{CLI_REDIRECT_PORT}"
+    SHORT_LINK = f"http://localhost:{CLI_REDIRECT_PORT}/stacklet_auth"
 
+    def __init__(self, authority_url, client_id, idp_id=""):
+        self.authority_url = authority_url
+        self.client_id = client_id
+        self.idp_id = idp_id
+        self.auth_url = self.build_url()
+        self.log = logging.getLogger("StackletBrowserAuthenticator")
 
-def open_page_in_browser(url):
-    import subprocess
-    import webbrowser
+    def build_url(self):
+        """
+        Build the full auth url with the required query parameters
+        """
 
-    platform_name, _ = _get_platform_info()
+        auth_url = f"{self.authority_url}/oauth2/authorize"
+        parts = list(urllib.parse.urlparse(auth_url))
+        # query params are found at index 4 of the parsed url
+        parts[4] = urllib.parse.urlencode(
+            {
+                "response_type": "token",
+                "redirect_uri": self.REDIRECT_URI,
+                "client_id": self.client_id,
+                "scope": "email+openid",
+                "idp_identifier": self.idp_id,
+            }
+        )
+        return urllib.parse.unquote(urllib.parse.urlunparse(parts))
 
-    if is_wsl():  # windows 10 linux subsystem
-        try:
+    @staticmethod
+    def _get_platform_info():
+        uname = platform.uname()
+        # python 2, `platform.uname()` returns:
+        # tuple(system, node, release, version, machine, processor)
+        platform_name = getattr(uname, "system", None) or uname[0]
+        release = getattr(uname, "release", None) or uname[2]
+        return platform_name.lower(), release.lower()
+
+    @staticmethod
+    def is_wsl():
+        platform_name, release = BrowserAuthenticator._get_platform_info()
+        # "Official" way of detecting WSL:
+        # https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
+        # Run `uname -a` to get 'release' without python
+        #   - WSL 1: '4.4.0-19041-Microsoft'
+        #   - WSL 2: '4.19.128-microsoft-standard'
+        return platform_name == "linux" and "microsoft" in release
+
+    @staticmethod
+    def is_windows():
+        platform_name, _ = BrowserAuthenticator._get_platform_info()
+        return platform_name == "windows"
+
+    @staticmethod
+    def is_macos():
+        platform_name, _ = BrowserAuthenticator._get_platform_info()
+        return platform_name == "darwin"
+
+    @staticmethod
+    def open_page_in_browser(url):
+        # windows 10 linux subsystem
+        if BrowserAuthenticator.is_wsl():
             # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_powershell_exe
             # Ampersand (&) should be quoted
-            return subprocess.Popen(
-                ["powershell.exe", "-Command", 'Start-Process "{}"'.format(url)]
-            )
-        except OSError:  # WSL might be too old  # FileNotFoundError introduced in Python 3
-            pass
-    elif platform_name == "darwin":
-        # handle 2 things:
-        # a. On OSX sierra,
-        #   'python -m webbrowser -t <url>' emits out "execution error: <url> doesn't
-        #    understand the "open location" message"
-        # b. Python 2.x can't sniff out the default browser
-        return subprocess.Popen(["open", url])
-    try:
-        return webbrowser.open(url, new=2)  # 2 means: open in a new tab, if possible
-    except TypeError:  # See https://bugs.python.org/msg322439
-        return webbrowser.open(url, new=2)
-
-
-def _get_authorization_code_worker(authority_url, client_id, idp_id):
-    # pylint: disable=too-many-statements
-    import http.server
-    import socket
-
-    class ClientRedirectServer(
-        http.server.HTTPServer
-    ):  # pylint: disable=too-few-public-methods
-        query_params = {}
-        completed = False
-
-    class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
-        # pylint: disable=line-too-long
-
-        def do_GET(self):
-            if self.path == "/stacklet_auth":
-                self.send_response(301)
-                self.send_header("Location", auth_url)
-                self.end_headers()
-                return
             try:
-                from urllib.parse import parse_qs
-            except ImportError:
-                from urlparse import parse_qs  # pylint: disable=import-error
+                return subprocess.Popen(
+                    ["powershell.exe", "-Command", 'Start-Process "{}"'.format(url)]
+                )
+            # WSL might be too old
+            # FileNotFoundError introduced in Python 3
+            except OSError:
+                pass
+        elif BrowserAuthenticator.is_macos():
+            # handle 2 things:
+            # a. On OSX sierra,
+            #   'python -m webbrowser -t <url>' emits out "execution error: <url> doesn't
+            #    understand the "open location" message"
+            # b. Python 2.x can't sniff out the default browser
+            return subprocess.Popen(["open", url])
 
-            if self.path.endswith("/favicon.ico"):  # deal with legacy IE
-                self.send_response(204)
-                return
+        try:
+            # 2 means: open in a new tab, if possible
+            return webbrowser.open(url, new=2)
+        except TypeError:
+            # See https://bugs.python.org/msg322439
+            return webbrowser.open(url, new=2)
 
-            query = self.path.split("?", 1)[-1]
-            query = parse_qs(query, keep_blank_values=True)
-            self.server.query_params = query
-            self.server.url = self.path
-
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-
-            landing_file = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)),
-                "auth_landing_pages",
-                "ok.html",
+    def __call__(self):
+        try:
+            self.log.debug(f"Full Auth URL: {self.auth_url}")
+            web_server = ClientRedirectServer(
+                auth_url=self.auth_url,
+                server_address=("localhost", self.CLI_REDIRECT_PORT),
+                RequestHandlerClass=ClientRedirectHandler,
             )
-            with open(landing_file, "rb") as html_file:
-                self.wfile.write(html_file.read())
-
-        def do_POST(self):
-            token = self.rfile.read(int(self.headers["Content-length"]))
-            res = token.decode("utf-8")
-            with open(
-                os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+"
-            ) as f:  # noqa
-                f.write(res)
-            ClientRedirectServer.completed = True
-
-        def log_message(
-            self, format, *args
-        ):  # pylint: disable=redefined-builtin,unused-argument,no-self-use
-            pass  # this prevent http server from dumping messages to stdout
-
-    reply_url = None
-
-    # On Windows, HTTPServer by default doesn't throw error if the port is in-use
-    # https://github.com/Azure/azure-cli/issues/10578
-    if is_windows():
-        logger.debug("Windows is detected. Set HTTPServer.allow_reuse_address to False")
-        ClientRedirectServer.allow_reuse_address = False
-    elif is_wsl():
-        logger.debug("WSL is detected. Set HTTPServer.allow_reuse_address to False")
-        ClientRedirectServer.allow_reuse_address = False
-
-    # we reserve this port for stacklet cli communication, cognito user client must also allow
-    # redirect back to http://localhost:CLI_REDIRECT_PORT
-    try:
-        web_server = ClientRedirectServer(
-            ("localhost", CLI_REDIRECT_PORT), ClientRedirectHandler
-        )
-        reply_url = "http://localhost:{}".format(CLI_REDIRECT_PORT)
-    except socket.error as ex:
-        raise Exception(
-            "Port '%s' is taken with error '%s'. Ensure that port 63143 is open"
-            % (CLI_REDIRECT_PORT, ex)
-        )
-    except UnicodeDecodeError:
-        logger.warning(
-            "Please make sure there is no international (Unicode) character in the computer "
-            r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries."
-        )
-
-    # Create a short link that redirects to the long oauth link for ease of copy/paste if browser
-    # doesn't open correctly
-    short_link = "http://localhost:43210/stacklet_auth"
-
-    global auth_url
-
-    auth_url = "{0}/oauth2/authorize?response_type=token&client_id={1}&redirect_uri={2}&scope=email+openid&idp_identifier={3}"  # noqa
-    auth_url = auth_url.format(authority_url, client_id, reply_url, idp_id)
-
-    logger.info("Open browser with url: %s", auth_url)
-    click.echo(
-        f"Opening page in browser, if the browser does not automatically open, copy and paste this url into your browser:\n\n{short_link}\n"  # noqa
-    )
-    succ = open_page_in_browser(short_link)
-    if succ is False:
-        web_server.server_close()
-        return
-
-    # Emit a warning to inform that a browser is opened.
-    # Only show the path part of the URL and hide the query string.
-    logger.warning(
-        "The default web browser has been opened at %s. Please continue the login in the web "
-        "browser. Please login through the web browser. Your token will be automatically saved."
-        % auth_url.split("?")[0],
-    )
-
-    # wait for callback from browser.
-    while True:
-        web_server.handle_request()
-        if web_server.completed:
-            logger.warning("Login successful.")
-            logger.warning(
-                "Credentials written to %s" % StackletContext.DEFAULT_CREDENTIALS
+        except socket.error:
+            raise Exception(
+                f"Port '{self.CLI_REDIRECT_PORT}' is taken with error '%s'. "
+                "Ensure that port {self.CLI_REDIRECT_PORT} is open"
             )
-            click.echo("Login Succeeded")
-            break
+        except UnicodeDecodeError:
+            self.log.warning(
+                "Please make sure there is no international (Unicode) character in the computer "
+                r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries."
+            )
+
+        self.log.info("Open browser with url: %s", self.SHORT_LINK)
+        click.echo(
+            "Opening page in browser, if the browser does not automatically open, "
+            f"copy and paste this url into your browser:\n\n{self.SHORT_LINK}\n"
+        )
+
+        if self.open_page_in_browser(self.SHORT_LINK) is False:
+            web_server.server_close()
+            return
+
+        # wait for callback from browser.
+        while not web_server.completed:
+            web_server.handle_request()
+
+        click.echo("Login Succeeded")

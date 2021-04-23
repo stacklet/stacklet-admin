@@ -26,7 +26,7 @@ Saved config to ~/.stacklet/config.json
 Then, create a user and follow the prompts and ensure that you have AWS SSO credentials:
 
 ```
-$ stacklet-admin create-user
+$ stacklet-admin user add
 Username: test-user
 Password:
 Repeat for confirmation:

@@ -2,6 +2,7 @@ import json
 import os
 
 import click
+import jwt
 
 from stacklet_cli.cognito import CognitoUserManager
 from stacklet_cli.commands import commands
@@ -25,7 +26,7 @@ def cli(*args, **kwargs):
 
     If this is your first time using Stacklet, create a user:
 
-        $ stacklet-admin create-user
+        $ stacklet-admin user add
 
     Now login:
 
@@ -73,7 +74,7 @@ def cli(*args, **kwargs):
     click_group_entry(*args, **kwargs)
 
 
-@cli.command()
+@cli.command(short_help="Configure stacklet-admin cli")
 @click.option("--api", prompt="Stacklet API endpoint")
 @click.option("--region", prompt="Cognito Region")
 @click.option("--cognito-client-id", prompt="Cognito User Pool Client ID")
@@ -118,47 +119,48 @@ def configure(
 
 
 @cli.command()
-@click.option("--username")
-@click.option(
-    "--password", prompt="Password", confirmation_prompt=True, hide_input=True
-)  # noqa
-@click.option("--email")
-@click.option("--phone-number")
-@click.pass_context
-def create_user(ctx, username, password, email, phone_number):
-    """
-    Create a user for use with Stacklet.
-    """
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        manager = CognitoUserManager.from_context(context)
-        manager.create_user(
-            user=username, password=password, email=email, phone_number=phone_number
-        )
-
-
-@cli.command()
 @click.pass_context
 def show(ctx):
+    """
+    Show your config
+    """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         fmt = Formatter.registry.get(ctx.obj["output"])()
+        if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
+            with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
+                id_details = jwt.decode(f.read(), options={"verify_signature": False})
+            click.echo(fmt(id_details))
+            click.echo()
         click.echo(fmt(context.config.to_json()))
 
 
-@cli.command()
+@cli.command(short_help="Login to Stacklet")
 @click.option("--username", required=False)
 @click.option("--password", hide_input=True, required=False)
 @click.pass_context
 def login(ctx, username, password):
+    """
+    Login to Stacklet
+
+        $ stacklet-admin login
+
+    Spawns a web browser to login via SSO or Cognito. To login with a Cognito user
+    with username and password, simply pass those options into the CLI:
+
+        $ stacklet-admin login --username my-user
+
+    If password is not passed in, your password will be prompted
+    """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         # sso login
         if context.can_sso_login() and not any([username, password]):
-            from stacklet_cli.vendored.auth import _get_authorization_code_worker
+            from stacklet_cli.vendored.auth import BrowserAuthenticator
 
-            _get_authorization_code_worker(
+            BrowserAuthenticator(
                 authority_url=context.config.auth_url,
                 client_id=context.config.cognito_client_id,
                 idp_id=context.config.idp_id,
-            )
+            )()
             return
         elif not context.can_sso_login() and not any([username, password]):
             click.echo(

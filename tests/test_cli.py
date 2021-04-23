@@ -43,8 +43,9 @@ class AdminCliTest(BaseCliTest):
             ],
         )
         self.assertEqual(res.exit_code, 0)
-        self.assertEqual(
-            "api: baz\nauth_url: bar\ncognito_client_id: bar\ncognito_user_pool_id: foo\nidp_id: foo\nregion: us-east-1\n\n",  # noqa
-            res.output,
+        self.assertTrue(
+            res.output.endswith(
+                "api: baz\nauth_url: bar\ncognito_client_id: bar\ncognito_user_pool_id: foo\nidp_id: foo\nregion: us-east-1\n\n"  # noqa
+            )
         )
         os.unlink(file_location.name)

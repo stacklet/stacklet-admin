@@ -65,7 +65,7 @@ class ListRepositorySnippet(StackletGraphqlSnippet):
     """
 
 
-@click.group()
+@click.group(short_help="Run repository queries/mutations")
 @default_options()
 @click.pass_context
 def repository(*args, **kwargs):

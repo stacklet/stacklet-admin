@@ -6,7 +6,7 @@
     params[temp[0]] = temp[1]
   });
   postParams = {
-    body: params.access_token,
+    body: JSON.stringify({"access_token": params.access_token, "id_token": params.id_token}),
     method: "POST"
   }
 
