@@ -32,6 +32,8 @@ import logging
 import os
 import platform
 
+import click
+
 from stacklet_cli.context import StackletContext
 
 logger = logging.getLogger()
@@ -107,6 +109,11 @@ def _get_authorization_code_worker(authority_url, client_id, idp_id):
         # pylint: disable=line-too-long
 
         def do_GET(self):
+            if self.path == "/stacklet_auth":
+                self.send_response(301)
+                self.send_header("Location", auth_url)
+                self.end_headers()
+                return
             try:
                 from urllib.parse import parse_qs
             except ImportError:
@@ -176,12 +183,20 @@ def _get_authorization_code_worker(authority_url, client_id, idp_id):
             r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries."
         )
 
-    # launch browser:
-    url = "{0}/oauth2/authorize?response_type=token&client_id={1}&redirect_uri={2}&scope=email+openid&idp_identifier={3}"  # noqa
-    url = url.format(authority_url, client_id, reply_url, idp_id)
+    # Create a short link that redirects to the long oauth link for ease of copy/paste if browser
+    # doesn't open correctly
+    short_link = "http://localhost:43210/stacklet_auth"
 
-    logger.info("Open browser with url: %s", url)
-    succ = open_page_in_browser(url)
+    global auth_url
+
+    auth_url = "{0}/oauth2/authorize?response_type=token&client_id={1}&redirect_uri={2}&scope=email+openid&idp_identifier={3}"  # noqa
+    auth_url = auth_url.format(authority_url, client_id, reply_url, idp_id)
+
+    logger.info("Open browser with url: %s", auth_url)
+    click.echo(
+        f"Opening page in browser, if the browser does not automatically open, copy and paste this url into your browser:\n\n{short_link}\n"  # noqa
+    )
+    succ = open_page_in_browser(short_link)
     if succ is False:
         web_server.server_close()
         return
@@ -191,7 +206,7 @@ def _get_authorization_code_worker(authority_url, client_id, idp_id):
     logger.warning(
         "The default web browser has been opened at %s. Please continue the login in the web "
         "browser. Please login through the web browser. Your token will be automatically saved."
-        % url.split("?")[0],
+        % auth_url.split("?")[0],
     )
 
     # wait for callback from browser.
@@ -202,4 +217,5 @@ def _get_authorization_code_worker(authority_url, client_id, idp_id):
             logger.warning(
                 "Credentials written to %s" % StackletContext.DEFAULT_CREDENTIALS
             )
+            click.echo("Login Succeeded")
             break

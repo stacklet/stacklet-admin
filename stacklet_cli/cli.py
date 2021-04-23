@@ -78,8 +78,8 @@ def cli(*args, **kwargs):
 @click.option("--region", prompt="Cognito Region")
 @click.option("--cognito-client-id", prompt="Cognito User Pool Client ID")
 @click.option("--cognito-user-pool-id", prompt="Cognito User Pool ID")
-@click.option("--idp-id", prompt="(SSO) IDP ID")
-@click.option("--auth-url", prompt="(SSO) Auth Url")
+@click.option("--idp-id", prompt="(SSO) IDP ID", default="")
+@click.option("--auth-url", prompt="(SSO) Auth Url", default="")
 @click.option(
     "--location", prompt="Config File Location", default="~/.stacklet/config.json"
 )  # noqa
