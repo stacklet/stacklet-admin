@@ -169,7 +169,7 @@ def login(ctx, username, password):
 
         # handle login with username/password
         if not username:
-            password = click.prompt("Username")
+            username = click.prompt("Username")
         if not password:
             password = click.prompt("Password", hide_input=True)
         manager = CognitoUserManager.from_context(context)
