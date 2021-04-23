@@ -12,11 +12,8 @@
 
   fetch(
     "http://localhost:43210", postParams)
-    .then(function (response) {
-      return response.json();
-    })
     .catch(function (error) {
-      console.log("Error: " + error);
+      close();
     });
 </script>
 
