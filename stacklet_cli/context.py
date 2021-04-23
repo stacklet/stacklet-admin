@@ -27,7 +27,6 @@ class StackletContext:
     def can_sso_login(self):
         return all(
             [
-                self.config.idp_id,
                 self.config.auth_url,
                 self.config.cognito_client_id,
             ]
