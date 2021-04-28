@@ -256,7 +256,8 @@ class BrowserAuthenticator:
         self.log.info("Open browser with url: %s", self.SHORT_LINK.format(port=p))
         click.echo(
             "Opening page in browser, if the browser does not automatically open, "
-            f"copy and paste this url into your browser:\n\n{self.SHORT_LINK.format(port=p)}\n"
+            f"copy and paste this url into your browser:\n\n{self.SHORT_LINK.format(port=p)}\n\n"
+            "If the command does not automatically close, try clicking the login link again."
         )
 
         if auth_url is None:

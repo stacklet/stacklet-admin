@@ -172,7 +172,7 @@ def login(ctx, username, password):
 
             BrowserAuthenticator(
                 # TODO: change this to the proper url (/cli_login)
-                redirect_uri=context.config.api + "/ok.html",
+                redirect_uri=context.config.api.replace("api.", "") + "/ok.html",
                 authority_url=context.config.auth_url,
                 client_id=context.config.cognito_client_id,
                 idp_id=context.config.idp_id,
