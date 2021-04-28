@@ -20,6 +20,8 @@ class StackletConfig:
             "region": {"type": "string"},
             "idp_id": {"type": "string"},
             "auth_url": {"type": "string"},
+            "local_cert": {"type": "string"},
+            "local_cert_key": {"type": "string"},
         },
     }
 
@@ -31,6 +33,8 @@ class StackletConfig:
         region=None,
         idp_id=None,
         auth_url=None,
+        local_cert=None,
+        local_cert_key=None,
     ):
         self.api = api
         self.cognito_user_pool_id = cognito_user_pool_id
@@ -38,6 +42,14 @@ class StackletConfig:
         self.region = region
         self.idp_id = idp_id
         self.auth_url = auth_url
+
+        if local_cert is None:
+            local_cert = os.path.expanduser("~/.stacklet/localhost.pem")
+        self.local_cert = os.path.expanduser(local_cert)
+
+        if local_cert_key is None:
+            local_cert_key = os.path.expanduser("~/.stacklet/localhost-key.pem")
+        self.local_cert_key = os.path.expanduser(local_cert_key)
 
         if not all(
             [self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]
@@ -54,6 +66,8 @@ class StackletConfig:
             api=self.api,
             cognito_user_pool_id=self.cognito_user_pool_id,
             cognito_client_id=self.cognito_client_id,
+            local_cert=self.local_cert,
+            local_cert_key=self.local_cert_key,
             region=self.region,
             idp_id=self.idp_id,
             auth_url=self.auth_url,
