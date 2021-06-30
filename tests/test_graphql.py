@@ -100,8 +100,10 @@ class GraphqlTest(BaseCliTest):
             },
         )
 
-        with patch("stacklet_cli.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet_cli.executor.get_token", return_value="foo"):
+        with patch(
+            "stacklet.platform_cli.executor.requests.Session", autospec=True
+        ) as patched:
+            with patch("stacklet.platform_cli.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,

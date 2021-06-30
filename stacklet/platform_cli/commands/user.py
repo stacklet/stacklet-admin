@@ -1,6 +1,5 @@
 import click
-
-from stacklet_cli.utils import click_group_entry, default_options
+from stacklet.platform_cli.utils import click_group_entry, default_options
 
 
 @click.group()

@@ -5,8 +5,7 @@ import json
 import os
 
 from jsonschema import ValidationError, validate
-
-from stacklet_cli.exceptions import ConfigValidationException
+from stacklet.platform_cli.exceptions import ConfigValidationException
 
 
 class StackletConfig:

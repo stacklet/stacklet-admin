@@ -3,10 +3,9 @@ from unittest.mock import MagicMock
 
 import requests_mock
 from click.testing import CliRunner
-
-from stacklet_cli.cli import cli
-from stacklet_cli.context import StackletContext
-from stacklet_cli.executor import StackletGraphqlExecutor
+from stacklet.platform_cli.cli import cli
+from stacklet.platform_cli.context import StackletContext
+from stacklet.platform_cli.executor import StackletGraphqlExecutor
 
 
 def get_mock_context():
