@@ -5,7 +5,7 @@ description = "Stacklet CLI"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
 
 [tool.poetry.scripts]
-stacklet-admin = "stacklet_cli.cli:cli"
+stacklet-admin = "stacklet.platform_cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -30,7 +30,3 @@ setuptools = "^56.0.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-src_paths = ["tests", "stacklet_cli"]
-line_length = 100

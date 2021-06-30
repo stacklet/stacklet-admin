@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="stacklet.cli",
+    name="stacklet.platform_cli",
     version="0.0.1",
     install_requires=["Click"],
     entry_points={
