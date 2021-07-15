@@ -18,6 +18,8 @@ class StackletConfig:
             "cognito_user_pool_id": {"type": "string"},
             "cognito_client_id": {"type": "string"},
             "region": {"type": "string"},
+            "idp_id": {"type": "string"},
+            "auth_url": {"type": "string"},
         },
     }
 
@@ -27,11 +29,15 @@ class StackletConfig:
         cognito_user_pool_id=None,
         cognito_client_id=None,
         region=None,
+        idp_id=None,
+        auth_url=None,
     ):
         self.api = api
         self.cognito_user_pool_id = cognito_user_pool_id
         self.cognito_client_id = cognito_client_id
         self.region = region
+        self.idp_id = idp_id
+        self.auth_url = auth_url
 
         if not all(
             [self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]
@@ -49,6 +55,8 @@ class StackletConfig:
             cognito_user_pool_id=self.cognito_user_pool_id,
             cognito_client_id=self.cognito_client_id,
             region=self.region,
+            idp_id=self.idp_id,
+            auth_url=self.auth_url,
         )
 
     @classmethod

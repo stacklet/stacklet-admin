@@ -1,0 +1,22 @@
+<script>
+  var hash = window.location.hash.substring(1);
+  var params = {}
+  hash.split('&').map(hk => {
+    let temp = hk.split('=');
+    params[temp[0]] = temp[1]
+  });
+  postParams = {
+    body: JSON.stringify({"access_token": params.access_token, "id_token": params.id_token}),
+    method: "POST"
+  }
+
+  fetch(
+    "http://localhost:43210", postParams)
+    .catch(function (error) {
+      close();
+    });
+</script>
+
+<body>
+  success
+</body>

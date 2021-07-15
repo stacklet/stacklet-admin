@@ -65,7 +65,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
     }
 
 
-@click.group()
+@click.group(short_help="Run account queries/mutations")
 @default_options()
 @click.pass_context
 def account(*args, **kwargs):

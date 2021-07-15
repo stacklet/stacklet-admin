@@ -24,7 +24,11 @@ class StackletGraphqlExecutor:
         self.log = logging.getLogger("StackletGraphqlExecutor")
 
         self.session = requests.Session()
-        self.session.headers.update({"authorization": self.token})
+        self.session.headers.update(
+            {
+                "Authorization": self.token,
+            }
+        )
 
     def run(self, snippet, variables=None):
         if variables is None:
