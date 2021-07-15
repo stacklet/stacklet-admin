@@ -1,24 +1,6 @@
 # Stacklet CLI
 
 
-### Pre requisites:
-
-- Install `mkcert`: https://github.com/FiloSottile/mkcert
-
-`mkcert` is used to create a local certificate authority (CA) which is used to then generate
-certificates for your localhost. We require SSL to securely transfer your credentials from
-login to your local machine when authenticating with Stacklet. Follow the README for installing
-`mkcert` and then run the following commands:
-
-```
-$ mkcert install
-$ mkcert -cert-file ~/.stacklet/localhost.pem -key-file ~/.stacklet/localhost-key.pem localhost
-```
-
-This will create two new files, `localhost.pem` and `localhost-key.pem` in your stacklet config
-directory. These will be used when authenticating with your identity providers.
-
-
 Installation:
 
 ```
@@ -27,7 +9,7 @@ $ just install
 
 Usage:
 
-To initialize your stacklet cli, either follow the prompts in the `configure` command or pass
+To inialize your stacklet cli, either follow the prompts in the `configure` command or pass
 the values into the cli through options, e.g. `--api https://staging.stacklet.dev/api`:
 
 ```

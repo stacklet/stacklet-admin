@@ -22,8 +22,6 @@ class AdminCliTest(BaseCliTest):
                 "--cognito-client-id=bar",
                 "--idp-id=foo",
                 "--auth-url=bar",
-                "--local-cert=foo",
-                "--local-cert-key=bar",
                 f"--location={file_location.name}",
             ],
         )
@@ -36,8 +34,6 @@ class AdminCliTest(BaseCliTest):
         self.assertEqual(config["cognito_client_id"], "bar")
         self.assertEqual(config["idp_id"], "foo")
         self.assertEqual(config["auth_url"], "bar")
-        self.assertEqual(config["local_cert"], "foo")
-        self.assertEqual(config["local_cert_key"], "bar")
 
         res = self.runner.invoke(
             self.cli,
@@ -49,7 +45,7 @@ class AdminCliTest(BaseCliTest):
         self.assertEqual(res.exit_code, 0)
         self.assertTrue(
             res.output.endswith(
-                "api: baz\nauth_url: bar\ncognito_client_id: bar\ncognito_user_pool_id: foo\nidp_id: foo\nlocal_cert: foo\nlocal_cert_key: bar\nregion: us-east-1\n\n"  # noqa
+                "api: baz\nauth_url: bar\ncognito_client_id: bar\ncognito_user_pool_id: foo\nidp_id: foo\nregion: us-east-1\n\n"  # noqa
             )
         )
         os.unlink(file_location.name)
