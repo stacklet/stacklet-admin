@@ -30,9 +30,9 @@ https://github.com/Azure/azure-cli/blob/master/src/azure-cli-core/azure/cli/core
 import http.server
 import json
 import logging
+import os
 import platform
 import socket
-import ssl
 import subprocess
 import urllib
 import webbrowser
@@ -111,6 +111,16 @@ class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
 
     def route_index(self):
         self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+
+        landing_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "auth_landing_pages",
+            "ok.html",
+        )
+        with open(landing_file, "rb") as html_file:
+            self.wfile.write(html_file.read())
 
     def log_message(self, format, *args):
         """
@@ -125,26 +135,19 @@ class BrowserAuthenticator:
 
     # due to limitations with cognito and defining redirect targets in the cognito
     # client, we have to hard code a port for our own usage.
-    SHORT_LINK = "https://localhost:{port}/stacklet_auth"
+    CLI_REDIRECT_PORT = 43210
 
-    def __init__(
-        self,
-        authority_url,
-        redirect_uri,
-        client_id,
-        certificate,
-        certificate_key,
-        idp_id="",
-    ):
-        self.redirect_uri = redirect_uri
+    REDIRECT_URI = f"http://localhost:{CLI_REDIRECT_PORT}"
+    SHORT_LINK = f"http://localhost:{CLI_REDIRECT_PORT}/stacklet_auth"
+
+    def __init__(self, authority_url, client_id, idp_id=""):
         self.authority_url = authority_url
         self.client_id = client_id
         self.idp_id = idp_id
-        self.certificate = certificate
-        self.certificate_key = certificate_key
+        self.auth_url = self.build_url()
         self.log = logging.getLogger("StackletBrowserAuthenticator")
 
-    def build_url(self, port):
+    def build_url(self):
         """
         Build the full auth url with the required query parameters
         """
@@ -155,11 +158,10 @@ class BrowserAuthenticator:
         parts[4] = urllib.parse.urlencode(
             {
                 "response_type": "token",
-                "redirect_uri": self.redirect_uri,
+                "redirect_uri": self.REDIRECT_URI,
                 "client_id": self.client_id,
                 "scope": "email+openid",
                 "idp_identifier": self.idp_id,
-                "state": port,
             }
         )
         return urllib.parse.unquote(urllib.parse.urlunparse(parts))
@@ -223,47 +225,31 @@ class BrowserAuthenticator:
             return webbrowser.open(url, new=2)
 
     def __call__(self):
-        for p in range(8888, 9888):
-            try:
-                auth_url = self.build_url(port=p)
-                self.log.debug(f"Full Auth URL: {auth_url}")
-                web_server = ClientRedirectServer(
-                    auth_url,
-                    ("localhost", p),
-                    ClientRedirectHandler,
-                )
+        try:
+            self.log.debug(f"Full Auth URL: {self.auth_url}")
+            web_server = ClientRedirectServer(
+                auth_url=self.auth_url,
+                server_address=("localhost", self.CLI_REDIRECT_PORT),
+                RequestHandlerClass=ClientRedirectHandler,
+            )
+        except socket.error:
+            raise Exception(
+                f"Port '{self.CLI_REDIRECT_PORT}' is taken with error '%s'. "
+                "Ensure that port {self.CLI_REDIRECT_PORT} is open"
+            )
+        except UnicodeDecodeError:
+            self.log.warning(
+                "Please make sure there is no international (Unicode) character in the computer "
+                r"name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 entries."
+            )
 
-                web_server.socket = ssl.wrap_socket(
-                    web_server.socket,
-                    keyfile=self.certificate_key,
-                    certfile=self.certificate,
-                    server_side=True,
-                )
-                break
-            except socket.error as e:
-                self.log.info(
-                    f"Port '{p}' is taken with error '{e}'. "
-                    f"Ensure that port {p} is open"
-                )
-            except UnicodeDecodeError:
-                self.log.warning(
-                    "Please make sure there is no international (Unicode) character in the "
-                    r"computer name or C:\Windows\System32\drivers\etc\hosts file's 127.0.0.1 "
-                    "entries."
-                )
-                break
-
-        self.log.info("Open browser with url: %s", self.SHORT_LINK.format(port=p))
+        self.log.info("Open browser with url: %s", self.SHORT_LINK)
         click.echo(
             "Opening page in browser, if the browser does not automatically open, "
-            f"copy and paste this url into your browser:\n\n{self.SHORT_LINK.format(port=p)}\n\n"
-            "If the command does not automatically close, try clicking the login link again."
+            f"copy and paste this url into your browser:\n\n{self.SHORT_LINK}\n"
         )
 
-        if auth_url is None:
-            raise Exception("auth_url is None")
-
-        if self.open_page_in_browser(self.SHORT_LINK.format(port=p)) is False:
+        if self.open_page_in_browser(self.SHORT_LINK) is False:
             web_server.server_close()
             return
 

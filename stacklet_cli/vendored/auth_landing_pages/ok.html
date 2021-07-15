@@ -10,12 +10,11 @@
     method: "POST"
   }
 
-  fetch("https://localhost:" + params.state, postParams).catch(function(e){
-        console.log("error --> " + e);
-        return e;
-    })
-
-
+  fetch(
+    "http://localhost:43210", postParams)
+    .catch(function (error) {
+      close();
+    });
 </script>
 
 <body>
