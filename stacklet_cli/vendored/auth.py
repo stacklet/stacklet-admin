@@ -119,8 +119,11 @@ class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
             "auth_landing_pages",
             "ok.html",
         )
-        with open(landing_file, "rb") as html_file:
-            self.wfile.write(html_file.read())
+        try:
+            with open(landing_file, "rb") as html_file:
+                self.wfile.write(html_file.read())
+        except BrokenPipeError:
+            pass
 
     def log_message(self, format, *args):
         """
