@@ -1,8 +1,8 @@
 import click
-from stacklet.platform_cli.executor import _run_graphql
-from stacklet.platform_cli.executor import StackletGraphqlExecutor, snippet_options
-from stacklet.platform_cli.graphql import StackletGraphqlSnippet
-from stacklet.platform_cli.utils import click_group_entry, default_options
+from stacklet.platform.cli.executor import _run_graphql
+from stacklet.platform.cli.executor import StackletGraphqlExecutor, snippet_options
+from stacklet.platform.cli.graphql import StackletGraphqlSnippet
+from stacklet.platform.cli.utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-accounts")

@@ -1,7 +1,7 @@
 import click
-from stacklet.platform_cli.utils import click_group_entry, default_options
-from stacklet.platform_cli.cognito import CognitoUserManager
-from stacklet.platform_cli.context import StackletContext
+from stacklet.platform.cli.utils import click_group_entry, default_options
+from stacklet.platform.cli.cognito import CognitoUserManager
+from stacklet.platform.cli.context import StackletContext
 
 
 @click.group(short_help="Run user queries/mutations")
