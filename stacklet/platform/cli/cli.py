@@ -153,7 +153,7 @@ def login(ctx, username, password):
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         # sso login
         if context.can_sso_login() and not any([username, password]):
-            from stacklet_cli.vendored.auth import BrowserAuthenticator
+            from stacklet.platform.cli.vendored.auth import BrowserAuthenticator
 
             BrowserAuthenticator(
                 authority_url=context.config.auth_url,

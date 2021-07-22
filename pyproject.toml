@@ -5,7 +5,7 @@ description = "Stacklet CLI"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
 
 [tool.poetry.scripts]
-stacklet-admin = "stacklet.platform_cli.cli:cli"
+stacklet-admin = "stacklet.platform.cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.8"
