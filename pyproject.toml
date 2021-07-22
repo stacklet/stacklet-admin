@@ -1,11 +1,22 @@
 [tool.poetry]
 name = "stacklet.platform.cli"
 version = "0.1.0"
-description = "Stacklet CLI"
+description = "Stacklet Platform CLI"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
+include = [
+  "stacklet/platform/cli/vendored/auth_landing_pages/ok.html",
+  "stacklet/platform/cli/vendored/auth_landing_pages/fail.html"
+]
+packages = [
+    { include = "stacklet" },
+]
 
 [tool.poetry.scripts]
 stacklet-admin = "stacklet.platform.cli.cli:cli"
+
+[[tool.poetry.source]]
+name = "platform-cli"
+url = "https://stacklet-532725030595.d.codeartifact.us-east-1.amazonaws.com/pypi/platform-cli/"
 
 [tool.poetry.dependencies]
 python = "^3.8"
