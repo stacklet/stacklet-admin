@@ -39,7 +39,33 @@ class ProcessRepositorySnippet(StackletGraphqlSnippet):
     required = {"url": "Repository URL to process"}
 
 
-@click.group()
+@StackletGraphqlExecutor.registry.register("list-repository")
+class ListRepositorySnippet(StackletGraphqlSnippet):
+    name = "list-repository"
+    snippet = """
+    {
+        repositories {
+        edges {
+          node {
+            id
+            name
+            url
+            policyFileSuffix
+            policyDirectories
+            branchName
+            authUser
+            sshPublicKey
+            head
+            lastScanned
+            provider
+          }
+        }
+      }
+    }
+    """
+
+
+@click.group(short_help="Run repository queries/mutations")
 @default_options()
 @click.pass_context
 def repository(*args, **kwargs):
@@ -76,3 +102,13 @@ def process(ctx, **kwargs):
     Process a Policy Repository in Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="process-repository", variables=kwargs))
+
+
+@repository.command()
+@snippet_options("list-repository")
+@click.pass_context
+def list(ctx, **kwargs):
+    """
+    List repositories
+    """
+    click.echo(_run_graphql(ctx=ctx, name="list-repository", variables=kwargs))
