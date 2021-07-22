@@ -2,10 +2,9 @@ import io
 import sys
 
 import click
-
-from stacklet_cli.executor import _run_graphql
-from stacklet_cli.graphql import StackletGraphqlSnippet
-from stacklet_cli.utils import click_group_entry, default_options
+from stacklet.platform.cli.executor import _run_graphql
+from stacklet.platform.cli.graphql import StackletGraphqlSnippet
+from stacklet.platform.cli.utils import click_group_entry, default_options
 
 
 @click.group()

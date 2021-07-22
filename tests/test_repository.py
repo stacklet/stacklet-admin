@@ -25,8 +25,10 @@ class RepositoryTest(BaseCliTest):
             json={"data": {"addRepository": {"status": True}}},
         )
 
-        with patch("stacklet_cli.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet_cli.executor.get_token", return_value="foo"):
+        with patch(
+            "stacklet.platform.cli.executor.requests.Session", autospec=True
+        ) as patched:
+            with patch("stacklet.platform.cli.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,
@@ -63,8 +65,10 @@ class RepositoryTest(BaseCliTest):
             json={"data": {"processRepository": {"status": True}}},
         )
 
-        with patch("stacklet_cli.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet_cli.executor.get_token", return_value="foo"):
+        with patch(
+            "stacklet.platform.cli.executor.requests.Session", autospec=True
+        ) as patched:
+            with patch("stacklet.platform.cli.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,

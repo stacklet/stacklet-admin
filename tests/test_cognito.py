@@ -3,10 +3,9 @@ from unittest import TestCase
 import boto3
 from click.testing import CliRunner
 from moto import mock_cognitoidp
-
-from stacklet_cli.cli import cli
-from stacklet_cli.cognito import CognitoUserManager
-from stacklet_cli.context import StackletContext
+from stacklet.platform.cli.cli import cli
+from stacklet.platform.cli.cognito import CognitoUserManager
+from stacklet.platform.cli.context import StackletContext
 
 
 class CognitoUserManagerTest(TestCase):
