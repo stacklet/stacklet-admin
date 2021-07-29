@@ -41,5 +41,7 @@ class StackletCredentialWriter:
         self.location = location
 
     def __call__(self):
+        if not os.path.exists(os.path.dirname(self.location)):
+            os.makedirs(os.path.dirname(self.location))
         with open(os.path.expanduser(self.location), "w+") as f:
             f.write(self.credentials)
