@@ -42,11 +42,13 @@ class StackletConfig:
             [self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]
         ):
             try:
-                self = self.from_file(
-                    os.path.expanduser("~/.stacklet/config.json")
-                )  # noqa
+                path = "~/.stacklet/config.json"
+                if os.environ.get("STACKLET_CONFIG"):
+                    path = os.environ["STACKLET_CONFIG"]
+                self = self.from_file(os.path.expanduser(path))  # noqa
             except ValidationError:
                 raise ConfigValidationException
+            raise ConfigValidationException
 
     def to_json(self):
         return dict(

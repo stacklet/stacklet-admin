@@ -51,7 +51,14 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         email:"$email",
         securityContext:"$security_context"
       }){
-        status
+        account {
+            provider
+            key
+            name
+            path
+            email
+            securityContext
+        }
       }
     }
     """
