@@ -38,7 +38,6 @@ class StackletGraphqlExecutor:
             payload = snippet(variables=variables)
 
         res = self.session.post(self.api, json={"query": payload.snippet})
-        res.raise_for_status()
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
         return res.json()
 
