@@ -178,6 +178,8 @@ def login(ctx, username, password):
             user=username,
             password=password,
         )
+        if not os.path.exists(os.path.dirname(StackletContext.DEFAULT_CREDENTIALS)):
+            os.makedirs(os.path.dirname(StackletContext.DEFAULT_CREDENTIALS))
         with open(
             os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+"
         ) as f:  # noqa
