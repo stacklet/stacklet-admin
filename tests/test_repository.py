@@ -15,14 +15,24 @@ class RepositoryTest(BaseCliTest):
           name: "test-policies"
         }
       ) {
-        status
+        repository {
+            url
+            name
+        }
       }
     }
     """
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
-            json={"data": {"addRepository": {"status": True}}},
+            json={
+                "data": {
+                    "addRepository": {
+                        "url": "mock://git.acme.org/stacklet/policies.git",
+                        "name": "test-policies",
+                    }
+                }
+            },
         )
 
         with patch(
@@ -45,7 +55,8 @@ class RepositoryTest(BaseCliTest):
                 )
                 self.assertEqual(res.exit_code, 0)
                 self.assertEqual(
-                    res.output, "data:\n  addRepository:\n    status: true\n\n"
+                    res.output,
+                    "data:\n  addRepository:\n    name: test-policies\n    url: mock://git.acme.org/stacklet/policies.git\n\n",  # noqa
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
                 self.assertEqual(body["query"], snippet)

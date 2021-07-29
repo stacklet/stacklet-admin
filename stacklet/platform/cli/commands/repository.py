@@ -16,7 +16,10 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
           name: "$name"
         }
       ) {
-        status
+        repository {
+            url
+            name
+        }
       }
     }
     """

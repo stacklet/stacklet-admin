@@ -51,7 +51,14 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         email:"$email",
         securityContext:"$security_context"
       }){
-        status
+        account {
+            provider
+            key
+            name
+            path
+            email
+            securityContext
+        }
       }
     }
     """
@@ -61,6 +68,32 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "path": "Account Path",
         "email": "Account Email Address",
         "security_context": "Role for Custodian policy execution",
+        "provider": "Cloud Provider",
+    }
+
+
+@StackletGraphqlExecutor.registry.register("remove-account")
+class RemoveAccountSnippet(StackletGraphqlSnippet):
+    name = "remove-account"
+    snippet = """
+    mutation {
+      removeAccount(
+        provider: $provider,
+        key:"$key",
+      ){
+        account {
+            provider
+            key
+            name
+            path
+            email
+            securityContext
+        }
+      }
+    }
+    """
+    required = {
+        "key": "Account Key in Stacklet, e.g. Account ID in AWS",
         "provider": "Cloud Provider",
     }
 
@@ -102,3 +135,13 @@ def add(ctx, **kwargs):
     Add an account to Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="add-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("remove-account")
+@click.pass_context
+def remove(ctx, **kwargs):
+    """
+    Remove an account from Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="remove-account", variables=kwargs))
