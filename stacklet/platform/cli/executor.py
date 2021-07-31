@@ -33,9 +33,22 @@ class StackletGraphqlExecutor:
         if variables is None:
             variables = {}
 
-        payload = snippet
-        if not isinstance(snippet, StackletGraphqlSnippet):
-            payload = snippet(variables=variables)
+        split_snippet = snippet.snippet.split("\n")
+
+        # remove empty options so we can remove any optional values in the mutation/queries
+        for k, v in variables.items():
+            if v is None and k in snippet.optional.keys():
+                split_snippet = [
+                    line
+                    for line in split_snippet
+                    if f"${k.replace('-', '_')}" not in line
+                ]
+
+        built_snippet = "\n".join(split_snippet)
+
+        payload = StackletGraphqlSnippet(
+            name=snippet.name, snippet=built_snippet, variables=variables
+        )
 
         res = self.session.post(self.api, json={"query": payload.snippet})
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
