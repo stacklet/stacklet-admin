@@ -46,7 +46,7 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
 
 
 @StackletGraphqlExecutor.registry.register("show-policy-collection")
-class ShowpolicyCollection(StackletGraphqlSnippet):
+class ShowPolicyCollection(StackletGraphqlSnippet):
     name = "show-policy-collection"
     snippet = """
         query {
