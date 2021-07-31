@@ -33,6 +33,17 @@ class StackletGraphqlExecutor:
         if variables is None:
             variables = {}
 
+        split_snippet = snippet.snippet.split("\n")
+
+        for k, v in variables.items():
+            if not v and k in snippet.optional.keys():
+                split_snippet = [
+                    line
+                    for line in split_snippet
+                    if f"${k.replace('-', '_')}" not in line
+                ]
+        snippet.snippet = "\n".join(split_snippet)
+
         payload = snippet
         if not isinstance(snippet, StackletGraphqlSnippet):
             payload = snippet(variables=variables)
