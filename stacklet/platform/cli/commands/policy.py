@@ -80,8 +80,16 @@ class ShowPolicy(StackletGraphqlSnippet):
             resource
             execMode
             tags
-            commit
-            repository
+            commit {
+                hash
+                author
+                msg
+            }
+            repository {
+                id
+                url
+                name
+            }
             path
             source
             sourceYAML
