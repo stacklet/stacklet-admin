@@ -35,8 +35,9 @@ class StackletGraphqlExecutor:
 
         split_snippet = snippet.snippet.split("\n")
 
+        # remove empty options so we can remove any optional values in the mutation/queries
         for k, v in variables.items():
-            if not v and k in snippet.optional.keys():
+            if v is None and k in snippet.optional.keys():
                 split_snippet = [
                     line
                     for line in split_snippet

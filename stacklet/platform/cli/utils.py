@@ -77,9 +77,7 @@ def wrap_command(func, options, required=False, prompt=False):
 
 
 def get_token():
-    with open(
-        os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "r"
-    ) as f:  # noqa
+    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "r") as f:
         token = f.read()
     return token
 
