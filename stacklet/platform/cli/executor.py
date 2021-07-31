@@ -42,11 +42,12 @@ class StackletGraphqlExecutor:
                     for line in split_snippet
                     if f"${k.replace('-', '_')}" not in line
                 ]
-        snippet.snippet = "\n".join(split_snippet)
 
-        payload = snippet
-        if not isinstance(snippet, StackletGraphqlSnippet):
-            payload = snippet(variables=variables)
+        built_snippet = "\n".join(split_snippet)
+
+        payload = StackletGraphqlSnippet(
+            name=snippet.name, snippet=built_snippet, variables=variables
+        )
 
         res = self.session.post(self.api, json={"query": payload.snippet})
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
