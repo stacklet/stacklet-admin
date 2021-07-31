@@ -68,6 +68,26 @@ class ListRepositorySnippet(StackletGraphqlSnippet):
     """
 
 
+@StackletGraphqlExecutor.registry.register("remove-repository")
+class RemoveRepositorySnippet(StackletGraphqlSnippet):
+    name = "remove-repository"
+    snippet = """
+    mutation {
+      removeRepository(
+          url: "$url"
+      ) {
+        repository {
+            url
+            name
+        }
+      }
+    }
+    """
+    required = {
+        "url": "Policy Repository URL",
+    }
+
+
 @click.group(short_help="Run repository queries/mutations")
 @default_options()
 @click.pass_context
@@ -115,3 +135,13 @@ def list(ctx, **kwargs):
     List repositories
     """
     click.echo(_run_graphql(ctx=ctx, name="list-repository", variables=kwargs))
+
+
+@repository.command()
+@snippet_options("remove-repository")
+@click.pass_context
+def remove(ctx, **kwargs):
+    """
+    Remove a Policy Repository to Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="remove-repository", variables=kwargs))
