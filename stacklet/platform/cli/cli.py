@@ -135,12 +135,17 @@ def auto_configure(ctx, prefix, location):
         click.echo(f"Unable to pull config from parameter store:{e}")
         raise
 
+    idp_id = ""
+    saml_keys = list(param["cognito"].get("saml", {}).keys())
+    if len(saml_keys) > 0:
+        idp_id = saml_keys[0]
+
     config = {
         "api": param["api_endpoint"],
         "region": param["cognito"]["cognito_user_pool_region"],
         "cognito_user_pool_id": param["cognito"]["cognito_user_pool_id"],
         "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
-        "idp_id": list(param["cognito"].get("saml", {}).keys()).pop(),
+        "idp_id": idp_id,
         "auth_url": f"https://{param['cognito']['cognito_install']}",
     }
 
