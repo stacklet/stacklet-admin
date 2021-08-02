@@ -25,6 +25,7 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
                 description
                 provider
                 repository
+                itemCount
                 items {
                     uuid
                     name
@@ -58,6 +59,7 @@ class ShowPolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
+            itemCount
             items {
                 uuid
                 name
@@ -86,6 +88,7 @@ class AddPolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
+            itemCount
             items {
                 uuid
                 name
@@ -123,6 +126,7 @@ class UpdatePolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
+            itemCount
             items {
                 uuid
                 name
@@ -162,6 +166,7 @@ class AddPolicyCollectionItem(StackletGraphqlSnippet):
                 description
                 provider
                 repository
+                itemCount
                 items {
                     uuid
                     name
@@ -200,6 +205,7 @@ class RemovePolicyCollectionItem(StackletGraphqlSnippet):
                 description
                 provider
                 repository
+                itemCount
                 items {
                     uuid
                     name
@@ -232,6 +238,7 @@ class RemovePolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
+            itemCount
             items {
                 uuid
                 name

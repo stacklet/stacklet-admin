@@ -117,6 +117,42 @@ def configure(
     click.echo(f"Saved config to {location}")
 
 
+@cli.command(short_help="Automatically configure stacklet-admin cli")
+@click.option("--prefix", required=True)
+@click.option("--location", default="~/.stacklet/config.json")
+@click.pass_context
+def auto_configure(ctx, prefix, location):
+    import boto3
+
+    client = boto3.client("ssm")
+    try:
+        param = json.loads(
+            client.get_parameter(Name=f"/{prefix}/platform/config")["Parameter"][
+                "Value"
+            ]
+        )
+    except Exception as e:
+        click.echo(f"Unable to pull config from parameter store:{e}")
+        raise
+
+    config = {
+        "api": param["api_endpoint"],
+        "region": param["cognito"]["cognito_user_pool_region"],
+        "cognito_user_pool_id": param["cognito"]["cognito_user_pool_id"],
+        "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
+        "idp_id": list(param["cognito"].get("saml", {}).keys()).pop(),
+        "auth_url": f"https://{param['cognito']['cognito_install']}",
+    }
+
+    if not os.path.exists(location):
+        dirs = location.rsplit("/", 1)[0]
+        os.makedirs(os.path.expanduser(dirs), exist_ok=True)
+
+    with open(os.path.expanduser(location), "w+") as f:
+        f.write(json.dumps(config))
+    click.echo(f"Saved config to {location}")
+
+
 @cli.command()
 @click.pass_context
 def show(ctx):
