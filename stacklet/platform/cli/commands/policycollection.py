@@ -25,7 +25,6 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
                 description
                 provider
                 repository
-                itemCount
                 items {
                     uuid
                     name
@@ -59,7 +58,6 @@ class ShowPolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
-            itemCount
             items {
                 uuid
                 name
@@ -88,7 +86,6 @@ class AddPolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
-            itemCount
             items {
                 uuid
                 name
@@ -126,7 +123,6 @@ class UpdatePolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
-            itemCount
             items {
                 uuid
                 name
@@ -166,7 +162,44 @@ class AddPolicyCollectionItem(StackletGraphqlSnippet):
                 description
                 provider
                 repository
-                itemCount
+                items {
+                    uuid
+                    name
+                    version
+                }
+            }
+          }
+      }
+    """
+    required = {
+        "uuid": "Account group UUID",
+        "policy_uuid": "Policy UUID",
+    }
+
+    optional = {"policy_version": "Policy Version"}
+
+
+@StackletGraphqlExecutor.registry.register("remove-policy-collection-item")
+class RemovePolicyCollectionItem(StackletGraphqlSnippet):
+    name = "remove-policy-collection-item"
+    snippet = """
+        mutation {
+          removePolicyCollectionItems(input:{
+            uuid: "$uuid"
+            items: [
+                {
+                    policyUUID: "$policy_uuid"
+                    policyVersion: $policy_version
+                }
+            ]
+          }) {
+              collection {
+                id
+                uuid
+                name
+                description
+                provider
+                repository
                 items {
                     uuid
                     name
@@ -199,7 +232,6 @@ class RemovePolicyCollection(StackletGraphqlSnippet):
             description
             provider
             repository
-            itemCount
             items {
                 uuid
                 name
@@ -279,3 +311,15 @@ def remove(ctx, **kwargs):
     Remove policy collection in Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="remove-policy-collection", variables=kwargs))
+
+
+@policy_collection.command()
+@snippet_options("remove-policy-collection-item")
+@click.pass_context
+def remove_item(ctx, **kwargs):
+    """
+    Remove item from a policy collection in Stacklet
+    """
+    click.echo(
+        _run_graphql(ctx=ctx, name="remove-policy-collection-item", variables=kwargs)
+    )

@@ -372,7 +372,7 @@ def add_item(ctx, **kwargs):
 @account_group.command()
 @snippet_options("remove-account-group-item")
 @click.pass_context
-def remove_account(ctx, **kwargs):
+def remove_item(ctx, **kwargs):
     """
     Remove account group item
     """
