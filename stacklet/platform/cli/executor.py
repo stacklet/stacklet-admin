@@ -71,7 +71,7 @@ def snippet_options(*args, **kwargs):
     return wrapper
 
 
-def _run_graphql(ctx, name=None, variables=None, snippet=None):
+def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         token = get_token()
         executor = StackletGraphqlExecutor(context, token)
@@ -88,6 +88,7 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None):
             )
 
         res = executor.run(snippet=snippet, variables=variables)
-
+        if raw:
+            return res
         fmt = Formatter.registry.get(ctx.obj["output"])()
         return fmt(res)

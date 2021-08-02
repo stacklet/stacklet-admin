@@ -1,5 +1,6 @@
 import click
 
+from stacklet.platform.cli.exceptions import InvalidInputException
 from stacklet.platform.cli.executor import _run_graphql
 from stacklet.platform.cli.executor import StackletGraphqlExecutor, snippet_options
 from stacklet.platform.cli.graphql import StackletGraphqlSnippet
@@ -66,6 +67,7 @@ class ShowPolicy(StackletGraphqlSnippet):
         query {
           policy(
             name: "$name"
+            uuid: "$uuid"
           ) {
             id
             uuid
@@ -96,7 +98,10 @@ class ShowPolicy(StackletGraphqlSnippet):
           }
       }
     """
-    required = {"name": "Policy Name"}
+    optional = {
+        "name": "Policy Name",
+        "uuid": "Policy UUID",
+    }
 
 
 @click.group(short_help="Run policy queries")
@@ -116,11 +121,34 @@ def list(ctx, **kwargs):
     click.echo(_run_graphql(ctx=ctx, name="list-policies", variables=kwargs))
 
 
+def check_show_input(kwargs):
+    if all([kwargs["name"], kwargs["uuid"]]):
+        raise InvalidInputException("Either name or uuid can be set, but not both")
+    if not any([kwargs["name"], kwargs["uuid"]]):
+        raise InvalidInputException("Either name or uuid must be set")
+
+
 @policy.command()
 @snippet_options("show-policy")
 @click.pass_context
 def show(ctx, **kwargs):
     """
-    Show policy in Stacklet
+    Show policy in Stacklet by either name or uuid
     """
+    check_show_input(kwargs)
     click.echo(_run_graphql(ctx=ctx, name="show-policy", variables=kwargs))
+
+
+@policy.command()
+@snippet_options("show-policy")
+@click.pass_context
+def show_source(ctx, **kwargs):
+    """
+    Show policy source in Stacklet by either name or uuid
+    """
+    check_show_input(kwargs)
+    click.echo(
+        _run_graphql(ctx=ctx, name="show-policy", variables=kwargs, raw=True)["data"][
+            "policy"
+        ]["sourceYAML"]
+    )
