@@ -111,7 +111,7 @@ def account(*args, **kwargs):
 
     Example:
 
-        $ stacklet accounts --output json list
+        $ stacklet account --output json list
 
     """
     click_group_entry(*args, **kwargs)

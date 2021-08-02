@@ -88,6 +88,24 @@ class RemoveRepositorySnippet(StackletGraphqlSnippet):
     }
 
 
+@StackletGraphqlExecutor.registry.register("scan-repository")
+class ScanRepositorySnippet(StackletGraphqlSnippet):
+    name = "scan-repository"
+    snippet = """
+    mutation {
+      processRepository(input:{
+          url: "$url"
+          startRevSpec: "$start_rev_spec"
+      })
+    }
+    """
+    required = {
+        "url": "Policy Repository URL",
+    }
+
+    optional = {"start_rev_spec": "Start Rev Spec"}
+
+
 @click.group(short_help="Run repository queries/mutations")
 @default_options()
 @click.pass_context
@@ -101,10 +119,34 @@ def repository(*args, **kwargs):
 
     Example:
 
-        $ stacklet accounts --output json list
+        $ stacklet repository --output json list
 
     """
     click_group_entry(*args, **kwargs)
+
+
+@StackletGraphqlExecutor.registry.register("show-repository")
+class ShowRepositorySnippet(StackletGraphqlSnippet):
+    name = "show-repository"
+    snippet = """
+    {
+        repository(url: "$url") {
+            id
+            name
+            url
+            policyFileSuffix
+            policyDirectories
+            branchName
+            authUser
+            sshPublicKey
+            head
+            lastScanned
+            provider
+      }
+    }
+    """
+
+    required = {"url": "Repository URL to process"}
 
 
 @repository.command()
@@ -145,3 +187,23 @@ def remove(ctx, **kwargs):
     Remove a Policy Repository to Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="remove-repository", variables=kwargs))
+
+
+@repository.command()
+@snippet_options("scan-repository")
+@click.pass_context
+def scan(ctx, **kwargs):
+    """
+    Scan a repository for policies
+    """
+    click.echo(_run_graphql(ctx=ctx, name="scan-repository", variables=kwargs))
+
+
+@repository.command()
+@snippet_options("show-repository")
+@click.pass_context
+def show(ctx, **kwargs):
+    """
+    Show a repository
+    """
+    click.echo(_run_graphql(ctx=ctx, name="show-repository", variables=kwargs))
