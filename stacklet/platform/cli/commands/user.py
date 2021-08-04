@@ -22,7 +22,7 @@ def user(*args, **kwargs):
 @click.option("--email")
 @click.option("--phone-number")
 @click.pass_context
-def add(ctx, username, password, email, phone_number):
+def add(ctx, username, password, email=None, phone_number=None):
     """
     Add a cognito user in Stacklet
     """

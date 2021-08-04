@@ -34,17 +34,19 @@ class CognitoUserManager:
         """
         self.email = email
         self.phone_number = phone_number
+        attrs = []
+        if email:
+            attrs.append({"Name": "email", "Value": email})
+            attrs.append({"Name": "email_verified", "Value": "True"})
+        if phone_number:
+            attrs.append({"Name": "phone_number", "Value": phone_number})
+            attrs.append({"Name": "phone_number_verified", "Value": "True"})
         try:
             res = self.client.admin_create_user(
                 UserPoolId=self.user_pool_id,
                 Username=user,
                 TemporaryPassword=password,
-                UserAttributes=[
-                    {"Name": "email", "Value": email},
-                    {"Name": "phone_number", "Value": phone_number},
-                    {"Name": "email_verified", "Value": "True"},
-                    {"Name": "phone_number_verified", "Value": "True"},
-                ],
+                UserAttributes=attrs,
                 MessageAction="SUPPRESS",
                 DesiredDeliveryMediums=["SMS", "EMAIL"],
             )
