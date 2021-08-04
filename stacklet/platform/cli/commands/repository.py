@@ -1,4 +1,8 @@
 import click
+import os
+
+from stacklet.platform.cli.exceptions import InvalidInputException
+
 from stacklet.platform.cli.executor import _run_graphql
 from stacklet.platform.cli.executor import StackletGraphqlExecutor, snippet_options
 from stacklet.platform.cli.graphql import StackletGraphqlSnippet
@@ -14,6 +18,15 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
         input: {
           url: "$url"
           name: "$name"
+          description: "$description"
+          sshPassphrase: "$ssh_passphrase"
+          sshPrivateKey: "$ssh_private_key"
+          authUser: "$auth_user"
+          authToken: "$auth_token"
+          branchName: "$branch_name"
+          policyFileSuffix: $policy_file_suffix
+          policyDirectories: $policy_directories
+          deepImport: $deep_import
         }
       ) {
         repository {
@@ -26,6 +39,18 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
     required = {
         "url": "Policy Repository URL",
         "name": "Human Readable Policy Repository Name",
+    }
+
+    optional = {
+        "description": "Repo Description",
+        "ssh_passphrase": "SSH Passphrase for Private Key",
+        "ssh_private_key": "Path to a SSH Private Key",
+        "auth_user": "Auth User for repository access",
+        "auth_token": "Auth token for repository access",
+        "branch_name": "Git Branch Name",
+        "policy_file_suffix": 'List of Policy File Suffixes e.g. [".json", ".yaml", ".yml"]',  # noqa
+        "policy_directories": 'Policy Directories e.g. ["policies", "some/path"]',
+        "deep_import": "Deep Import Repository true | false",
     }
 
 
@@ -156,6 +181,18 @@ def add(ctx, **kwargs):
     """
     Add a Policy Repository to Stacklet
     """
+    private_key = kwargs.get("ssh_private_key")
+    auth_user = kwargs.get("auth_user")
+    if private_key:
+        if auth_user is None:
+            raise InvalidInputException(
+                "Both --auth-user and --ssh-private-key are required"
+            )
+        with open(os.path.expanduser(private_key), "r") as f:
+            kwargs["ssh_private_key"] = f.read().strip("\n")
+        # need to replace the new line so that libgit2 will properly use the credentials and pull
+        # from git sources
+        kwargs["ssh_private_key"] = kwargs["ssh_private_key"].replace("\n", "\\n")
     click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))
 
 
