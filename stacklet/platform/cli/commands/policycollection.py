@@ -26,11 +26,6 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
                 provider
                 repository
                 itemCount
-                items {
-                    uuid
-                    name
-                    version
-                }
               }
             }
             pageInfo {

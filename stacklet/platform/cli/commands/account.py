@@ -6,7 +6,7 @@ from stacklet.platform.cli.utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-accounts")
-class QueryAccountSnippet(StackletGraphqlSnippet):
+class ListAccountsSnippet(StackletGraphqlSnippet):
     name = "list-accounts"
     snippet = """
         query {
@@ -18,12 +18,17 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
           ) {
             edges {
               node {
-                key
                 id
+                key
                 name
-                email
+                shortName
+                description
                 provider
                 path
+                email
+                securityContext
+                tags
+                variables
               }
             }
             pageInfo {
@@ -38,37 +43,82 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
+@StackletGraphqlExecutor.registry.register("show-account")
+class QueryAccountSnippet(StackletGraphqlSnippet):
+    name = "show-account"
+    snippet = """
+        query {
+          account(
+            provider: $provider
+            key: "$key"
+          ) {
+            id
+            key
+            name
+            shortName
+            description
+            provider
+            path
+            email
+            securityContext
+            tags
+            variables
+          }
+        }
+    """
+
+    required = {
+        "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+        "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
+    }
+
+
 @StackletGraphqlExecutor.registry.register("add-account")
 class AddAccountSnippet(StackletGraphqlSnippet):
     name = "add-account"
     snippet = """
     mutation {
       addAccount(input:{
-        provider: $provider,
-        key:"$key",
-        name:"$name",
-        path:"$path",
-        email:"$email",
+        provider: $provider
+        key:"$key"
+        name:"$name"
+        path:"$path"
+        email:"$email"
         securityContext:"$security_context"
+        shortName: "$short_name"
+        description: "$description"
+        tags: $tags
+        variables: "$variables"
       }){
         account {
-            provider
+            id
             key
             name
+            shortName
+            description
+            provider
             path
             email
             securityContext
+            tags
+            variables
         }
       }
     }
     """
     required = {
-        "key": "Account Key in Stacklet, e.g. Account ID in AWS",
         "name": "Account Name in Stacklet",
+        "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
+        "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+    }
+    optional = {
         "path": "Account Path",
         "email": "Account Email Address",
         "security_context": "Role for Custodian policy execution",
-        "provider": "Cloud Provider",
+        "short_name": "Short Name for Account",
+        "description": "Description for Account",
+        "tags": 'List of tags for Account, e.g. --tags "[\\"production\\", \\"marketing\\"]"',
+        "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
     }
 
 
@@ -82,19 +132,24 @@ class RemoveAccountSnippet(StackletGraphqlSnippet):
         key:"$key",
       ){
         account {
-            provider
+            id
             key
             name
+            shortName
+            description
+            provider
             path
             email
             securityContext
+            tags
+            variables
         }
       }
     }
     """
     required = {
-        "key": "Account Key in Stacklet, e.g. Account ID in AWS",
-        "provider": "Cloud Provider",
+        "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+        "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
 
 
@@ -145,3 +200,13 @@ def remove(ctx, **kwargs):
     Remove an account from Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="remove-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("show-account")
+@click.pass_context
+def show(ctx, **kwargs):
+    """
+    Show an account in Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="show-account", variables=kwargs))

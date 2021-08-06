@@ -29,13 +29,6 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
                 variables
                 priority
                 itemCount
-                items {
-                    uuid
-                    key
-                    provider
-                    name
-                    regions
-                }
               }
             }
             pageInfo {
