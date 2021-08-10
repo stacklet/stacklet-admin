@@ -127,9 +127,9 @@ def auto_configure(ctx, prefix, location):
     client = boto3.client("ssm")
     try:
         param = json.loads(
-            client.get_parameter(Name=f"/{prefix}/platform/config")["Parameter"][
-                "Value"
-            ]
+            client.get_parameter(
+                Name=f"/{prefix}/platform/config", WithDecryption=True
+            )["Parameter"]["Value"]
         )
     except Exception as e:
         click.echo(f"Unable to pull config from parameter store:{e}")
