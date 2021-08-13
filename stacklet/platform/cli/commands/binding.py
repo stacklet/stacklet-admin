@@ -24,10 +24,14 @@ class QueryBindingsSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
-                accountGroupUUID
-                accountGroupName
-                policyCollectionUUID
-                policyCollectionName
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
               }
             }
             pageInfo {
@@ -56,10 +60,14 @@ class ShowBindingSnippet(StackletGraphqlSnippet):
             schedule
             variables
             lastDeployed
-            accountGroupUUID
-            accountGroupName
-            policyCollectionUUID
-            policyCollectionName
+            accountGroup {
+                uuid
+                name
+            }
+            policyCollection {
+                uuid
+                name
+            }
           }
         }
     """
@@ -88,10 +96,14 @@ class AddBindingSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
-                accountGroupUUID
-                accountGroupName
-                policyCollectionUUID
-                policyCollectionName
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
             }
         }
     }
@@ -130,10 +142,14 @@ class UpdateBindingSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
-                accountGroupUUID
-                accountGroupName
-                policyCollectionUUID
-                policyCollectionName
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
             }
         }
     }
@@ -163,10 +179,14 @@ class RemoveBindingSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
-                accountGroupUUID
-                accountGroupName
-                policyCollectionUUID
-                policyCollectionName
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
             }
         }
     }
@@ -187,10 +207,14 @@ class DeployBindingSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
-                accountGroupUUID
-                accountGroupName
-                policyCollectionUUID
-                policyCollectionName
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
             }
         }
     }
