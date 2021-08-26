@@ -18,6 +18,8 @@ stacklet-admin auto-configure --prefix dev
 
 This will create a configuration file in `~/.stacklet/config.json`.
 
+### Logging in with SSO
+
 If using SSO, simply login with:
 
 ```
@@ -26,6 +28,8 @@ stacklet-admin login
 
 This will open a browser window and login via SSO. Once the login is successful in the browser,
 the window may automatically close.
+
+### Logging in without SSO
 
 If SSO is not enabled, create a Cognito user (requires AWS credentials):
 
