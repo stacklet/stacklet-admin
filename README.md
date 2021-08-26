@@ -1,116 +1,132 @@
 # Stacklet CLI
 
 
-Installation:
+## Installation
 
 ```
 $ just install
 ```
 
-Usage:
+## User Creation and Login
 
-To inialize your stacklet cli, either follow the prompts in the `configure` command or pass
-the values into the cli through options, e.g. `--api https://staging.stacklet.dev/api`:
-
-```
-$ poetry shell
-$ stacklet-admin configure
-Stacklet API endpoint: https://ltudy56p2b.execute-api.us-east-1.amazonaws.com/api
-Cognito Region: us-east-1
-Cognito User Pool Client ID: ag9dia42qootqgmvvdk0fb5np
-Cognito User Pool ID: us-east-1_tYCG1oFjn
-Config File Location [~/.stacklet/config.json]:
-Saved config to ~/.stacklet/config.json
-```
-
-Then, create a user and follow the prompts and ensure that you have AWS SSO credentials:
+To get started, simply use the `auto-configure` command to initialize the CLI configuration
+by supplying the prefix that was used to deploy the Stacklet platform:
 
 ```
-$ stacklet-admin user add
-Username: test-user
-Password:
-Repeat for confirmation:
-Email: sonny@stacklet.io
-Phone Number: +15551234567
+stacklet-admin auto-configure --prefix dev
 ```
 
-After that, we can login:
+This will create a configuration file in `~/.stacklet/config.json`.
+
+If using SSO, simply login with:
 
 ```
-$ stacklet-admin login
-Username: test-user
-Password:
+stacklet-admin login
 ```
 
-Now you can get started with stacklet cli! Add an account by following the prompts:
+This will open a browser window and login via SSO. Once the login is successful in the browser,
+the window may automatically close.
+
+If SSO is not enabled, create a Cognito user (requires AWS credentials):
 
 ```
-$ stacklet-admin account add --provider AWS
-Security context: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
-Email: sonny@stacklet.io
-Path: /
-Name: stacklet-sonny
-Key: 532725030595
-data:
-  addAccount:
-    status: true
+stacklet-admin user add --username test-user --password $PASSWORD
 ```
 
-View the accounts easily:
+Finally, log in:
 
 ```
-$ stacklet-admin account list --provider AWS
+stacklet-admin login --username test-user
+```
+
+## Runnng Commands
+
+Commands are grouped into command groups, for example, all the commands relating to accounts can be
+found by running the following command:
+
+```
+stacklet-admin account --help
+Usage: stacklet-admin account [OPTIONS] COMMAND [ARGS]...
+
+  Query against and Run mutations against Account objects in Stacklet.
+
+  Define a custom config file with the --config option
+
+  Specify a different output format with the --output option
+
+  Example:
+
+      $ stacklet account --output json list
+
+Options:
+  -v                           Verbosity level, increase verbosity by
+                               appending v, e.g. -vvv
+
+  --api TEXT                   If set, --cognito-user-pool-id, --cognito-
+                               client-id, --cognito-region, and --api must
+                               also be set.
+
+  --cognito-region TEXT        If set, --cognito-user-pool-id, --cognito-
+                               client-id, --cognito-region, and --api must
+                               also be set.
+
+  --cognito-client-id TEXT     If set, --cognito-user-pool-id, --cognito-
+                               client-id, --cognito-region, and --api must
+                               also be set.
+
+  --cognito-user-pool-id TEXT  If set, --cognito-user-pool-id, --cognito-
+                               client-id, --cognito-region, and --api must
+                               also be set.
+
+  --output [|plain|json|yaml]  Ouput type
+  --config TEXT
+  --help                       Show this message and exit.
+
+Commands:
+  add     Add an account to Stacklet
+  list    List cloud accounts in Stacklet
+  remove  Remove an account from Stacklet
+  show    Show an account in Stacklet
+```
+
+Then run the command:
+
+```
+stacklet-admin account list
 data:
   accounts:
     edges:
     - node:
-        id: account:aws:532725030595
-        key: '532725030595'
-        name: stacklet-sonny
-        path: /
+        description: null
+        email: sonny@stacklet.io
+        id: account:aws:123456789012
+        key: '123456789012'
+        name: Sandbox Sonny
+        path: null
         provider: AWS
-        securityContext: arn:aws:iam::532725030595:role/dev-stacklet-execution-dev
+        securityContext: arn:aws:iam::123456789012:role/dev-stacklet-execution
+        shortName: null
+        tags: null
+        variables: null
+    pageInfo:
+      endCursor: eJxTMlQCAADtAHY=
+      hasNextPage: false
+      hasPreviousPage: false
+      startCursor: eJxTMlQCAADtAHY=
 ```
 
-Specify different output types and different config file locations:
+### Pagination
+
+For commands that utilize pagination, select the next page by running the following command:
 
 ```
-$ stacklet-admin --config /foo/bar/config.json --output json show
-{
-  "api": "https://ltudy56p2b.execute-api.us-east-1.amazonaws.com/api",
-  "cognito_user_pool_id": "us-east-1_tYCG1oFjn",
-  "cognito_client_id": "ag9dia42qootqgmvvdk0fb5np",
-  "region": "us-east-1"
-}
-```
-
-Run arbitrary snippets from stdin or from an option:
-
-```
-$ cat my-snippet
-{
-  accounts {
-    edges {
-      node {
-        id
-      }
-    }
-  }
-}
-```
-
-```
-$ stacklet-admin graphql run --snippet "{ accounts { edges { node { id } } } }"
+stacklet-admin account list --after "eJxTMlQCAADtAHY="
 data:
   accounts:
-    edges:
-    - node:
-        id: account:aws:532725030595
-
-$ stacklet-admin graphql run < my-snippet
-data:
-  accounts:
-    edges:
-    - node:
-        id: account:aws:532725030595
+    edges: []
+    pageInfo:
+      endCursor: ''
+      hasNextPage: false
+      hasPreviousPage: true
+      startCursor: ''
 ```
