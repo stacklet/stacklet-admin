@@ -10,7 +10,7 @@ _DEFAULT_OPTIONS = {
     "output": {
         "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
         "default": "",
-        "help": "Ouput type",
+        "help": "Output type",
     },
     "cognito_user_pool_id": {
         "help": (
@@ -44,10 +44,22 @@ _DEFAULT_OPTIONS = {
 }
 
 _PAGINATION_OPTIONS = {
-    "first": {"help": "For use with pagination.", "default": "20"},
-    "last": {"help": "For use with pagination.", "default": "20"},
-    "before": {"help": "For use with pagination.", "default": ""},
-    "after": {"help": "For use with pagination.", "default": ""},
+    "first": {
+        "help": "For use with pagination. Return the first n results.",
+        "default": "20",
+    },
+    "last": {
+        "help": "For use with pagination. Return the last n results.",
+        "default": "20",
+    },
+    "before": {
+        "help": "For use with pagination. Return the results before a given page cursor.",
+        "default": "",
+    },
+    "after": {
+        "help": "For use with pagination. Return the results after a given page curosr.",
+        "default": "",
+    },
 }
 
 

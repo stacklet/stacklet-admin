@@ -134,3 +134,20 @@ data:
       hasPreviousPage: true
       startCursor: ''
 ```
+
+The value of `--after` should be the value of the `endCursor` key under the `pageInfo` section in
+the response. For results with multiple pages, continue to use the `endCursor` value to progress
+through the pages. Additionally, use the `--before` option to move back one page.
+
+`--first` and `--last` are numerical options used to select the first n or last n results of a
+response. For example, to return the first account:
+
+```
+stacklet-admin account list --first 1
+```
+
+To return the last account:
+
+```
+stacklet-admin account list --last 1
+```
