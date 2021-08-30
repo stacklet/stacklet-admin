@@ -74,7 +74,7 @@ class StackletGraphqlSnippet:
 
     @classmethod
     def build(cls, variables):
-        split_snippet = cls.snippet.split("\n")
+        split_snippet = filter(None, cls.snippet.split("\n"))
 
         # remove empty options so we can remove any optional values in the mutation/queries
         for k in set(cls.optional).intersection(variables):
@@ -84,7 +84,15 @@ class StackletGraphqlSnippet:
                     for line in split_snippet
                     if f"${k.replace('-', '_')}" not in line
                 ]
-        d = {"query": "\n".join(split_snippet)}
+        d = {}
         if variables:
             d["variables"] = {k: v for k, v in variables.items() if v is not None}
+        var_names = d.get("variables", ())
+        if var_names:
+            qtype, bracked = split_snippet[0].strip().split(" ", 1)
+            split_snippet[0] = "%s (%s) {" % (
+                qtype,
+                (" ".join(["$%s: String!," % s for s in var_names]))[:-1],
+            )
+        d["query"] = ("\n".join(split_snippet)).replace('"', "")
         return d
