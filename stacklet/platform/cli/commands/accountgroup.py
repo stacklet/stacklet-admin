@@ -45,7 +45,7 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
 
 @StackletGraphqlExecutor.registry.register("add-account-group")
 class AddAccountSnippet(StackletGraphqlSnippet):
-    name = "add-account"
+    name = "add-account-group"
     snippet = """
     mutation {
       addAccountGroup(input:{
