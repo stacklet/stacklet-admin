@@ -1,5 +1,4 @@
 import logging
-from string import Template
 
 
 class StackletGraphqlSnippet:
