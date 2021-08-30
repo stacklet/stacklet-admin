@@ -5,7 +5,6 @@ import requests
 from c7n.registry import PluginRegistry
 from stacklet.platform.cli.context import StackletContext
 from stacklet.platform.cli.formatter import Formatter
-from stacklet.platform.cli.graphql import StackletGraphqlSnippet
 from stacklet.platform.cli.utils import _PAGINATION_OPTIONS, get_token, wrap_command
 
 
