@@ -74,7 +74,10 @@ class StackletGraphqlSnippet:
 
     @classmethod
     def build(cls, variables):
-        split_snippet = filter(None, cls.snippet.split("\n"))
+        if cls.snippet:
+            split_snippet = list(filter(None, cls.snippet.split("\n")))
+        else:
+            split_snippet = []
 
         # remove empty options so we can remove any optional values in the mutation/queries
         for k in set(cls.optional).intersection(variables):
@@ -92,7 +95,24 @@ class StackletGraphqlSnippet:
             qtype, bracked = split_snippet[0].strip().split(" ", 1)
             split_snippet[0] = "%s (%s) {" % (
                 qtype,
-                (" ".join(["$%s: String!," % s for s in var_names]))[:-1],
+                (
+                    " ".join(
+                        ["$%s: %s," % (s, gql_type(variables[s])) for s in var_names]
+                    )
+                )[:-1],
             )
         d["query"] = ("\n".join(split_snippet)).replace('"', "")
         return d
+
+
+def gql_type(v):
+    if isinstance(v, str):
+        return "String!"
+    elif isinstance(v, bool):
+        return "Bool!"
+    elif isinstance(v, int):
+        return "Integer!"
+    elif isinstance(v, list):
+        return "[%s]!" % (gql_type(v[0])[:-1])
+    else:
+        raise ValueError("unsupported %s" % (type(v)))
