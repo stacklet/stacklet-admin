@@ -32,10 +32,7 @@ class StackletGraphqlExecutor:
     def run(self, snippet, variables=None):
         if variables is None:
             variables = {}
-        payload = StackletGraphqlSnippet(
-            name=snippet.name, snippet=snippet.snippet, variables=variables
-        )
-        res = self.session.post(self.api, json=payload.build())
+        res = self.session.post(self.api, json=snippet.build(variables))
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
         return res.json()
 
