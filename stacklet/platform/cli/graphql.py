@@ -50,6 +50,7 @@ class StackletGraphqlSnippet:
     required = {}
     optional = {}
     pagination = False
+    input_variables = None
 
     def __init__(self, name=None, snippet=None, variables=None):
 
@@ -68,7 +69,24 @@ class StackletGraphqlSnippet:
         # double braces on every curly brace ({}) as graphql is full of those
         # in its syntax
         self.log.debug("Preparing Snippet:%s" % self.name)
-        if variables:
-            self.snippet = Template(self.snippet).substitute(**variables)
-
+        self.snippet = snippet
+        self.input_variables = variables
         self.log.debug("Created Snippet: %s" % self.snippet)
+
+    def build(self):
+        split_snippet = self.snippet.split("\n")
+
+        # remove empty options so we can remove any optional values in the mutation/queries
+        for k, v in self.input_variables.items():
+            if v is None and k in snippet.optional.keys():
+                split_snippet = [
+                    line
+                    for line in split_snippet
+                    if f"${k.replace('-', '_')}" not in line
+                ]
+
+        build_snippet = "\n".join(build_snippet)
+        d = {"query": self.snippet}
+        if self.input_varibles:
+            d["variables"] = self.input_variables
+        return d
