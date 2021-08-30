@@ -73,20 +73,20 @@ class StackletGraphqlSnippet:
         self.input_variables = variables
         self.log.debug("Created Snippet: %s" % self.snippet)
 
-    def build(self):
-        split_snippet = self.snippet.split("\n")
+    @classmethod
+    def build(cls, variables):
+        split_snippet = cls.snippet.split("\n")
 
         # remove empty options so we can remove any optional values in the mutation/queries
-        for k, v in self.input_variables.items():
-            if v is None and k in snippet.optional.keys():
+        for k in set(cls.optional).intersection(variables):
+            if variables[k] is None:
                 split_snippet = [
                     line
                     for line in split_snippet
                     if f"${k.replace('-', '_')}" not in line
                 ]
-
-        build_snippet = "\n".join(build_snippet)
-        d = {"query": self.snippet}
-        if self.input_varibles:
-            d["variables"] = self.input_variables
+        d = {"query": "\n".join(split_snippet)}
+        if variables:
+            d["variables"] = {k: v for k, v in variables.items() if v is not None}
+        import pdb; pdb.set_trace()
         return d
