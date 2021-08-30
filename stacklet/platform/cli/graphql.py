@@ -88,5 +88,4 @@ class StackletGraphqlSnippet:
         d = {"query": "\n".join(split_snippet)}
         if variables:
             d["variables"] = {k: v for k, v in variables.items() if v is not None}
-        import pdb; pdb.set_trace()
         return d
