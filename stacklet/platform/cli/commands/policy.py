@@ -45,7 +45,7 @@ class QueryPolicies(StackletGraphqlSnippet):
                 }
                 path
                 source
-                sourceYAML
+                validation_error
               }
             }
             pageInfo {
