@@ -166,6 +166,8 @@ class AddAccountSnippet(StackletGraphqlSnippet):
       }
     }
     """
+    parameter_types = {"provider": "CloudProvider!"}
+
     required = {
         "name": "Account Name in Stacklet",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
