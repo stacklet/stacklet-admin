@@ -46,11 +46,11 @@ _DEFAULT_OPTIONS = {
 _PAGINATION_OPTIONS = {
     "first": {
         "help": "For use with pagination. Return the first n results.",
-        "default": "20",
+        "default": 20,
     },
     "last": {
         "help": "For use with pagination. Return the last n results.",
-        "default": "20",
+        "default": 20,
     },
     "before": {
         "help": "For use with pagination. Return the results before a given page cursor.",
