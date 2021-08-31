@@ -71,7 +71,7 @@ class ProcessRepositorySnippet(StackletGraphqlSnippet):
 class ListRepositorySnippet(StackletGraphqlSnippet):
     name = "list-repository"
     snippet = """
-    {
+    query {
         repositories {
         edges {
           node {
@@ -154,7 +154,7 @@ def repository(*args, **kwargs):
 class ShowRepositorySnippet(StackletGraphqlSnippet):
     name = "show-repository"
     snippet = """
-    {
+    query {
         repository(url: "$url") {
             id
             name
@@ -167,6 +167,21 @@ class ShowRepositorySnippet(StackletGraphqlSnippet):
             head
             lastScanned
             provider
+            scans {
+              edges {
+                node {
+                  started
+                  completed
+                  head
+                  error
+                  commitsProcessed
+                  policiesAdded
+                  policiesModified
+                  policiesRemoved
+                  policiesInvalid
+                }
+              }
+            }
       }
     }
     """

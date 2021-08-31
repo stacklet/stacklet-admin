@@ -111,8 +111,8 @@ def gql_type(v):
     elif isinstance(v, bool):
         return "Bool!"
     elif isinstance(v, int):
-        return "Integer!"
+        return "Int!"
     elif isinstance(v, list):
-        return "[%s]!" % (gql_type(v[0])[:-1])
+        return "[%s]" % (gql_type(v[0]))
     else:
         raise ValueError("unsupported %s" % (type(v)))
