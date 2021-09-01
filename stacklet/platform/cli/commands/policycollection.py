@@ -102,6 +102,8 @@ class AddPolicyCollection(StackletGraphqlSnippet):
         "description": "Policy Collection Description",
     }
 
+    parameter_types = {"provider": "CloudProvider!"}
+
 
 @StackletGraphqlExecutor.registry.register("update-policy-collection")
 class UpdatePolicyCollection(StackletGraphqlSnippet):

@@ -117,7 +117,7 @@ def gql_type(v, snippet_type=None):
     if isinstance(v, str):
         return "String!"
     elif isinstance(v, bool):
-        return "Bool!"
+        return "Boolean!"
     elif isinstance(v, int):
         return "Int!"
     elif isinstance(v, list):
