@@ -125,7 +125,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
             "help": 'List of tags for Account, e.g. --tag "production --tag "marketing"',
             "multiple": True,
         },
-        "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
+        "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
 
 
