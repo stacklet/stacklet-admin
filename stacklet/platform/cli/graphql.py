@@ -82,7 +82,7 @@ class StackletGraphqlSnippet:
 
         # remove empty options so we can remove any optional values in the mutation/queries
         for k in set(cls.optional).intersection(variables):
-            if variables[k] is None:
+            if variables[k] is None or variables[k] == ():
                 split_snippet = [
                     line
                     for line in split_snippet
@@ -90,7 +90,9 @@ class StackletGraphqlSnippet:
                 ]
         d = {}
         if variables:
-            d["variables"] = {k: v for k, v in variables.items() if v is not None}
+            d["variables"] = {
+                k: v for k, v in variables.items() if v is not None and v != ()
+            }
         var_names = d.get("variables", ())
 
         if var_names:
