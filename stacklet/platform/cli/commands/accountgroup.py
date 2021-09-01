@@ -51,7 +51,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
       addAccountGroup(input:{
         name: "$name"
         provider: $provider
-        regions: $regions
+        regions: $region
         shortName: "$short_name"
         description: "$description"
         variables: "$variables"
@@ -82,10 +82,12 @@ class AddAccountSnippet(StackletGraphqlSnippet):
     required = {
         "name": "Account Name in Stacklet",
         "provider": "Cloud Provider",
-        "regions": "Cloud Regions",
+        "region": {"help": "Cloud Regions", "multiple": True},
     }
 
-    parameter_types = {"provider": "CloudProvider!"}
+    parameter_types = {
+        "provider": "CloudProvider!",
+    }
 
     optional = {
         "description": "Account Group Description",
@@ -136,7 +138,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     }
 
     optional = {
-        "regions": "Cloud Regions",
+        "region": {"help": "Cloud Regions", "multiple": True},
         "name": "Account Group Name",
         "description": "Account Group Description",
         "short_name": "Account Group Short Name",

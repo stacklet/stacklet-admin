@@ -120,7 +120,7 @@ def gql_type(v, snippet_type=None):
         return "Boolean!"
     elif isinstance(v, int):
         return "Int!"
-    elif isinstance(v, list):
+    elif isinstance(v, list) or isinstance(v, tuple):
         return "[%s]" % (gql_type(v[0]))
     else:
         raise ValueError("unsupported %s" % (type(v)))
