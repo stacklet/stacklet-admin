@@ -7,6 +7,4 @@ build/*
 *.DS_Store
 .coverage
 cli.bin
-cli.build/*
-cli.dist/*
-cli.onefile-build/*
+stacklet-admin

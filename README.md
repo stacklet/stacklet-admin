@@ -13,7 +13,7 @@ $ just install
 $ just compile
 ```
 
-This will create a `cli.bin` file which can be distributed. Compiling takes a long time (over 8 minutes). This file as well as the compile artifacts are git ignored.
+This will create a `cli.bin` and `stacklet-admin` files which can be distributed. Compiling takes a long time (over 8 minutes). These files are git ignored.
 
 ## User Creation and Login
 
