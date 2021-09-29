@@ -3,12 +3,15 @@ pkg_repo := "platform-cli"
 pkg_owner := "532725030595"
 pkg_region := "us-east-1"
 
+default:
+	@just --list
+
 install:
-  poetry install
-  poetry run pre-commit install
+	poetry install
+	poetry run pre-commit install
 
 test:
-  poetry run pytest --cov=stacklet tests
+	poetry run pytest --cov=stacklet tests
 
 pkg-login:
 	#!/bin/bash
@@ -27,7 +30,9 @@ pkg-login:
 	poetry config repositories.{{pkg_repo}} $CODEARTIFACT_REPOSITORY_URL
 	poetry config http-basic.{{pkg_repo}} $CODEARTIFACT_USER $CODEARTIFACT_AUTH_TOKEN
 
-
 pkg-publish:
 	rm -f dist/*
 	poetry publish -vvv --build -r {{pkg_repo}}
+
+compile: install
+	poetry run python -m nuitka stacklet/platform/cli/cli.py --standalone --onefile --assume-yes-for-downloads
