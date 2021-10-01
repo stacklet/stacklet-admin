@@ -27,7 +27,10 @@ class ListAccountsSnippet(StackletGraphqlSnippet):
                 path
                 email
                 securityContext
-                tags
+                tags {
+                    key
+                    value
+                }
                 variables
               }
             }
@@ -61,7 +64,10 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
             path
             email
             securityContext
-            tags
+            tags {
+                key
+                value
+            }
             variables
           }
         }
@@ -100,7 +106,10 @@ class AddAccountSnippet(StackletGraphqlSnippet):
             path
             email
             securityContext
-            tags
+            tags {
+                key
+                value
+            }
             variables
         }
       }
@@ -117,7 +126,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "security_context": "Role for Custodian policy execution",
         "short_name": "Short Name for Account",
         "description": "Description for Account",
-        "tags": 'List of tags for Account, e.g. --tags "[\\"production\\", \\"marketing\\"]"',
+        "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
     }
 
@@ -141,7 +150,10 @@ class RemoveAccountSnippet(StackletGraphqlSnippet):
             path
             email
             securityContext
-            tags
+            tags {
+                key
+                value
+            }
             variables
         }
       }
