@@ -35,6 +35,6 @@ pkg-publish:
 	poetry publish -vvv --build -r {{pkg_repo}}
 
 compile: install
-	poetry run python -m nuitka stacklet/platform/cli/cli.py -o stacklet-admin --standalone --onefile --assume-yes-for-downloads --remove-output
+	poetry run python -m nuitka stacklet/platform/cli/cli.py -o stacklet-admin --standalone --onefile --assume-yes-for-downloads --include-package-data=* --remove-output
 	chmod +x stacklet-admin
 	export PATH=$PWD/:$PATH
