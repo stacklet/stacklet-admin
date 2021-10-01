@@ -7,6 +7,14 @@
 $ just install
 ```
 
+## Compiling for distribution
+
+```
+$ just compile
+```
+
+This will create a `cli.bin` and `stacklet-admin` files which can be distributed. Compiling takes a long time (over 8 minutes). These files are git ignored.
+
 ## User Creation and Login
 
 To get started, simply use the `auto-configure` command to initialize the CLI configuration

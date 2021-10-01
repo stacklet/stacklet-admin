@@ -6,3 +6,5 @@ build/*
 *.swp
 *.DS_Store
 .coverage
+cli.bin
+stacklet-admin
