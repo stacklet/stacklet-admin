@@ -78,6 +78,8 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
 
+    parameter_types = {"provider": "CloudProvider!"}
+
 
 @StackletGraphqlExecutor.registry.register("update-account")
 class UpdateAccountSnippet(StackletGraphqlSnippet):
@@ -144,7 +146,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         securityContext:"$security_context"
         shortName: "$short_name"
         description: "$description"
-        tags: $tags
+        tags: $tag
         variables: "$variables"
       }){
         account {
@@ -179,8 +181,11 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "security_context": "Role for Custodian policy execution",
         "short_name": "Short Name for Account",
         "description": "Description for Account",
-        "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
-        "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
+        "tag": {
+            "help": 'List of tags for Account, e.g. --tag "production --tag "marketing"',
+            "multiple": True,
+        },
+        "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
 
 
@@ -216,6 +221,8 @@ class RemoveAccountSnippet(StackletGraphqlSnippet):
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
+
+    parameter_types = {"provider": "CloudProvider!"}
 
 
 @click.group(short_help="Run account queries/mutations")

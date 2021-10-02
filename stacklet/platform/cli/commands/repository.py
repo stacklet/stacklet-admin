@@ -25,7 +25,7 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
           authToken: "$auth_token"
           branchName: "$branch_name"
           policyFileSuffix: $policy_file_suffix
-          policyDirectories: $policy_directories
+          policyDirectories: $policy_directory
           deepImport: $deep_import
         }
       ) {
@@ -48,8 +48,14 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
         "auth_user": "Auth User for repository access",
         "auth_token": "Auth token for repository access",
         "branch_name": "Git Branch Name",
-        "policy_file_suffix": 'List of Policy File Suffixes e.g. [".json", ".yaml", ".yml"]',  # noqa
-        "policy_directories": 'Policy Directories e.g. ["policies", "some/path"]',
+        "policy_file_suffix": {
+            "help": 'List of Policy File Suffixes e.g. [".json", ".yaml", ".yml"]',
+            "multiple": True,
+        },
+        "policy_directory": {
+            "help": 'Policy Directories e.g. ["policies", "some/path"]',
+            "multiple": True,
+        },
         "deep_import": "Deep Import Repository true | false",
     }
 
