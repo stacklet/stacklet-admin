@@ -79,6 +79,41 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     }
 
 
+@StackletGraphqlExecutor.registry.register('update-account')
+class UpdateAccountSnippet(StackletGraphqlExecutor):
+    name = "update-account"
+    snippet = """
+    updateAccount(input:{
+      provider:$provider
+      key: "$key"
+      name: "$name"
+      email: "$email"
+      description: "$description"
+      shortName: "$short_name"
+      tags: $tags
+      variables: "$variables"
+      securityContext: "$security_context"
+    }){
+        account {
+            id
+            key
+            name
+            shortName
+            description
+            provider
+            path
+            email
+            securityContext
+            tags {
+                key
+                value
+            }
+            variables
+        }
+      }
+    }
+    """
+
 @StackletGraphqlExecutor.registry.register("add-account")
 class AddAccountSnippet(StackletGraphqlSnippet):
     name = "add-account"
