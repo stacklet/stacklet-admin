@@ -79,21 +79,22 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register('update-account')
-class UpdateAccountSnippet(StackletGraphqlExecutor):
+@StackletGraphqlExecutor.registry.register("update-account")
+class UpdateAccountSnippet(StackletGraphqlSnippet):
     name = "update-account"
     snippet = """
-    updateAccount(input:{
-      provider:$provider
-      key: "$key"
-      name: "$name"
-      email: "$email"
-      description: "$description"
-      shortName: "$short_name"
-      tags: $tags
-      variables: "$variables"
-      securityContext: "$security_context"
-    }){
+    mutation {
+      updateAccount(input:{
+        provider:$provider
+        key: "$key"
+        name: "$name"
+        email: "$email"
+        description: "$description"
+        shortName: "$short_name"
+        tags: $tags
+        variables: "$variables"
+        securityContext: "$security_context"
+      }){
         account {
             id
             key
@@ -113,6 +114,21 @@ class UpdateAccountSnippet(StackletGraphqlExecutor):
       }
     }
     """
+
+    required = {
+        "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+        "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
+        "name": "name of the account",
+    }
+    optional = {
+        "email": "Account Email Address",
+        "security_context": "Role for Custodian policy execution",
+        "short_name": "Short Name for Account",
+        "description": "Description for Account",
+        "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
+        "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
+    }
+
 
 @StackletGraphqlExecutor.registry.register("add-account")
 class AddAccountSnippet(StackletGraphqlSnippet):
@@ -247,6 +263,16 @@ def remove(ctx, **kwargs):
     Remove an account from Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="remove-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("update-account")
+@click.pass_context
+def update(ctx, **kwargs):
+    """
+    Update an account in platform
+    """
+    click.echo(_run_graphql(ctx=ctx, name="update-account", variables=kwargs))
 
 
 @account.command()
