@@ -118,9 +118,9 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     required = {
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
-        "name": "name of the account",
     }
     optional = {
+        "name": "Account Name",
         "email": "Account Email Address",
         "security_context": "Role for Custodian policy execution",
         "short_name": "Short Name for Account",
