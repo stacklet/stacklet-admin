@@ -1,5 +1,4 @@
 import logging
-from string import Template
 
 
 class StackletGraphqlSnippet:
@@ -50,6 +49,8 @@ class StackletGraphqlSnippet:
     required = {}
     optional = {}
     pagination = False
+    input_variables = None
+    parameter_types = {}
 
     def __init__(self, name=None, snippet=None, variables=None):
 
@@ -68,7 +69,60 @@ class StackletGraphqlSnippet:
         # double braces on every curly brace ({}) as graphql is full of those
         # in its syntax
         self.log.debug("Preparing Snippet:%s" % self.name)
-        if variables:
-            self.snippet = Template(self.snippet).substitute(**variables)
-
+        self.snippet = snippet
+        self.input_variables = variables
         self.log.debug("Created Snippet: %s" % self.snippet)
+
+    @classmethod
+    def build(cls, variables):
+        if cls.snippet:
+            split_snippet = list(filter(None, cls.snippet.split("\n")))
+        else:
+            split_snippet = []
+
+        # remove empty options so we can remove any optional values in the mutation/queries
+        for k in set(cls.optional).intersection(variables):
+            if variables[k] is None or variables[k] == ():
+                split_snippet = [
+                    line
+                    for line in split_snippet
+                    if f"${k.replace('-', '_')}" not in line
+                ]
+        d = {}
+        if variables:
+            d["variables"] = {
+                k: v for k, v in variables.items() if v is not None and v != ()
+            }
+        var_names = d.get("variables", ())
+
+        if var_names:
+            qtype, bracked = split_snippet[0].strip().split(" ", 1)
+            split_snippet[0] = "%s (%s) {" % (
+                qtype,
+                (
+                    " ".join(
+                        [
+                            "$%s: %s,"
+                            % (s, gql_type(variables[s], cls.parameter_types.get(s)))
+                            for s in var_names
+                        ]
+                    )
+                )[:-1],
+            )
+        d["query"] = ("\n".join(split_snippet)).replace('"', "")
+        return d
+
+
+def gql_type(v, snippet_type=None):
+    if snippet_type is not None:
+        return snippet_type
+    if isinstance(v, str):
+        return "String!"
+    elif isinstance(v, bool):
+        return "Boolean!"
+    elif isinstance(v, int):
+        return "Int!"
+    elif isinstance(v, list) or isinstance(v, tuple):
+        return "[%s]" % (gql_type(v[0]))
+    else:
+        raise ValueError("unsupported %s" % (type(v)))

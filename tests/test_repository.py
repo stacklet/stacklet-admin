@@ -7,21 +7,6 @@ from utils import BaseCliTest, get_executor_adapter
 class RepositoryTest(BaseCliTest):
     def test_add_repository(self):
         executor, adapter = get_executor_adapter()
-        snippet = """
-    mutation {
-      addRepository(
-        input: {
-          url: "mock://git.acme.org/stacklet/policies.git"
-          name: "test-policies"
-        }
-      ) {
-        repository {
-            url
-            name
-        }
-      }
-    }
-    """
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
@@ -59,17 +44,25 @@ class RepositoryTest(BaseCliTest):
                     "data:\n  addRepository:\n    name: test-policies\n    url: mock://git.acme.org/stacklet/policies.git\n\n",  # noqa
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
-                self.assertEqual(body["query"], snippet)
+                self.assertEqual(
+                    body["query"].strip(),
+                    """mutation ($url: String!, $name: String!) {
+      addRepository(
+        input: {
+          url: $url
+          name: $name
+        }
+      ) {
+        repository {
+            url
+            name
+        }
+      }
+    }""",
+                )
 
     def test_process_repository(self):
         executor, adapter = get_executor_adapter()
-        snippet = """
-    mutation {
-      processRepository(input:{url: "mock://git.acme.org/stacklet/policies.git"}) {
-        status
-      }
-    }
-    """
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
@@ -98,4 +91,11 @@ class RepositoryTest(BaseCliTest):
                     res.output, "data:\n  processRepository:\n    status: true\n\n"
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
-                self.assertEqual(body["query"], snippet)
+                self.assertEqual(
+                    body["query"].strip(),
+                    """mutation ($url: String!) {
+      processRepository(input:{url: $url}) {
+        status
+      }
+    }""",
+                )

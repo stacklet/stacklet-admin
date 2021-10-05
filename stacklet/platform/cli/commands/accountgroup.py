@@ -44,7 +44,7 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
 
 
 @StackletGraphqlExecutor.registry.register("add-account-group")
-class AddAccountSnippet(StackletGraphqlSnippet):
+class AddAccountGroupSnippet(StackletGraphqlSnippet):
     name = "add-account-group"
     snippet = """
     mutation {
@@ -82,7 +82,11 @@ class AddAccountSnippet(StackletGraphqlSnippet):
     required = {
         "name": "Account Name in Stacklet",
         "provider": "Cloud Provider",
-        "regions": "Cloud Regions",
+        "region": {"help": "Cloud Regions", "multiple": True},
+    }
+
+    parameter_types = {
+        "provider": "CloudProvider!",
     }
 
     optional = {
@@ -134,7 +138,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     }
 
     optional = {
-        "regions": "Cloud Regions",
+        "region": {"help": "Cloud Regions", "multiple": True},
         "name": "Account Group Name",
         "description": "Account Group Description",
         "short_name": "Account Group Short Name",
@@ -248,7 +252,7 @@ class AddAccountGroupItem(StackletGraphqlSnippet):
         "key": "Account Key",
         "provider": "Account Provider",
     }
-
+    parameter_types = {"provider": "CloudProvider!"}
     optional = {"regions": "Account Regions"}
 
 
@@ -293,6 +297,8 @@ class RemoveAccountGroupItem(StackletGraphqlSnippet):
         "key": "Account Key",
         "provider": "Account Provider",
     }
+
+    parameter_types = {"provider": "CloudProvider!"}
 
 
 @click.group(short_help="Run account group queries/mutations")
