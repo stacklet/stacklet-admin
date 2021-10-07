@@ -51,7 +51,7 @@ class AddAccountGroupSnippet(StackletGraphqlSnippet):
       addAccountGroup(input:{
         name: "$name"
         provider: $provider
-        regions: $regions
+        regions: $region
         shortName: "$short_name"
         description: "$description"
         variables: "$variables"
@@ -107,7 +107,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
         name: "$name"
         shortName: "$short_name"
         description: "$description"
-        regions: $regions
+        regions: $region
         variables: "$variables"
         priority: $priority
       }){
