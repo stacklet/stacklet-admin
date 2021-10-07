@@ -211,9 +211,6 @@ def add(ctx, **kwargs):
             )
         with open(os.path.expanduser(private_key), "r") as f:
             kwargs["ssh_private_key"] = f.read().strip("\n")
-        # need to replace the new line so that libgit2 will properly use the credentials and pull
-        # from git sources
-        kwargs["ssh_private_key"] = kwargs["ssh_private_key"].replace("\n", "\\n")
     click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))
 
 
