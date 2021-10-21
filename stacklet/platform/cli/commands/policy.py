@@ -31,8 +31,11 @@ class QueryPolicies(StackletGraphqlSnippet):
                 resourceType
                 provider
                 resource
-                execMode
-                tags
+                mode
+                tags {
+                 key
+                  value
+                }
                 commit {
                     hash
                     author
@@ -80,8 +83,11 @@ class ShowPolicy(StackletGraphqlSnippet):
             resourceType
             provider
             resource
-            execMode
-            tags
+            mode
+            tags {
+              key
+              value
+            }
             commit {
                 hash
                 author
