@@ -101,6 +101,33 @@ class ShowPolicy(StackletGraphqlSnippet):
             path
             source
             sourceYAML
+            lastExecution {
+              id
+              uuid
+              account {
+                id
+                key
+                name
+                path
+                email
+                status
+                status_message
+                validated_at
+              }
+              start
+              end
+              status
+              issues
+              metricResources
+              metricDuration
+              metricApiCalls
+              metricException
+              metricRateLimitExceeded
+              paramCache
+              paramRegion
+              paramDryrun
+              runner
+            }
           }
       }
     """
