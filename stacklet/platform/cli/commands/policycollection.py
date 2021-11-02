@@ -33,6 +33,7 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
               hasNextPage
               startCursor
               endCursor
+              total
             }
           }
         }

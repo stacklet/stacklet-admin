@@ -78,7 +78,7 @@ class ListRepositorySnippet(StackletGraphqlSnippet):
     name = "list-repository"
     snippet = """
     query {
-        repositories {
+      repositories {
         edges {
           node {
             id
@@ -93,6 +93,13 @@ class ListRepositorySnippet(StackletGraphqlSnippet):
             lastScanned
             provider
           }
+        }
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+          total
         }
       }
     }
@@ -161,33 +168,40 @@ class ShowRepositorySnippet(StackletGraphqlSnippet):
     name = "show-repository"
     snippet = """
     query {
-        repository(url: "$url") {
-            id
-            name
-            url
-            policyFileSuffix
-            policyDirectories
-            branchName
-            authUser
-            sshPublicKey
-            head
-            lastScanned
-            provider
-            scans {
-              edges {
-                node {
-                  started
-                  completed
-                  head
-                  error
-                  commitsProcessed
-                  policiesAdded
-                  policiesModified
-                  policiesRemoved
-                  policiesInvalid
-                }
-              }
+      repository(url: "$url") {
+        id
+        name
+        url
+        policyFileSuffix
+        policyDirectories
+        branchName
+        authUser
+        sshPublicKey
+        head
+        lastScanned
+        provider
+        scans {
+          edges {
+            node {
+              started
+              completed
+              head
+              error
+              commitsProcessed
+              policiesAdded
+              policiesModified
+              policiesRemoved
+              policiesInvalid
             }
+          }
+          pageInfo {
+            hasPreviousPage
+            hasNextPage
+            startCursor
+            endCursor
+            total
+          }
+        }
       }
     }
     """

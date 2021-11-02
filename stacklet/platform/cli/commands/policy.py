@@ -56,6 +56,7 @@ class QueryPolicies(StackletGraphqlSnippet):
               hasNextPage
               startCursor
               endCursor
+              total
             }
           }
         }

@@ -36,6 +36,7 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
               hasNextPage
               startCursor
               endCursor
+              total
             }
           }
         }

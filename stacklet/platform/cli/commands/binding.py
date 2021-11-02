@@ -39,6 +39,7 @@ class QueryBindingsSnippet(StackletGraphqlSnippet):
               hasNextPage
               startCursor
               endCursor
+              total
             }
           }
         }
