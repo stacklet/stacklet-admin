@@ -39,6 +39,7 @@ class ListAccountsSnippet(StackletGraphqlSnippet):
               hasNextPage
               startCursor
               endCursor
+              total
             }
           }
         }
