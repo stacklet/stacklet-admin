@@ -128,7 +128,7 @@ def auto_configure(ctx, prefix, location):
     try:
         param = json.loads(
             client.get_parameter(
-                Name=f"/{prefix}/platform/config", WithDecryption=True
+                Name=f"/stacklet/{prefix}/platform/config", WithDecryption=True
             )["Parameter"]["Value"]
         )
     except Exception as e:
