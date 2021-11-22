@@ -175,11 +175,11 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "name": "Account Name in Stacklet",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+        "security_context": "Role for Custodian policy execution",
     }
     optional = {
         "path": "Account Path",
         "email": "Account Email Address",
-        "security_context": "Role for Custodian policy execution",
         "short_name": "Short Name for Account",
         "description": "Description for Account",
         "tag": {
