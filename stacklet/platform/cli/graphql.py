@@ -112,6 +112,10 @@ class StackletGraphqlSnippet:
         d["query"] = ("\n".join(split_snippet)).replace('"', "")
         return d
 
+    @classmethod
+    def adhoc(cls, **kwargs):
+        return type("AdHocSnippet", (cls,), kwargs)
+
 
 def gql_type(v, snippet_type=None):
     if snippet_type is not None:

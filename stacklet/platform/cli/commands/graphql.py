@@ -23,7 +23,7 @@ def graphql(*args, **kwargs):
 def run(ctx, snippet):
     if isinstance(snippet, io.IOBase):
         snippet = snippet.read()
-    stacklet_snippet = StackletGraphqlSnippet(
+    stacklet_snippet = StackletGraphqlSnippet.adhoc(
         name="adhoc", snippet=snippet, variables={}
     )
     click.echo(

@@ -33,7 +33,7 @@ class StackletGraphqlExecutor:
             variables = {}
         request = snippet.build(variables)
         self.log.debug("Request: %s" % json.dumps(request, indent=2))
-        res = self.session.post(self.api, json=snippet.build(variables))
+        res = self.session.post(self.api, json=request)
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
         return res.json()
 
