@@ -1,3 +1,5 @@
+import json
+import yaml
 from unittest.mock import patch
 
 from utils import BaseCliTest, get_executor_adapter
@@ -68,36 +70,14 @@ class GraphqlTest(BaseCliTest):
             },
         )
 
-    def test_grpahql_executor_via_cli(self):
-        snippet = """
-{
-    accounts (
-    ){
-        edges {
-            node {
-                id
-            }
-        }
-    }
-}
-"""
+    def test_graphql_executor_via_cli(self):
         executor, adapter = get_executor_adapter()
+
+        snippet = "{ platform { version } }"
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
-            json={
-                "data": {
-                    "accounts": {
-                        "edges": [
-                            {
-                                "node": {
-                                    "id": "account:aws:123123123123",
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
+            json={"data": {"platform": {"version": "1.2.3+git.abcdef0"}}},
         )
 
         with patch(
@@ -117,9 +97,10 @@ class GraphqlTest(BaseCliTest):
                         f"--snippet={snippet}",
                     ],
                 )
-                self.assertEqual(res.exit_code, 0)
+                body = json.loads(adapter.last_request.body.decode("utf-8"))
+                assert body == {"query": snippet}
 
-                self.assertEqual(
-                    res.output,
-                    "data:\n  accounts:\n    edges:\n    - node:\n        id: account:aws:123123123123\n\n",  # noqa
-                )
+                assert res.exit_code == 0
+                assert yaml.safe_load(res.output) == {
+                    "data": {"platform": {"version": "1.2.3+git.abcdef0"}}
+                }

@@ -23,9 +23,11 @@ def graphql(*args, **kwargs):
 def run(ctx, snippet):
     if isinstance(snippet, io.IOBase):
         snippet = snippet.read()
-    stacklet_snippet = StackletGraphqlSnippet(
-        name="adhoc", snippet=snippet, variables={}
-    )
-    click.echo(
-        _run_graphql(ctx=ctx, name=None, variables=None, snippet=stacklet_snippet)
-    )
+
+    # snippet must be a subclass, not an instance, of StackletGraphqlSnippet.
+    click.echo(_run_graphql(ctx=ctx, snippet=_ad_hoc(snippet)))
+
+
+def _ad_hoc(snippet):
+    "In practice, this is the most convenient way to create the subclass."
+    return type("AdHocSnippet", (StackletGraphqlSnippet,), {"snippet": snippet})
