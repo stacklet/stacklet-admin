@@ -1,4 +1,5 @@
 import json
+import yaml
 from unittest.mock import patch
 
 from utils import BaseCliTest, get_executor_adapter
@@ -98,8 +99,8 @@ class GraphqlTest(BaseCliTest):
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
                 assert body == {"query": snippet}
+
                 assert res.exit_code == 0
-                assert (
-                    res.output
-                    == "data:\n  platform:\n    version: 1.2.3+git.abcdef0\n\n"
-                )
+                assert yaml.safe_load(res.output) == {
+                    "data": {"platform": {"version": "1.2.3+git.abcdef0"}}
+                }

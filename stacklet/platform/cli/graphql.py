@@ -1,6 +1,3 @@
-import logging
-
-
 class StackletGraphqlSnippet:
     """
     A resusable Graphql Snippet
@@ -44,6 +41,9 @@ class StackletGraphqlSnippet:
             }
     """
 
+    def __init__(self):
+        raise RuntimeError("instances don't do anything")
+
     name = None
     snippet = None
     required = {}
@@ -51,27 +51,6 @@ class StackletGraphqlSnippet:
     pagination = False
     input_variables = None
     parameter_types = {}
-
-    def __init__(self, name=None, snippet=None, variables=None):
-
-        if name:
-            self.name = name
-
-        if snippet:
-            self.snippet = snippet
-
-        if variables is None:
-            variables = {}
-
-        self.log = logging.getLogger("StackletGraphqlSnippet")
-
-        # usage of string.Template is key here to prevent the need to use
-        # double braces on every curly brace ({}) as graphql is full of those
-        # in its syntax
-        self.log.debug("Preparing Snippet:%s" % self.name)
-        self.snippet = snippet
-        self.input_variables = variables
-        self.log.debug("Created Snippet: %s" % self.snippet)
 
     @classmethod
     def build(cls, variables):
@@ -111,10 +90,6 @@ class StackletGraphqlSnippet:
             )
         d["query"] = ("\n".join(split_snippet)).replace('"', "")
         return d
-
-    @classmethod
-    def adhoc(cls, **kwargs):
-        return type("AdHocSnippet", (cls,), kwargs)
 
 
 def gql_type(v, snippet_type=None):
