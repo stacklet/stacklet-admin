@@ -353,6 +353,12 @@ def validate_all(ctx, **kwargs):
     Validate all accounts in Stacklet
     """
     result = _run_graphql(ctx=ctx, name="list-accounts", variables=kwargs, raw=True)
+
+    # get all the accounts
+    count = result["data"]["accounts"]["pageInfo"]["total"]
+    kwargs["last"] = count
+
+    result = _run_graphql(ctx=ctx, name="list-accounts", variables=kwargs, raw=True)
     account_provider_pairs = [
         {"provider": r["node"]["provider"], "key": r["node"]["key"]}
         for r in result["data"]["accounts"]["edges"]
