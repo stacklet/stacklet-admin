@@ -226,6 +226,46 @@ class RemoveAccountSnippet(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
+@StackletGraphqlExecutor.registry.register("validate-account")
+class ValidateAccountSnippet(StackletGraphqlSnippet):
+    name = "validate-account"
+    snippet = """
+    mutation {
+      validateAccount(
+        input: {
+          provider: $provider,
+          key:"$key",
+        }
+      ){
+        account {
+            id
+            key
+            name
+            shortName
+            description
+            provider
+            path
+            email
+            securityContext
+            tags {
+                key
+                value
+            }
+            variables
+            status
+            status_message
+        }
+      }
+    }
+    """
+    required = {
+        "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
+        "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
+    }
+
+    parameter_types = {"provider": "CloudProvider!"}
+
+
 @click.group(short_help="Run account queries/mutations")
 @default_options()
 @click.pass_context
@@ -293,3 +333,29 @@ def show(ctx, **kwargs):
     Show an account in Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="show-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("validate-account")
+@click.pass_context
+def validate(ctx, **kwargs):
+    """
+    Validate an account in Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="validate-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("list-accounts")
+@click.pass_context
+def validate_all(ctx, **kwargs):
+    """
+    Validate all accounts in Stacklet
+    """
+    result = _run_graphql(ctx=ctx, name="list-accounts", variables=kwargs, raw=True)
+    account_provider_pairs = [
+        {"provider": r["node"]["provider"], "key": r["node"]["key"]}
+        for r in result["data"]["accounts"]["edges"]
+    ]
+    for pair in account_provider_pairs:
+        click.echo(_run_graphql(ctx=ctx, name="validate-account", variables=pair))
