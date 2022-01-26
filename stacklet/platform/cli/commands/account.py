@@ -343,3 +343,19 @@ def validate(ctx, **kwargs):
     Validate an account in Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="validate-account", variables=kwargs))
+
+
+@account.command()
+@snippet_options("list-accounts")
+@click.pass_context
+def validate_all(ctx, **kwargs):
+    """
+    Validate all accounts in Stacklet
+    """
+    result = _run_graphql(ctx=ctx, name="list-accounts", variables=kwargs, raw=True)
+    account_provider_pairs = [
+        {"provider": r["node"]["provider"], "key": r["node"]["key"]}
+        for r in result["data"]["accounts"]["edges"]
+    ]
+    for pair in account_provider_pairs:
+        click.echo(_run_graphql(ctx=ctx, name="validate-account", variables=pair))
