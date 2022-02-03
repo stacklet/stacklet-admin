@@ -1,0 +1,18 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/casey/just/master/docs/install.sh | bash -s -- --to /usr/bin
+  build:
+    on-failure: ABORT
+    commands:
+      - .build/binaries.sh
+  post_build:
+    commands:
+      - cat /release/installer.cfg
