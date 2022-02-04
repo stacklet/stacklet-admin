@@ -17,6 +17,6 @@ built=$buildstamp
 githash=$githash
 EOF
 
-tar -C $output_dir -czf platform-cli-$githash.tar.gz .
+tar -C $output_dir -czf stacklet-admin-$githash.tar.gz .
 
-aws s3 cp platform-cli-$githash.tar.gz s3://stacklet-compiled-assets/platform-cli/builds/$githash/ --sse AES256 --acl bucket-owner-full-control --metadata githash="${githash}"
+aws s3 cp stacklet-admin-$githash.tar.gz s3://stacklet-compiled-assets/stacklet-admin/builds/$githash/ --sse AES256 --acl bucket-owner-full-control --metadata githash="${githash}"
