@@ -11,7 +11,8 @@ phases:
       - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - pip install pip --upgrade
       - pip install poetry
-      - apt install chrpath
+      - apt-get update -y
+      - apt-get install -y chrpath
   build:
     on-failure: ABORT
     commands:
