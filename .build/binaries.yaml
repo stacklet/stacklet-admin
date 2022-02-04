@@ -12,7 +12,7 @@ phases:
       - pip install pip --upgrade
       - pip install poetry
       - apt-get update -y
-      - apt-get install -y chrpath
+      - apt-get install -y chrpath libfuse2
   build:
     on-failure: ABORT
     commands:
