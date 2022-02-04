@@ -8,7 +8,9 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      - curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/casey/just/master/docs/install.sh | bash -s -- --to /usr/bin
+      - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - pip install pip --upgrade
+      - pip install poetry
   build:
     on-failure: ABORT
     commands:
