@@ -120,7 +120,7 @@ class AddBindingSnippet(StackletGraphqlSnippet):
         "description": "Binding Description",
         "schedule": "Binding Schedule for Pull Mode Policies",
         "variables": "Binding variables (JSON Encoded string)",
-        "deploy": "Deploy on creation true| false",
+        "deploy": {"help": "Deploy on creation true| false", "type": bool},
     }
 
 
