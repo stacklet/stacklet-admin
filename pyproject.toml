@@ -20,7 +20,7 @@ url = "https://stacklet-532725030595.d.codeartifact.us-east-1.amazonaws.com/pypi
 
 [tool.poetry.dependencies]
 python = "^3.8"
-click = "^7.1.2"
+click = "^8.0.1"
 requests = "^2.25.1"
 jsonschema = "^3.2.0"
 PyYAML = "^5.4.1"
@@ -29,7 +29,7 @@ PyJWT = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.0"
-black = "^20.8b1"
+black = "^22.1.0"
 isort = "^5.8.0"
 pytest = "^6.2.3"
 pytest-cov = "^2.11.1"
