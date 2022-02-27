@@ -1,18 +1,18 @@
 [tool.poetry]
-name = "stacklet.platform.cli"
+name = "stacklet.client.platform"
 version = "0.1.0"
-description = "Stacklet Platform CLI"
+description = "Stacklet Platform Client"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
 include = [
-  "stacklet/platform/cli/vendored/auth_landing_pages/ok.html",
-  "stacklet/platform/cli/vendored/auth_landing_pages/fail.html"
+  "stacklet/client/platform/vendored/auth_landing_pages/ok.html",
+  "stacklet/client/platform/vendored/auth_landing_pages/fail.html"
 ]
 packages = [
     { include = "stacklet" },
 ]
 
 [tool.poetry.scripts]
-stacklet-admin = "stacklet.platform.cli.cli:cli"
+stacklet-admin = "stacklet.client.platform.cli:cli"
 
 [[tool.poetry.source]]
 name = "platform-cli"
@@ -23,7 +23,6 @@ python = "^3.8"
 click = "^7.1.2"
 requests = "^2.25.1"
 jsonschema = "^3.2.0"
-c7n = "^0.9.11"
 PyYAML = "^5.4.1"
 pyaml = "^20.4.0"
 PyJWT = "^2.0.1"

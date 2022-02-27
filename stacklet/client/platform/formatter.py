@@ -1,7 +1,7 @@
 import json
 
 import yaml
-from c7n.registry import PluginRegistry
+from .registry import PluginRegistry
 
 
 class Formatter:

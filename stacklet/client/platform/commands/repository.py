@@ -1,12 +1,12 @@
 import click
 import os
 
-from stacklet.platform.cli.exceptions import InvalidInputException
 
-from stacklet.platform.cli.executor import _run_graphql
-from stacklet.platform.cli.executor import StackletGraphqlExecutor, snippet_options
-from stacklet.platform.cli.graphql import StackletGraphqlSnippet
-from stacklet.platform.cli.utils import click_group_entry, default_options
+from ..exceptions import InvalidInputException
+from ..executor import _run_graphql
+from ..executor import StackletGraphqlExecutor, snippet_options
+from ..graphql import StackletGraphqlSnippet
+from ..utils import click_group_entry, default_options
 
 
 @StackletGraphqlExecutor.registry.register("add-repository")
