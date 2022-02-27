@@ -3,7 +3,11 @@ from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
-from stacklet.client.platform.formatter import JsonFormatter, RawFormatter, YamlFormatter
+from stacklet.client.platform.formatter import (
+    JsonFormatter,
+    RawFormatter,
+    YamlFormatter,
+)
 from stacklet.client.platform.utils import get_log_level, get_token
 
 
