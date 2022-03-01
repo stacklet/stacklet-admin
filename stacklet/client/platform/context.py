@@ -1,5 +1,5 @@
 import os
-from stacklet.platform.cli.config import StackletConfig
+from .config import StackletConfig
 
 
 class StackletContext:

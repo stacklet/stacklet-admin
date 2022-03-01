@@ -3,12 +3,12 @@ import json
 import jwt
 import os
 
-from stacklet.platform.cli.cognito import CognitoUserManager
-from stacklet.platform.cli.commands import commands
-from stacklet.platform.cli.config import StackletConfig
-from stacklet.platform.cli.context import StackletContext
-from stacklet.platform.cli.formatter import Formatter
-from stacklet.platform.cli.utils import click_group_entry, default_options
+from .cognito import CognitoUserManager
+from .commands import commands
+from .config import StackletConfig
+from .context import StackletContext
+from .formatter import Formatter
+from .utils import click_group_entry, default_options
 
 
 @click.group()
@@ -194,7 +194,7 @@ def login(ctx, username, password):
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         # sso login
         if context.can_sso_login() and not any([username, password]):
-            from stacklet.platform.cli.vendored.auth import BrowserAuthenticator
+            from stacklet.client.platform.vendored.auth import BrowserAuthenticator
 
             BrowserAuthenticator(
                 authority_url=context.config.auth_url,
