@@ -39,7 +39,7 @@ import webbrowser
 
 import click
 
-from ..context import StackletContext, StackletCredentialWriter
+from stacklet.client.platform.context import StackletContext, StackletCredentialWriter
 
 
 class ClientRedirectServer(http.server.HTTPServer):

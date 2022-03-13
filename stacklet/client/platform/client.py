@@ -3,10 +3,9 @@
 import jmespath
 from pathlib import Path
 
-from . import commands  # noqa
-from .executor import StackletGraphqlExecutor
-from .context import StackletContext
-from .utils import get_token, _PAGINATION_OPTIONS
+from stacklet.client.platform.executor import StackletGraphqlExecutor
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.utils import get_token, _PAGINATION_OPTIONS
 
 
 def platform_client(pager=False, expr=False):

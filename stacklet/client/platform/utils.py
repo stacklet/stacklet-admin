@@ -2,8 +2,8 @@ import logging
 import os
 
 import click
-from .context import StackletContext
-from .formatter import Formatter
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.formatter import Formatter
 
 _DEFAULT_OPTIONS = {
     "config": {"default": "", "help": ""},

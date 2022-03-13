@@ -2,10 +2,10 @@ import json
 import logging
 
 import requests
-from .registry import PluginRegistry
-from .context import StackletContext
-from .formatter import Formatter
-from .utils import _PAGINATION_OPTIONS, get_token, wrap_command
+from stacklet.client.platform.registry import PluginRegistry
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.formatter import Formatter
+from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token, wrap_command
 
 
 class StackletGraphqlExecutor:
