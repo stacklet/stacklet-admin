@@ -92,6 +92,21 @@ class StackletGraphqlSnippet:
         return d
 
 
+class AdHocSnippet(StackletGraphqlSnippet):
+    """
+    This exists to work around the mangling in StackletGraphQLSnippet which
+    is inconvenient when trying to run simple queries that use e.g. quotes.
+
+    We can worry about variable support when we need it.
+    """
+
+    @classmethod
+    def build(cls, variables):
+        if variables:
+            raise NotImplementedError("AdHocSnippet needs variables support")
+        return {"query": cls.snippet}
+
+
 def gql_type(v, snippet_type=None):
     if snippet_type is not None:
         return snippet_type

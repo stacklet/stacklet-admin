@@ -4,7 +4,7 @@ import sys
 import click
 
 from stacklet.client.platform.executor import _run_graphql
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
+from stacklet.client.platform.graphql import AdHocSnippet
 from stacklet.client.platform.utils import click_group_entry, default_options
 
 
@@ -31,4 +31,4 @@ def run(ctx, snippet):
 
 def _ad_hoc(snippet):
     "In practice, this is the most convenient way to create the subclass."
-    return type("AdHocSnippet", (StackletGraphqlSnippet,), {"snippet": snippet})
+    return type("AdHocSnippet", (AdHocSnippet,), {"snippet": snippet})
