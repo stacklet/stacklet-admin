@@ -73,7 +73,7 @@ class GraphqlTest(BaseCliTest):
     def test_graphql_executor_via_cli(self):
         executor, adapter = get_executor_adapter()
 
-        snippet = "{ platform { version } }"
+        snippet = '{ platform { dashboardDefinition(name:"cis-v140") } }'
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
