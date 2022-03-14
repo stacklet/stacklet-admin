@@ -1,7 +1,7 @@
 import json
 
 import yaml
-from .registry import PluginRegistry
+from stacklet.client.platform.registry import PluginRegistry
 
 
 class Formatter:

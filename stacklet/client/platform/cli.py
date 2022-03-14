@@ -3,12 +3,12 @@ import json
 import jwt
 import os
 
-from .cognito import CognitoUserManager
-from .commands import commands
-from .config import StackletConfig
-from .context import StackletContext
-from .formatter import Formatter
-from .utils import click_group_entry, default_options
+from stacklet.client.platform.cognito import CognitoUserManager
+from stacklet.client.platform.commands import commands
+from stacklet.client.platform.config import StackletConfig
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.formatter import Formatter
+from stacklet.client.platform.utils import click_group_entry, default_options
 
 
 @click.group()

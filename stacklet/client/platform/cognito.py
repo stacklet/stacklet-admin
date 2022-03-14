@@ -52,8 +52,7 @@ class CognitoUserManager:
             )
             self.log.debug(res)
         except self.client.exceptions.UsernameExistsException:
-            self.log.debug("User:%s already exists, skipping" % user)
-            return True
+            self.log.debug("User:%s already exists. Resetting password." % user)
 
         # update the password so it's set permantently
         self.log.debug(
