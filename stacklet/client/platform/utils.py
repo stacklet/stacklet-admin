@@ -49,8 +49,8 @@ _PAGINATION_OPTIONS = {
         "default": 20,
     },
     "last": {
-        "help": "For use with pagination. Return the last n results.",
-        "default": 20,
+        "help": "For use with pagination. Return the last n results. Overrides first.",
+        "default": 0,
     },
     "before": {
         "help": "For use with pagination. Return the results before a given page cursor.",
