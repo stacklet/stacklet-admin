@@ -7,6 +7,9 @@ from stacklet.client.platform.executor import StackletGraphqlExecutor
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.utils import get_token, _PAGINATION_OPTIONS
 
+# import the commands so the registry is populated when the client is instantiated
+import stacklet.client.platform.commands  # noqa
+
 
 def platform_client(pager=False, expr=False):
     # for more pythonic experience, pass expr=True to de-graphqlize the result
