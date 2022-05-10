@@ -22,13 +22,18 @@ def user(*args, **kwargs):
 )  # noqa
 @click.option("--email")
 @click.option("--phone-number")
+@click.option("--permanent/--not-permanent", default=True)
 @click.pass_context
-def add(ctx, username, password, email=None, phone_number=None):
+def add(ctx, username, password, email=None, phone_number=None, permanent=True):
     """
     Add a cognito user in Stacklet
     """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         manager = CognitoUserManager.from_context(context)
         manager.create_user(
-            user=username, password=password, email=email, phone_number=phone_number
+            user=username,
+            password=password,
+            email=email,
+            phone_number=phone_number,
+            permanent=permanent,
         )
