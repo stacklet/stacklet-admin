@@ -94,7 +94,8 @@ class RepositoryTest(BaseCliTest):
                 )
                 self.assertEqual(res.exit_code, 0)
                 self.assertEqual(
-                    res.output, "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n"
+                    res.output,
+                    "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n",
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
                 self.assertEqual(
