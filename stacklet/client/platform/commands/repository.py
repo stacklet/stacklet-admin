@@ -65,9 +65,7 @@ class ProcessRepositorySnippet(StackletGraphqlSnippet):
     name = "process-repository"
     snippet = """
     mutation {
-      processRepository(input:{url: "$url"}) {
-        status
-      }
+      processRepository(input:{url: "$url"})
     }
     """
     required = {"url": "Repository URL to process"}
