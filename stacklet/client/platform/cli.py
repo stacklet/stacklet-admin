@@ -122,15 +122,31 @@ def configure(
 @click.option("--location", default="~/.stacklet/config.json")
 @click.pass_context
 def auto_configure(ctx, prefix, location):
+
+    def _get_ssm_param(client, name, key=None):
+        param = json.loads(
+            client.get_parameter(
+                Name=name, WithDecryption=True
+            )["Parameter"]["Value"]
+        )
+        if key:
+            return param[key]
+        return param
+
     import boto3
 
     client = boto3.client("ssm")
+
+    federated_config = f"/stacklet/{prefix}/federation/config"
+    platform_config = f"/stacklet/{prefix}/platform/config"
+
+    param = _get_ssm_param(client, platform_config)
+
     try:
-        param = json.loads(
-            client.get_parameter(
-                Name=f"/stacklet/{prefix}/platform/config", WithDecryption=True
-            )["Parameter"]["Value"]
-        )
+        gql_endpoint = _get_ssm_param(client, federated_config, 'federated_gql_uri')
+    except client.exceptions.ParameterNotFound:
+        # try to use the old parameter store name
+        gql_endpoint = param["api_endpoint"]
     except Exception as e:
         click.echo(f"Unable to pull config from parameter store:{e}")
         raise
@@ -141,7 +157,7 @@ def auto_configure(ctx, prefix, location):
         idp_id = saml_keys[0]
 
     config = {
-        "api": param["api_endpoint"],
+        "api": gql_endpoint,
         "region": param["cognito"]["cognito_user_pool_region"],
         "cognito_user_pool_id": param["cognito"]["cognito_user_pool_id"],
         "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
