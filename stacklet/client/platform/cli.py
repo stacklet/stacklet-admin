@@ -122,12 +122,9 @@ def configure(
 @click.option("--location", default="~/.stacklet/config.json")
 @click.pass_context
 def auto_configure(ctx, prefix, location):
-
     def _get_ssm_param(client, name, key=None):
         param = json.loads(
-            client.get_parameter(
-                Name=name, WithDecryption=True
-            )["Parameter"]["Value"]
+            client.get_parameter(Name=name, WithDecryption=True)["Parameter"]["Value"]
         )
         if key:
             return param[key]
@@ -143,7 +140,7 @@ def auto_configure(ctx, prefix, location):
     param = _get_ssm_param(client, platform_config)
 
     try:
-        gql_endpoint = _get_ssm_param(client, federated_config, 'federated_gql_uri')
+        gql_endpoint = _get_ssm_param(client, federated_config, "federated_gql_uri")
     except client.exceptions.ParameterNotFound:
         # try to use the old parameter store name
         gql_endpoint = param["api_endpoint"]
