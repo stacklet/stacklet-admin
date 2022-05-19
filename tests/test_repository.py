@@ -68,7 +68,9 @@ class RepositoryTest(BaseCliTest):
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
-            json={"data": {"processRepository": {"status": True}}},
+            json={
+                "data": {"processRepository": "34c10c3e-d841-4e63-9d51-01b92f36c502"}
+            },
         )
 
         with patch(
@@ -92,14 +94,13 @@ class RepositoryTest(BaseCliTest):
                 )
                 self.assertEqual(res.exit_code, 0)
                 self.assertEqual(
-                    res.output, "data:\n  processRepository:\n    status: true\n\n"
+                    res.output,
+                    "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n",
                 )
                 body = json.loads(adapter.last_request.body.decode("utf-8"))
                 self.assertEqual(
                     body["query"].strip(),
                     """mutation ($url: String!) {
-      processRepository(input:{url: $url}) {
-        status
-      }
+      processRepository(input:{url: $url})
     }""",
                 )

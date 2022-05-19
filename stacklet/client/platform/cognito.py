@@ -28,7 +28,7 @@ class CognitoUserManager:
             region=context.config.region,
         )
 
-    def create_user(self, user, password, email, phone_number):
+    def create_user(self, user, password, email, phone_number, permanent=True):
         """
         Creates an admin cognito user with the default password out of the box
         """
@@ -53,6 +53,9 @@ class CognitoUserManager:
             self.log.debug(res)
         except self.client.exceptions.UsernameExistsException:
             self.log.debug("User:%s already exists. Resetting password." % user)
+
+        if not permanent:
+            return True
 
         # update the password so it's set permantently
         self.log.debug(
