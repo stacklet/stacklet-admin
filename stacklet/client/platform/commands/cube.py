@@ -4,6 +4,7 @@ import sys
 import requests
 import click
 import json
+import textwrap
 
 from pprint import pformat
 
@@ -34,6 +35,18 @@ def run(ctx, query):
 
 @cubejs.command()
 @click.pass_context
+def meta(ctx):
+    data = _get(ctx, "v1/meta")
+
+    cubes = {cube["name"]: cube for cube in data["cubes"]}
+    for name in sorted(cubes):
+        value = cubes[name]
+        value.pop("name")
+        click.echo(f"{name}:\n{textwrap.indent(pformat(value), '    ')}\n")
+
+
+@cubejs.command()
+@click.pass_context
 def resource_counts(ctx):
 
     response = _run_query(ctx, _resource_counts)
@@ -55,6 +68,19 @@ def _run_query(ctx, query):
             url=url,
             headers={"Authorization": token, "Content-Type": "application/json"},
             data=json.dumps(data),
+        )
+        return response.json()
+
+
+def _get(ctx, path: str):
+    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
+        token = get_token()
+
+        url = f"https://{context.config.cubejs}/cubejs-api/{path}"
+
+        response = requests.get(
+            url=url,
+            headers={"Authorization": token, "Content-Type": "application/json"},
         )
         return response.json()
 
