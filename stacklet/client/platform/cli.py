@@ -80,6 +80,7 @@ def cli(*args, **kwargs):
 @click.option("--cognito-user-pool-id", prompt="Cognito User Pool ID")
 @click.option("--idp-id", prompt="(SSO) IDP ID", default="")
 @click.option("--auth-url", prompt="(SSO) Auth Url", default="")
+@click.option("--cubejs", prompt="Stacklet cube.js endpoint", default="")
 @click.option(
     "--location", prompt="Config File Location", default="~/.stacklet/config.json"
 )  # noqa
@@ -92,6 +93,7 @@ def configure(
     cognito_user_pool_id,
     idp_id,
     auth_url,
+    cubejs,
     location,
 ):
     """
@@ -104,6 +106,7 @@ def configure(
         "cognito_user_pool_id": cognito_user_pool_id,
         "idp_id": idp_id,
         "auth_url": auth_url,
+        "cubejs": cubejs,
     }
 
     StackletConfig.validate(config)
@@ -136,8 +139,10 @@ def auto_configure(ctx, prefix, location):
 
     federated_config = f"/stacklet/{prefix}/federation/config"
     platform_config = f"/stacklet/{prefix}/platform/config"
+    cube_config = f"/stacklet/{prefix}/cubejs"
 
     param = _get_ssm_param(client, platform_config)
+    cube_data = _get_ssm_param(client, cube_config)
 
     try:
         gql_endpoint = _get_ssm_param(client, federated_config, "federated_gql_uri")
@@ -160,6 +165,7 @@ def auto_configure(ctx, prefix, location):
         "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
         "idp_id": idp_id,
         "auth_url": f"https://{param['cognito']['cognito_install']}",
+        "cubejs": cube_data["cubejs_domain"],
     }
 
     if not os.path.exists(location):
