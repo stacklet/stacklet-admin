@@ -1,6 +1,7 @@
 import json
 import os
 from tempfile import NamedTemporaryFile
+import textwrap
 
 from utils import BaseCliTest
 
@@ -22,6 +23,7 @@ class AdminCliTest(BaseCliTest):
                 "--cognito-client-id=bar",
                 "--idp-id=foo",
                 "--auth-url=bar",
+                "--cubejs=cube.local",
                 f"--location={file_location.name}",
             ],
         )
@@ -34,6 +36,7 @@ class AdminCliTest(BaseCliTest):
         self.assertEqual(config["cognito_client_id"], "bar")
         self.assertEqual(config["idp_id"], "foo")
         self.assertEqual(config["auth_url"], "bar")
+        self.assertEqual(config["cubejs"], "cube.local")
 
         res = self.runner.invoke(
             self.cli,
@@ -45,7 +48,19 @@ class AdminCliTest(BaseCliTest):
         self.assertEqual(res.exit_code, 0)
         self.assertTrue(
             res.output.endswith(
-                "api: baz\nauth_url: bar\ncognito_client_id: bar\ncognito_user_pool_id: foo\nidp_id: foo\nregion: us-east-1\n\n"  # noqa
+                textwrap.dedent(
+                    """\
+                    api: baz
+                    auth_url: bar
+                    cognito_client_id: bar
+                    cognito_user_pool_id: foo
+                    cubejs: cube.local
+                    idp_id: foo
+                    region: us-east-1
+
+                    """
+                )
             )
         )
+
         os.unlink(file_location.name)
