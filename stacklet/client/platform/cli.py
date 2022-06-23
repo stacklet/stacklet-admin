@@ -5,7 +5,7 @@ import os
 
 from stacklet.client.platform.cognito import CognitoUserManager
 from stacklet.client.platform.commands import commands
-from stacklet.client.platform.config import StackletConfig
+from stacklet.client.platform.config import StackletConfig, MISSING
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.formatter import Formatter
 from stacklet.client.platform.utils import click_group_entry, default_options
@@ -139,10 +139,14 @@ def auto_configure(ctx, prefix, location):
 
     federated_config = f"/stacklet/{prefix}/federation/config"
     platform_config = f"/stacklet/{prefix}/platform/config"
-    cube_config = f"/stacklet/{prefix}/cubejs"
-
     param = _get_ssm_param(client, platform_config)
-    cube_data = _get_ssm_param(client, cube_config)
+
+    cube_config = f"/stacklet/{prefix}/cubejs"
+    try:
+        cubejs_endpoint = _get_ssm_param(client, cube_config, "cubejs_domain")
+    except client.exceptions.ParameterNotFound:
+        # Probably running in a restricted environment, like functional tests
+        cubejs_endpoint = MISSING
 
     try:
         gql_endpoint = _get_ssm_param(client, federated_config, "federated_gql_uri")
@@ -165,7 +169,7 @@ def auto_configure(ctx, prefix, location):
         "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
         "idp_id": idp_id,
         "auth_url": f"https://{param['cognito']['cognito_install']}",
-        "cubejs": cube_data["cubejs_domain"],
+        "cubejs": cubejs_endpoint,
     }
 
     if not os.path.exists(location):

@@ -7,6 +7,8 @@ import os
 from jsonschema import ValidationError, validate
 from stacklet.client.platform.exceptions import ConfigValidationException
 
+MISSING = "missing"
+
 
 class StackletConfig:
 
