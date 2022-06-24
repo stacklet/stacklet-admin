@@ -225,6 +225,35 @@ class DeployBindingSnippet(StackletGraphqlSnippet):
     required = {"uuid": "Binding UUID"}
 
 
+@StackletGraphqlExecutor.registry.register("run-binding")
+class RunBindingSnippet(StackletGraphqlSnippet):
+    name = "run-binding"
+    snippet = """
+    mutation {
+        runBinding(input:{uuid: "$uuid"}){
+            binding {
+                uuid
+                name
+                description
+                schedule
+                variables
+                lastDeployed
+                accountGroup {
+                    uuid
+                    name
+                }
+                policyCollection {
+                    uuid
+                    name
+                }
+            }
+        }
+    }
+    """
+
+    required = {"uuid": "Binding UUID"}
+
+
 @click.group(short_help="Run binding queries/mutations")
 @default_options()
 @click.pass_context
@@ -293,3 +322,13 @@ def deploy(ctx, **kwargs):
     Deploy binding in Stacklet
     """
     click.echo(_run_graphql(ctx=ctx, name="deploy-binding", variables=kwargs))
+
+
+@binding.command()
+@snippet_options("run-binding")
+@click.pass_context
+def run(ctx, **kwargs):
+    """
+    Run a binding in Stacklet
+    """
+    click.echo(_run_graphql(ctx=ctx, name="run-binding", variables=kwargs))
