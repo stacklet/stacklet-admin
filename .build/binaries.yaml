@@ -6,7 +6,7 @@ env:
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      python: 3.9
     commands:
       - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - pip install pip --upgrade
