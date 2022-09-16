@@ -1,22 +1,22 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0",]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "stacklet.client.platform"
-version = "0.1.0"
+version = "0.1.1"
 description = "Stacklet Platform Client"
-authors = ["Sonny Shi <sonny@stacklet.io>"]
-include = [
-  "stacklet/client/platform/vendored/auth_landing_pages/ok.html",
-  "stacklet/client/platform/vendored/auth_landing_pages/fail.html"
-]
-packages = [
-    { include = "stacklet" },
-]
-
-[tool.poetry.scripts]
-stacklet-admin = "stacklet.client.platform.cli:cli"
+authors = [ "Sonny Shi <sonny@stacklet.io>",]
+include = [ "stacklet/client/platform/vendored/auth_landing_pages/ok.html", "stacklet/client/platform/vendored/auth_landing_pages/fail.html",]
+[[tool.poetry.packages]]
+include = "stacklet"
 
 [[tool.poetry.source]]
 name = "platform-cli"
 url = "https://stacklet-532725030595.d.codeartifact.us-east-1.amazonaws.com/pypi/platform-cli/"
+
+[tool.poetry.scripts]
+stacklet-admin = "stacklet.client.platform.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -34,12 +34,13 @@ isort = "^5.8.0"
 pytest = "^6.2.3"
 pytest-cov = "^2.11.1"
 requests-mock = "^1.8.0"
-moto = {extras = ["cognitoidp"], version = "^2.0.5"}
 pre-commit = "^2.12.0"
 setuptools = "^56.0.0"
 Nuitka = "0.7.3"
 zstandard = "^0.15.2"
+semver = "^2.13.0"
+toml = "^0.10.2"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.dev-dependencies.moto]
+extras = [ "cognitoidp",]
+version = "^2.0.5"

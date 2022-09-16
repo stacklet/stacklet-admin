@@ -1,6 +1,7 @@
 pkg_domain := "stacklet"
-pkg_repo := "platform-cli"
-pkg_owner := "532725030595"
+pkg_repo := "stacklet.client.platform"
+# customer delivery
+pkg_owner := "653993915282"
 pkg_region := "us-east-1"
 
 default:
@@ -30,11 +31,26 @@ pkg-login:
 	poetry config repositories.{{pkg_repo}} $CODEARTIFACT_REPOSITORY_URL
 	poetry config http-basic.{{pkg_repo}} $CODEARTIFACT_USER $CODEARTIFACT_AUTH_TOKEN
 
-pkg-publish:
-	rm -f dist/*
-	poetry publish -vvv --build -r {{pkg_repo}}
-
 compile: install
 	poetry run python -m nuitka stacklet/client/platform/cli.py -o stacklet-admin --standalone --onefile --assume-yes-for-downloads --include-package-data=* --remove-output --static-libpython=no
 	chmod +x stacklet-admin
 	export PATH=$PWD/:$PATH
+
+pkg-prep bump="--bump-patch":
+	poetry run python scripts/upgrade.py upgrade {{bump}}
+	poetry update
+	poetry lock
+	git add justfile pyproject.toml poetry.lock
+	git status
+
+# publish package to private pypi repository
+pkg-publish:
+	#!/usr/bin/env bash
+	set -e
+	rm -f dist/*
+	if poetry run python scripts/upgrade.py check-publish; then
+		echo "publishing..."
+		poetry publish -vvv --build -r {{pkg_repo}}
+	else
+		echo "skipping publish"
+	fi
