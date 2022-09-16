@@ -18,7 +18,7 @@ CODEARTIFACT_PACKAGE = "stacklet-client-platform"
 @click.group()
 def cli():
     """
-    c7n-next upgrade tools
+    stacklet-admin upgrade tools
     """
 
 
@@ -86,7 +86,7 @@ def upgrade(bump_patch, bump_minor, bump_major):
         major += 1
 
     upgraded = ".".join([str(x) for x in (major, minor, patch)])
-    click.echo(f"c7n-next: {current_parsed} -> {upgraded}")
+    click.echo(f"stacklet-admin: {current_parsed} -> {upgraded}")
     pyproject["tool"]["poetry"]["version"] = upgraded
 
     with open("pyproject.toml", "w+") as f:
