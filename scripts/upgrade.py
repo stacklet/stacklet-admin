@@ -2,6 +2,7 @@ import sys
 
 import boto3
 import click
+
 # in python 3.11 we should switch out to tomllib
 import toml
 import semver
@@ -23,11 +24,11 @@ def cli():
 
 @cli.command()
 def check_publish():
-    client = boto3.client('codeartifact')
-    with open('pyproject.toml') as f:
+    client = boto3.client("codeartifact")
+    with open("pyproject.toml") as f:
         pyproject = toml.load(f)
 
-    current = pyproject['tool']['poetry']['version']
+    current = pyproject["tool"]["poetry"]["version"]
     current_parsed = semver.VersionInfo.parse(current)
 
     kwargs = {
@@ -40,7 +41,7 @@ def check_publish():
 
     try:
         package_versions = client.list_package_versions(**kwargs)
-        versions = [v['version'] for v in package_versions['versions']]
+        versions = [v["version"] for v in package_versions["versions"]]
     except client.exceptions.ResourceNotFoundException:
         versions = []
 
@@ -59,18 +60,18 @@ def check_publish():
 
 
 @cli.command()
-@click.option('--bump-patch', is_flag=True, default=False)
-@click.option('--bump-minor', is_flag=True, default=False)
-@click.option('--bump-major', is_flag=True, default=False)
+@click.option("--bump-patch", is_flag=True, default=False)
+@click.option("--bump-minor", is_flag=True, default=False)
+@click.option("--bump-major", is_flag=True, default=False)
 def upgrade(bump_patch, bump_minor, bump_major):
     if sum([bump_patch, bump_minor, bump_major]) != 1:
         click.echo("Only one of --bump-patch/mintor/major may be selected")
         sys.exit(1)
 
-    with open('pyproject.toml') as f:
+    with open("pyproject.toml") as f:
         pyproject = toml.load(f)
 
-    current = pyproject['tool']['poetry']['version']
+    current = pyproject["tool"]["poetry"]["version"]
     current_parsed = semver.VersionInfo.parse(current)
 
     major = current_parsed.major
@@ -86,11 +87,11 @@ def upgrade(bump_patch, bump_minor, bump_major):
 
     upgraded = ".".join([str(x) for x in (major, minor, patch)])
     click.echo(f"c7n-next: {current_parsed} -> {upgraded}")
-    pyproject['tool']['poetry']['version'] = upgraded
+    pyproject["tool"]["poetry"]["version"] = upgraded
 
-    with open('pyproject.toml', 'w+') as f:
+    with open("pyproject.toml", "w+") as f:
         toml.dump(pyproject, f)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
