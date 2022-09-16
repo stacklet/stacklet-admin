@@ -11,10 +11,6 @@ include = [ "stacklet/client/platform/vendored/auth_landing_pages/ok.html", "sta
 [[tool.poetry.packages]]
 include = "stacklet"
 
-[[tool.poetry.source]]
-name = "platform-cli"
-url = "https://stacklet-532725030595.d.codeartifact.us-east-1.amazonaws.com/pypi/platform-cli/"
-
 [tool.poetry.scripts]
 stacklet-admin = "stacklet.client.platform.cli:cli"
 
