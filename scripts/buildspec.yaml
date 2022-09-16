@@ -17,8 +17,8 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo "$TEMP_ROLE" | jq -r '.Credentials.SessionToken')
       - export AWS_DEFAULT_REGION="us-east-1"
       - export AWS_REGION="us-east-1"
-      - just pkg-login
       - poetry install
   build:
     commands:
+      - just pkg-login
       - just pkg-publish
