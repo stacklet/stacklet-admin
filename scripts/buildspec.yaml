@@ -8,8 +8,8 @@ phases:
       - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to $HOME/bin
       - PATH=$PATH:$HOME/bin
       - just --version
+      - pip install --upgrade pip
       - pip install poetry
-      - poetry run pip install setuptools
       - poetry install
   build:
     commands:
