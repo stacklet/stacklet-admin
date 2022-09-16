@@ -9,7 +9,7 @@ phases:
       - PATH=$PATH:$HOME/bin
       - just --version
       - pip install poetry
-      - pip install setuptools
+      - poetry run pip install setuptools
       - poetry install
   build:
     commands:
