@@ -1,6 +1,7 @@
 pkg_domain := "stacklet"
-pkg_repo := "platform-cli"
-pkg_owner := "532725030595"
+pkg_repo := "stacklet.client.platform"
+# customer delivery
+pkg_owner := "653993915282"
 pkg_region := "us-east-1"
 
 default:
