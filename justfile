@@ -63,7 +63,7 @@ pkg-publish:
 	rm -f dist/*
 	if poetry run python scripts/upgrade.py check-publish; then
 		echo "publishing..."
-		poetry publish -vvv --build -r {{pkg_repo}}
+		. pkg-build.secret && poetry publish -vvv --build -r {{pkg_repo}} --username $CODEARTIFACT_USER --password $CODEARTIFACT_AUTH_TOKEN
 	else
 		echo "skipping publish"
 	fi
