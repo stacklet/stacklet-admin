@@ -23,6 +23,7 @@ PyYAML = "^6.0"
 pyaml = "^21.10.1"
 PyJWT = "^2.4.0"
 boto3 = "1.24.65"
+certifi = "2022.06.15"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.0"
