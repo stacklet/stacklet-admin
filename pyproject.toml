@@ -22,7 +22,7 @@ jsonschema = "^4.9.0"
 PyYAML = "^6.0"
 pyaml = "^21.10.1"
 PyJWT = "^2.4.0"
-importlib-resources = "^5.9.0"
+boto3 = "1.24.65"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.0"
