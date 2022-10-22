@@ -21,5 +21,5 @@ commands = [
     report_groups,
     repository,
     templates,
-    user
+    user,
 ]

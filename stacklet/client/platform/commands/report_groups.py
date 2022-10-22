@@ -1,3 +1,4 @@
+import json
 import click
 
 from stacklet.client.platform.executor import _run_graphql
@@ -10,17 +11,63 @@ from stacklet.client.platform.utils import click_group_entry, default_options
 class CreateReportGroup(StackletGraphqlSnippet):
     name = "create-report-group"
     pagination = False
+    parameter_types = {"input": "ReportGroupInput"}
     snippet = """
 mutation {
-  addTemplate(input: { name: $name, content: $content }) {
-    template {
+  addReportGroup(input: $input) {
+    reportGroup{
       id
       name
-      content
+      schedule
+      groupBy
+      useMessageSettings
+      source
+      bindings
+      deliverySettings {
+        ... on EmailSettings {
+          type
+          template
+          recipients {
+            value
+            tag
+            account_owner
+            resource_owner
+          }
+          subject
+          fromEmail
+          cc
+          priority
+          format
+        }
+        ... on SlackSettings {
+          type
+          template
+          recipients {
+            value
+            tag
+            account_owner
+            resource_owner
+          }
+        }
+        ... on JiraSettings {
+          type
+          template
+          recipients {
+            value
+            tag
+            account_owner
+            resource_owner
+          }
+          summary
+          project
+          description
+        }
+      }
     }
   }
 }
 """
+
 
 @StackletGraphqlExecutor.registry.register("get-report-group")
 class QueryReportGroup(StackletGraphqlSnippet):
@@ -79,9 +126,8 @@ query {
   }
 }
 """
-    required={
-      "name": ""
-    }
+    required = {"name": ""}
+
 
 @StackletGraphqlExecutor.registry.register("list-report-groups")
 class QueryReportGroups(StackletGraphqlSnippet):
@@ -156,9 +202,8 @@ query {
   }
 }
 """
-    optional={
-      "binding": ""
-      }
+    optional = {"binding": ""}
+
 
 @StackletGraphqlExecutor.registry.register("remove-report-group")
 class RemoveReportGroup(StackletGraphqlSnippet):
@@ -169,7 +214,7 @@ mutation {
   removeReportGroup(name: "$name")
 }
 """
-    required={"name": ""}
+    required = {"name": ""}
 
 
 @click.group(short_help="Run report groups queries/mutations")
@@ -192,13 +237,30 @@ def report_groups(*args, **kwargs):
 
 
 @report_groups.command()
-@snippet_options("create-report-group")
 @click.pass_context
-def create(ctx, **kwargs):
+@click.option("--file", help="Json file with Report Group.")
+def create(ctx, file):
     """
     Create a new or update an existing report-group
     """
-    click.echo(_run_graphql(ctx=ctx, name="create-report-group", variables=kwargs))
+
+    with open(file, "rt") as f:
+        data = json.load(f)
+
+    data["emailSettings"] = [
+        d for d in data.get("deliverySettings", []) if d["type"] == "email"
+    ]
+    data["slackSettings"] = [
+        d for d in data.get("deliverySettings", []) if d["type"] == "slack"
+    ]
+    data["jiraSettings"] = [
+        d for d in data.get("deliverySettings", []) if d["type"] == "jira"
+    ]
+    data.pop("deliverySettings", None)
+    click.echo(
+        _run_graphql(ctx=ctx, name="create-report-group", variables={"input": data})
+    )
+
 
 @report_groups.command()
 @snippet_options("list-report-groups")
@@ -209,6 +271,7 @@ def list(ctx, **kwargs):
     """
     click.echo(_run_graphql(ctx=ctx, name="list-report-groups", variables=kwargs))
 
+
 @report_groups.command()
 @snippet_options("get-report-group")
 @click.pass_context
@@ -217,6 +280,7 @@ def get(ctx, **kwargs):
     Query a specific report-group
     """
     click.echo(_run_graphql(ctx=ctx, name="get-report-group", variables=kwargs))
+
 
 @report_groups.command()
 @snippet_options("remove-report-group")

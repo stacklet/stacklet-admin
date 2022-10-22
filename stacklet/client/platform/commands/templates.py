@@ -21,10 +21,8 @@ mutation {
   }
 }
 """
-    required = {
-        "name": "",
-        "content": ""
-    }
+    required = {"name": "", "content": ""}
+
 
 @StackletGraphqlExecutor.registry.register("get-template")
 class QueryTemplate(StackletGraphqlSnippet):
@@ -39,9 +37,8 @@ query {
   }
 }
 """
-    required = {
-        "name": ""
-    }
+    required = {"name": ""}
+
 
 @StackletGraphqlExecutor.registry.register("list-templates")
 class QueryTemplates(StackletGraphqlSnippet):
@@ -67,6 +64,7 @@ query {
 }
 """
 
+
 @StackletGraphqlExecutor.registry.register("remove-template")
 class RemoveTemplate(StackletGraphqlSnippet):
     name = "remove-template"
@@ -76,9 +74,8 @@ mutation {
   removeTemplate(id: $id)
 }
 """
-    required = {
-        "id": ""
-    }
+    required = {"id": ""}
+
 
 @click.group(short_help="Run templates queries/mutations")
 @default_options()
@@ -108,6 +105,7 @@ def create(ctx, **kwargs):
     """
     click.echo(_run_graphql(ctx=ctx, name="create-template", variables=kwargs))
 
+
 @templates.command()
 @snippet_options("list-templates")
 @click.pass_context
@@ -117,6 +115,7 @@ def list(ctx, **kwargs):
     """
     click.echo(_run_graphql(ctx=ctx, name="list-templates", variables=kwargs))
 
+
 @templates.command()
 @snippet_options("get-template")
 @click.pass_context
@@ -125,6 +124,7 @@ def get(ctx, **kwargs):
     Query a specific template
     """
     click.echo(_run_graphql(ctx=ctx, name="get-template", variables=kwargs))
+
 
 @templates.command()
 @snippet_options("remove-template")
