@@ -7,6 +7,8 @@ from .policy import policy
 from .policycollection import policy_collection
 from .repository import repository
 from .user import user
+from .templates import templates
+from .report_groups import report_groups
 
 commands = [
     account,
@@ -16,6 +18,8 @@ commands = [
     graphql,
     policy,
     policy_collection,
+    report_groups,
     repository,
-    user,
+    templates,
+    user
 ]
