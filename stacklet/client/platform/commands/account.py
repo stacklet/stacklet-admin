@@ -59,6 +59,7 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
           ) {
             id
             key
+            active
             name
             shortName
             description
