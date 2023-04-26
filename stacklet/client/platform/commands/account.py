@@ -152,7 +152,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         securityContext:"$security_context"
         shortName: "$short_name"
         description: "$description"
-        tags: $tag
+        tags: $tags
         variables: "$variables"
       }){
         account {
