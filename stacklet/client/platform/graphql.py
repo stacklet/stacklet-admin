@@ -1,3 +1,6 @@
+import json
+
+
 class StackletGraphqlSnippet:
     """
     A resusable Graphql Snippet
