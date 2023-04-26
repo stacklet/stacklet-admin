@@ -186,10 +186,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "email": "Account Email Address",
         "short_name": "Short Name for Account",
         "description": "Description for Account",
-        "tag": {
-            "help": 'List of tags for Account, e.g. --tag "production --tag "marketing"',
-            "multiple": True,
-        },
+        "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
     variable_transformers = {"tags": lambda x: json.loads(x)}
