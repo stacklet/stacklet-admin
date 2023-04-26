@@ -54,6 +54,7 @@ class StackletGraphqlSnippet:
     pagination = False
     input_variables = None
     parameter_types = {}
+    variable_transfomers = {}
 
     @classmethod
     def build(cls, variables):
