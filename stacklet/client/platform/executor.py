@@ -63,6 +63,13 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
             variables = {}
 
         registry_snippet = StackletGraphqlExecutor.registry.get(name)
+
+        for k, v in variables.items():
+            transformer = registry_snippet.variable_transformers.get(k)
+            if not transformer:
+                continue
+            variables[k] = transformer(v)
+
         if name and registry_snippet:
             snippet = registry_snippet
         elif name and registry_snippet is None:

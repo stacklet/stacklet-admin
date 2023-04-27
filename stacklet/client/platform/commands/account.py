@@ -1,4 +1,5 @@
 import click
+import json
 
 from stacklet.client.platform.executor import _run_graphql
 from stacklet.client.platform.executor import StackletGraphqlExecutor, snippet_options
@@ -133,6 +134,8 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
         "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
     }
+    parameter_types = {"provider": "CloudProvider!", "tags": "[TagInput!]"}
+    variable_transformers = {"tags": lambda x: json.loads(x)}
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
@@ -149,7 +152,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         securityContext:"$security_context"
         shortName: "$short_name"
         description: "$description"
-        tags: $tag
+        tags: $tags
         variables: "$variables"
       }){
         account {
@@ -171,8 +174,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
       }
     }
     """
-    parameter_types = {"provider": "CloudProvider!"}
-
+    parameter_types = {"provider": "CloudProvider!", "tags": "[TagInput!]"}
     required = {
         "name": "Account Name in Stacklet",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
@@ -184,12 +186,10 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "email": "Account Email Address",
         "short_name": "Short Name for Account",
         "description": "Description for Account",
-        "tag": {
-            "help": 'List of tags for Account, e.g. --tag "production --tag "marketing"',
-            "multiple": True,
-        },
+        "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
+    variable_transformers = {"tags": lambda x: json.loads(x)}
 
 
 @StackletGraphqlExecutor.registry.register("remove-account")
