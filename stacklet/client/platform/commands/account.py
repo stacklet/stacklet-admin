@@ -135,7 +135,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
         "variables": 'JSON encoded string of variables e.g. --variables \'{\\\\"foo\\\\": \\\\"bar\\\\"}\'',  # noqa
     }
     parameter_types = {"provider": "CloudProvider!", "tags": "[TagInput!]"}
-    variable_transformers = {"tags": lambda x: json.loads(x)}
+    variable_transformers = {"tags": lambda x: json.loads(x) if x is not None else []}
 
 
 @StackletGraphqlExecutor.registry.register("add-account")
@@ -189,7 +189,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
         "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
-    variable_transformers = {"tags": lambda x: json.loads(x)}
+    variable_transformers = {"tags": lambda x: json.loads(x) if x is not None else []}
 
 
 @StackletGraphqlExecutor.registry.register("remove-account")
