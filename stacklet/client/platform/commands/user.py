@@ -17,7 +17,9 @@ def user(*args, **kwargs):
 
 @user.command()
 @click.option("--username")
-@click.option("--password", prompt="Password", confirmation_prompt=True, hide_input=True)  # noqa
+@click.option(
+    "--password", prompt="Password", confirmation_prompt=True, hide_input=True
+)  # noqa
 @click.option("--email")
 @click.option("--phone-number")
 @click.option("--permanent/--not-permanent", default=True)
@@ -39,7 +41,9 @@ def add(ctx, username, password, email=None, phone_number=None, permanent=True):
 
 @user.command()
 @click.option("--username", required=True, help="the user to add to the group")
-@click.option("--group", required=True, help="the group to add the user to (if it exists)")
+@click.option(
+    "--group", required=True, help="the group to add the user to (if it exists)"
+)
 @click.pass_context
 def ensure_group(ctx, username, group):
     """
