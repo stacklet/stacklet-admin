@@ -31,7 +31,7 @@ class TestCognitoUserManager:
     @pytest.fixture
     def admin_group(self):
         r = self.client.create_group(
-            GroupName='admin',
+            GroupName="admin",
             UserPoolId=self.cognito_user_pool_id,
         )
         yield r["Group"]["GroupName"]
@@ -88,8 +88,8 @@ class TestCognitoUserManager:
     def test_cognito_create_user_cli(self):
         res = self.runner.invoke(
             self.cli,
-            self.default_args() +
-            [
+            self.default_args()
+            + [
                 "user",
                 "add",
                 "--username=test-user",
@@ -98,7 +98,7 @@ class TestCognitoUserManager:
                 "--phone-number=+15551234567",
             ],
         )
-        assert res.exit_code ==  0
+        assert res.exit_code == 0
 
         users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
         assert users["Users"][0]["Username"] == "test-user"
@@ -113,29 +113,29 @@ class TestCognitoUserManager:
     def test_ensure_group_missing_group(self, new_user):
         res = self.runner.invoke(
             self.cli,
-            self.default_args() +
-            [
+            self.default_args()
+            + [
                 "user",
                 "ensure-group",
                 f"--username={new_user}",
                 "--group=missing",
             ],
         )
-        assert res.exit_code ==  0
+        assert res.exit_code == 0
         # Since the group wasn't there, it isn't there...
         assert self.get_user_groups(new_user) == []
 
     def test_ensure_group_existing_group(self, new_user, admin_group):
         res = self.runner.invoke(
             self.cli,
-            self.default_args() +
-            [
+            self.default_args()
+            + [
                 "user",
                 "ensure-group",
                 f"--username={new_user}",
                 f"--group={admin_group}",
             ],
         )
-        assert res.exit_code ==  0
+        assert res.exit_code == 0
         # Since the group wasn't there, it isn't there...
         assert self.get_user_groups(new_user) == [admin_group]

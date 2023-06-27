@@ -17,9 +17,7 @@ def user(*args, **kwargs):
 
 @user.command()
 @click.option("--username")
-@click.option(
-    "--password", prompt="Password", confirmation_prompt=True, hide_input=True
-)  # noqa
+@click.option("--password", prompt="Password", confirmation_prompt=True, hide_input=True)  # noqa
 @click.option("--email")
 @click.option("--phone-number")
 @click.option("--permanent/--not-permanent", default=True)
