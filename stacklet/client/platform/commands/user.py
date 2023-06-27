@@ -37,3 +37,19 @@ def add(ctx, username, password, email=None, phone_number=None, permanent=True):
             phone_number=phone_number,
             permanent=permanent,
         )
+
+
+@user.command()
+@click.option("--username", required=True, help="the user to add to the group")
+@click.option("--group", required=True, help="the group to add the user to (if it exists)")
+@click.pass_context
+def ensure_group(ctx, username, group):
+    """
+    Ensure that the specified user has the group if the group is available.
+    """
+    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
+        manager = CognitoUserManager.from_context(context)
+        manager.ensure_group(
+            user=username,
+            group=group,
+        )

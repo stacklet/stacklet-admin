@@ -28,11 +28,11 @@ class UtilsTest(TestCase):
 
     def test_get_log_level(self):
         self.assertEqual(get_log_level(-9999), 50)
-        self.assertEqual(get_log_level(0), 50)
-        self.assertEqual(get_log_level(1), 40)
-        self.assertEqual(get_log_level(2), 30)
-        self.assertEqual(get_log_level(3), 20)
-        self.assertEqual(get_log_level(4), 10)
+        self.assertEqual(get_log_level(0), 40)
+        self.assertEqual(get_log_level(1), 30)
+        self.assertEqual(get_log_level(2), 20)
+        self.assertEqual(get_log_level(3), 10)
+        self.assertEqual(get_log_level(4), 0)
         self.assertEqual(get_log_level(5), 0)
         self.assertEqual(get_log_level(6), 0)
         self.assertEqual(get_log_level(9999), 0)

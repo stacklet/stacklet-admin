@@ -78,3 +78,14 @@ class CognitoUserManager:
         )
         self.log.debug("Authentication Success")
         return res["AuthenticationResult"]["AccessToken"]
+
+    def ensure_group(self, user, group):
+        try:
+            res = self.client.admin_add_user_to_group(
+                UserPoolId=self.user_pool_id,
+                Username=user,
+                GroupName=group,
+            )
+            self.log.debug(res)
+        except self.client.exceptions.ResourceNotFoundException:
+            self.log.error("Group:%s doesn't exist.", group)
