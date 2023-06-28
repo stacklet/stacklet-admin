@@ -51,7 +51,8 @@ def ensure_group(ctx, username, group):
     """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         manager = CognitoUserManager.from_context(context)
-        manager.ensure_group(
+        success = manager.ensure_group(
             user=username,
             group=group,
         )
+        ctx.exit(0 if success else 1)

@@ -121,11 +121,33 @@ class TestCognitoUserManager:
                 "--group=missing",
             ],
         )
-        assert res.exit_code == 0
+        assert res.exit_code == 1
         # Since the group wasn't there, it isn't there...
         assert self.get_user_groups(new_user) == []
 
     def test_ensure_group_existing_group(self, new_user, admin_group):
+        res = self.runner.invoke(
+            self.cli,
+            self.default_args()
+            + [
+                "user",
+                "ensure-group",
+                f"--username={new_user}",
+                f"--group={admin_group}",
+            ],
+        )
+        assert res.exit_code == 0
+        # Since the group wasn't there, it isn't there...
+        assert self.get_user_groups(new_user) == [admin_group]
+
+    def test_ensure_group_already_in_group(self, new_user, admin_group):
+        self.client.admin_add_user_to_group(
+            UserPoolId=self.cognito_user_pool_id,
+            Username=new_user,
+            GroupName=admin_group,
+        )
+        assert self.get_user_groups(new_user) == [admin_group]
+
         res = self.runner.invoke(
             self.cli,
             self.default_args()
