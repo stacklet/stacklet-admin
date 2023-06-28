@@ -103,7 +103,8 @@ def default_options(*args, **kwargs):
 
 
 def get_log_level(verbose):
-    level = 50 - (verbose * 10)
+    # Default to Error level (40)
+    level = 40 - (verbose * 10)
     if level < 0:
         level = 0
     elif level > 50:
@@ -122,6 +123,10 @@ def click_group_entry(
     v,
 ):
     logging.basicConfig()
+    # Don't make botocore or urllib3 more verbose
+    logging.getLogger("botocore").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     root_handler = logging.getLogger()
     if v != 0:
         root_handler.setLevel(level=get_log_level(v))
