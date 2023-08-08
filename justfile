@@ -67,3 +67,7 @@ pkg-publish:
 	else
 		echo "skipping publish"
 	fi
+
+# pipe this into your clipboard and use the update_manifest just command in the imp directory to update your manifest
+update_manifest deployment="dev":
+  echo "just update_manifest stacklet-admin $(git rev-parse HEAD) {{deployment}}"
