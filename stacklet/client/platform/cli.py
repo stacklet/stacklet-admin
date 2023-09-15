@@ -124,16 +124,41 @@ def configure(
     click.echo(f"Saved config to {location}")
 
 
-@cli.command(short_help="Automatically configure stacklet-admin cli")
-@click.option("--prefix", "--url", required=True)
+@cli.command()
+@click.option(
+    "--url",
+    "--prefix",
+    required=True,
+    help="A Stacklet console URL or deployment prefix",
+)
 @click.option(
     "--location",
     default="~/.stacklet/config.json",
     type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    show_default=True,
 )
-@click.pass_context
-def auto_configure(ctx, prefix, location):
-    parts = urlsplit(prefix, scheme="https", allow_fragments=False)
+def auto_configure(url, location):
+    """Automatically configure the stacklet-admin CLI
+
+    Fetch configuration details from a live Stacklet instance and use it
+    to populate a configuration file. Point to a Stacklet instance by
+    name or deployment prefix.
+
+    Examples:
+
+    \b
+    # Using a complete console URL
+    > stacklet-admin auto-configure --url https://console.myorg.stacklet.io
+
+    \b
+    # Using a base domain
+    > stacklet-admin auto-configure --url myorg.stacklet.io
+
+    \b
+    # Using a deployment prefix (assumes hosting at .stacklet.io)
+    > stacklet-admin auto-configure --prefix myorg
+    """
+    parts = urlsplit(url, scheme="https", allow_fragments=False)
     host = parts.netloc or parts.path
 
     if "." not in host:
