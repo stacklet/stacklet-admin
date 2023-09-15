@@ -47,14 +47,15 @@ the window may automatically close.
 
 ### Without Single Sign-On
 
-It is possible to bypass SSO and log in using a username and password instead:
+Provide a username to the `login`commad to bypass SSO:
 
 ```
 stacklet-admin login --username test-user
 ```
 
 This will prompt for a password. It is also possible to use the `--password` argument
-to provide a password in the login command.
+to avoid the prompt, though that is a less secure option as it can expose the password
+through command history and process listings.
 
 ## Runnng Commands
 
