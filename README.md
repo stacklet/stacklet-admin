@@ -57,7 +57,7 @@ This will prompt for a password. It is also possible to use the `--password` arg
 to avoid the prompt, though that is a less secure option as it can expose the password
 through command history and process listings.
 
-## Runnng Commands
+## Running Commands
 
 Commands are grouped into command groups, for example, all the commands relating to accounts can be
 found by running the following command:
