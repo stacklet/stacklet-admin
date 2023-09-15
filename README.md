@@ -47,7 +47,7 @@ the window may automatically close.
 
 ### Without Single Sign-On
 
-Provide a username to the `login`commad to bypass SSO:
+Provide a username to the `login` command to bypass SSO:
 
 ```
 stacklet-admin login --username test-user
