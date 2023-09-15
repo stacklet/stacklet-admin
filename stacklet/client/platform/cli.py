@@ -1,11 +1,15 @@
-import click
 import json
-import jwt
 import os
+import pathlib
+
+from urllib.parse import urlsplit, urlunsplit
+import click
+import jwt
+import requests
 
 from stacklet.client.platform.cognito import CognitoUserManager
 from stacklet.client.platform.commands import commands
-from stacklet.client.platform.config import StackletConfig, MISSING
+from stacklet.client.platform.config import StackletConfig
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.formatter import Formatter
 from stacklet.client.platform.utils import click_group_entry, default_options
@@ -120,65 +124,104 @@ def configure(
     click.echo(f"Saved config to {location}")
 
 
-@cli.command(short_help="Automatically configure stacklet-admin cli")
-@click.option("--prefix", required=True)
-@click.option("--location", default="~/.stacklet/config.json")
-@click.pass_context
-def auto_configure(ctx, prefix, location):
-    def _get_ssm_param(client, name, key=None):
-        param = json.loads(
-            client.get_parameter(Name=name, WithDecryption=True)["Parameter"]["Value"]
-        )
-        if key:
-            return param[key]
-        return param
+@cli.command()
+@click.option(
+    "--url",
+    "--prefix",
+    required=True,
+    help="A Stacklet console URL or deployment prefix",
+)
+@click.option(
+    "--location",
+    default="~/.stacklet/config.json",
+    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    show_default=True,
+)
+def auto_configure(url, location):
+    """Automatically configure the stacklet-admin CLI
 
-    import boto3
+    Fetch configuration details from a live Stacklet instance and use it
+    to populate a configuration file. Point to a Stacklet instance by
+    name or deployment prefix.
 
-    client = boto3.client("ssm")
+    Examples:
 
-    federated_config = f"/stacklet/{prefix}/federation/config"
-    platform_config = f"/stacklet/{prefix}/platform/config"
-    param = _get_ssm_param(client, platform_config)
+    \b
+    # Using a complete console URL
+    > stacklet-admin auto-configure --url https://console.myorg.stacklet.io
 
-    cube_config = f"/stacklet/{prefix}/cubejs"
+    \b
+    # Using a base domain
+    > stacklet-admin auto-configure --url myorg.stacklet.io
+
+    \b
+    # Using a deployment prefix (assumes hosting at .stacklet.io)
+    > stacklet-admin auto-configure --prefix myorg
+    """
+    parts = urlsplit(url, scheme="https", allow_fragments=False)
+    host = parts.netloc or parts.path
+
+    if "." not in host:
+        # Assume that we have a prefix for a Stacklet instance
+        # hosted under stacklet.io
+        host = f"console.{host}.stacklet.io"
+    if not host.startswith("console"):
+        # Be forgiving if we get a base URL like customer.stacklet.io
+        host = f"console.{host}"
+
+    config = {}
     try:
-        cubejs_endpoint = _get_ssm_param(client, cube_config, "cubejs_domain")
-    except client.exceptions.ParameterNotFound:
-        # Probably running in a restricted environment, like functional tests
-        cubejs_endpoint = MISSING
+        for config_path in ("config/cognito.json", "config/cubejs.json"):
+            config_url = urlunsplit(
+                (
+                    parts.scheme,
+                    host,
+                    config_path,
+                    None,
+                    None,
+                )
+            )
+            response = requests.get(config_url)
+            response.raise_for_status()
+            config.update(response.json())
+    except requests.exceptions.ConnectionError as err:
+        click.echo(f"Unable to connect to {config_url}")
+        click.echo(err)
+        return
+    except requests.exceptions.HTTPError as err:
+        click.echo(f"Unable to retrieve configuration details from {config_url}")
+        click.echo(err)
+        return
+    except requests.exceptions.JSONDecodeError as err:
+        click.echo(f"Unable to parse configuration details from {config_url}")
+        click.echo(err)
+        return
 
     try:
-        gql_endpoint = _get_ssm_param(client, federated_config, "federated_gql_uri")
-    except client.exceptions.ParameterNotFound:
-        # try to use the old parameter store name
-        gql_endpoint = param["api_endpoint"]
-    except Exception as e:
-        click.echo(f"Unable to pull config from parameter store:{e}")
-        raise
+        auth_url = f"https://{config['cognito_install']}"
+        formatted_config = {
+            "api": auth_url.replace("auth.console", "api"),
+            "region": config["cognito_user_pool_region"],
+            "cognito_user_pool_id": config["cognito_user_pool_id"],
+            "cognito_client_id": config["cognito_user_pool_client_id"],
+            "auth_url": auth_url,
+            "cubejs": f"https://{config['cubejs_domain']}",
+        }
+        saml_config = config.get("saml")
+        if saml_config:
+            formatted_config["idp_id"], _ = saml_config.popitem()
+    except KeyError as err:
+        click.echo("The configuration details are missing a required key")
+        click.echo(err)
+        return
 
-    idp_id = ""
-    saml_keys = list(param["cognito"].get("saml", {}).keys())
-    if len(saml_keys) > 0:
-        idp_id = saml_keys[0]
+    config_file = location.expanduser()
+    if not config_file.exists():
+        config_file.parent.mkdir(parents=True, exist_ok=True)
 
-    config = {
-        "api": gql_endpoint,
-        "region": param["cognito"]["cognito_user_pool_region"],
-        "cognito_user_pool_id": param["cognito"]["cognito_user_pool_id"],
-        "cognito_client_id": param["cognito"]["cognito_user_pool_client_id"],
-        "idp_id": idp_id,
-        "auth_url": f"https://{param['cognito']['cognito_install']}",
-        "cubejs": cubejs_endpoint,
-    }
+    config_file.write_text(json.dumps(formatted_config, indent=4, sort_keys=True))
 
-    if not os.path.exists(location):
-        dirs = location.rsplit("/", 1)[0]
-        os.makedirs(os.path.expanduser(dirs), exist_ok=True)
-
-    with open(os.path.expanduser(location), "w+") as f:
-        f.write(json.dumps(config))
-    click.echo(f"Saved config to {location}")
+    click.echo(f"Saved config to {config_file}")
 
 
 @cli.command()
