@@ -1,6 +1,5 @@
 # Stacklet CLI
 
-
 ## Installation
 
 ```
@@ -15,41 +14,47 @@ $ just compile
 
 This will create a `stacklet-admin` file which can be distributed. Compiling takes a long time (over 8 minutes). This file is git ignored.
 
-## User Creation and Login
+## Configuration
 
-To get started, simply use the `auto-configure` command to initialize the CLI configuration
-by supplying the prefix that was used to deploy the Stacklet platform:
+To get started, use the `auto-configure` command to initialize the CLI configuration
+by supplying the prefix or URL associated with an instance of the Stacklet platform:
 
 ```
-stacklet-admin auto-configure --prefix dev
+# Using a complete console URL
+stacklet-admin auto-configure --url https://console.myorg.stacklet.io
+
+# Using a base domain
+stacklet-admin auto-configure --url myorg.stacklet.io
+
+# Using just a deployment prefix (assumes a .stacklet.io suffix)
+stacklet-admin auto-configure --prefix myorg
 ```
 
 This will create a configuration file in `~/.stacklet/config.json`.
 
-### Logging in with SSO
+## Logging In
 
-If using SSO, simply login with:
+### With Single Sign-On
+
+Use the `login` command with no arguments to start an SSO login:
 
 ```
 stacklet-admin login
 ```
 
-This will open a browser window and login via SSO. Once the login is successful in the browser,
+This will open a browser window and log in via SSO. Once the login is successful in the browser,
 the window may automatically close.
 
-### Logging in without SSO
+### Without Single Sign-On
 
-If SSO is not enabled, create a Cognito user (requires AWS credentials):
-
-```
-stacklet-admin user add --username test-user --password $PASSWORD
-```
-
-Finally, log in:
+It is possible to bypass SSO and log in using a username and password instead:
 
 ```
 stacklet-admin login --username test-user
 ```
+
+This will prompt for a password. It is also possible to use the `--password` argument
+to provide a password in the login command.
 
 ## Runnng Commands
 
