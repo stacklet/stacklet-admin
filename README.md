@@ -165,9 +165,3 @@ stacklet-admin account list --last 1
 ```
 $ just install
 ```
-
-## Compiling for distribution
-
-```
-$ just compile
-```
