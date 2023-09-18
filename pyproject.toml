@@ -6,6 +6,7 @@ build-backend = "poetry.core.masonry.api"
 name = "stacklet.client.platform"
 version = "0.1.3"
 description = "Stacklet Platform Client"
+readme = "README.md"
 authors = [ "Sonny Shi <sonny@stacklet.io>",]
 include = [ "stacklet/client/platform/vendored/auth_landing_pages/ok.html", "stacklet/client/platform/vendored/auth_landing_pages/fail.html",]
 [[tool.poetry.packages]]
