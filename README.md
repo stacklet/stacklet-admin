@@ -3,16 +3,8 @@
 ## Installation
 
 ```
-$ just install
+$ pip install stacklet.client.platform
 ```
-
-## Compiling for distribution
-
-```
-$ just compile
-```
-
-This will create a `stacklet-admin` file which can be distributed. Compiling takes a long time (over 8 minutes). This file is git ignored.
 
 ## Configuration
 
@@ -164,4 +156,18 @@ To return the last account:
 
 ```
 stacklet-admin account list --last 1
+```
+
+# Development
+
+## Installation
+
+```
+$ just install
+```
+
+## Compiling for distribution
+
+```
+$ just compile
 ```
