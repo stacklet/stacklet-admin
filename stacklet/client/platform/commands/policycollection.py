@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import click
 
 from stacklet.client.platform.executor import _run_graphql

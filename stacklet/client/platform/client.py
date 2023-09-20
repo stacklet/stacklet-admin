@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # platform client using cli
 
 import jmespath
@@ -65,7 +68,6 @@ page_exprs = {
 
 
 def _method(executor, function_name, snippet, pager, expr):
-
     doc = []
     if snippet.required:
         doc.append("required: ")

@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 from unittest.mock import patch
 
 from stacklet.client.platform.client import platform_client

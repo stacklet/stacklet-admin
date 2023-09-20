@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import boto3
 import pytest
 from click.testing import CliRunner
@@ -9,7 +12,6 @@ from stacklet.client.platform.context import StackletContext
 
 
 class TestCognitoUserManager:
-
     runner = CliRunner()
     cli = cli
 

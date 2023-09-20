@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 from datetime import datetime
 import io
 import sys
@@ -48,7 +51,6 @@ def meta(ctx):
 @cubejs.command()
 @click.pass_context
 def resource_counts(ctx):
-
     response = _run_query(ctx, _resource_counts)
     data = response["data"]
     for row in data:
