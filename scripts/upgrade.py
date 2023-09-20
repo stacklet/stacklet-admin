@@ -1,5 +1,8 @@
 import sys
 
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import click
 
 # in python 3.11 we should switch out to tomllib

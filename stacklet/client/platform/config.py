@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Handle configuration for the CLI
 """
@@ -11,7 +14,6 @@ MISSING = "missing"
 
 
 class StackletConfig:
-
     schema = {
         "type": "object",
         "properties": {

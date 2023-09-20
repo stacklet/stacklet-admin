@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 from .account import account
 from .accountgroup import account_group
 from .binding import binding

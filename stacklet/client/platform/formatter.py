@@ -1,3 +1,6 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 
 import yaml
@@ -5,7 +8,6 @@ from stacklet.client.platform.registry import PluginRegistry
 
 
 class Formatter:
-
     registry = PluginRegistry("formats")
 
 

@@ -1,3 +1,7 @@
+# Copyright Stacklet, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+
 class StackletGraphqlSnippet:
     """
     A resusable Graphql Snippet
