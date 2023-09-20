@@ -1,6 +1,5 @@
 import sys
 
-import boto3
 import click
 
 # in python 3.11 we should switch out to tomllib
@@ -8,55 +7,11 @@ import toml
 import semver
 
 
-CODEARTIFACT_DOMAIN = "stacklet"
-CODEARTIFACT_DOMAIN_OWNER = "653993915282"  # customer-delivery
-CODEARTIFACT_REPOSITORY = "stacklet.client.platform"
-CODEARTIFACT_FORMAT = "pypi"
-CODEARTIFACT_PACKAGE = "stacklet-client-platform"
-
-
 @click.group()
 def cli():
     """
     stacklet-admin upgrade tools
     """
-
-
-@cli.command()
-def check_publish():
-    client = boto3.client("codeartifact")
-    with open("pyproject.toml") as f:
-        pyproject = toml.load(f)
-
-    current = pyproject["tool"]["poetry"]["version"]
-    current_parsed = semver.VersionInfo.parse(current)
-
-    kwargs = {
-        "domain": CODEARTIFACT_DOMAIN,
-        "domainOwner": CODEARTIFACT_DOMAIN_OWNER,
-        "repository": CODEARTIFACT_REPOSITORY,
-        "format": CODEARTIFACT_FORMAT,
-        "package": CODEARTIFACT_PACKAGE,
-    }
-
-    try:
-        package_versions = client.list_package_versions(**kwargs)
-        versions = [v["version"] for v in package_versions["versions"]]
-    except client.exceptions.ResourceNotFoundException:
-        versions = []
-
-    # if our current version is already published we skip and exit 1
-    if current_parsed in versions:
-        click.echo(
-            f"{CODEARTIFACT_PACKAGE}=={current_parsed} already in codeartifact repo, skipping"
-        )
-        sys.exit(1)
-    else:
-        click.echo(
-            f"{CODEARTIFACT_PACKAGE}=={current_parsed} not in remote codeartifact repo,"
-            " OK to publish"
-        )
-        sys.exit(0)
 
 
 @cli.command()
