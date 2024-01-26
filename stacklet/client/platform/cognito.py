@@ -92,5 +92,5 @@ class CognitoUserManager:
             self.log.debug(res)
             return True
         except self.client.exceptions.ResourceNotFoundException:
-            self.log.error("Group:%s doesn't exist.", group)
+            self.log.warning("Group:%s doesn't exist.", group)
             return False
