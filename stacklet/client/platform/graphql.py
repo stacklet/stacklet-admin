@@ -4,7 +4,7 @@
 
 class StackletGraphqlSnippet:
     """
-    A resusable Graphql Snippet
+    A reusable Graphql Snippet
 
     Define required variables with the required class attribute and optional
     variables with the optional class attribute. The value can either be a string

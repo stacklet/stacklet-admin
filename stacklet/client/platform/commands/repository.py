@@ -61,6 +61,9 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
         },
         "deep_import": "Deep Import Repository true | false",
     }
+    variable_transformers = {
+        "deep_import": lambda x: x.lower() in ("true", "t", "yes", "y")
+    }
 
 
 @StackletGraphqlExecutor.registry.register("process-repository")
