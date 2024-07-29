@@ -2,25 +2,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from textwrap import dedent
+from typing import Any
 from unittest.mock import patch
 
-from utils import BaseCliTest, get_executor_adapter
+from click.testing import Result
+
+from .utils import BaseCliTest, get_executor_adapter
+
+JSONDict = dict[str, Any]
 
 
 class RepositoryTest(BaseCliTest):
-    def test_add_repository(self):
-        executor, adapter = get_executor_adapter()
-        adapter.register_uri(
-            "POST",
-            "mock://stacklet.acme.org/api",
-            json={
+    def run_query(
+        self, args: list[str], response: JSONDict | None = None
+    ) -> tuple[Result, JSONDict]:
+        if response is None:
+            response = {
                 "data": {
                     "addRepository": {
                         "url": "mock://git.acme.org/stacklet/policies.git",
                         "name": "test-policies",
                     }
                 }
-            },
+            }
+        executor, adapter = get_executor_adapter()
+        adapter.register_uri(
+            "POST",
+            "mock://stacklet.acme.org/api",
+            json=response,
         )
 
         with patch(
@@ -30,28 +40,39 @@ class RepositoryTest(BaseCliTest):
                 "stacklet.client.platform.executor.get_token", return_value="foo"
             ):
                 patched.return_value = executor.session
-                res = self.runner.invoke(
-                    self.cli,
-                    [
-                        "repository",
-                        "--api=mock://stacklet.acme.org/api",
-                        "--cognito-region=us-east-1",
-                        "--cognito-user-pool-id=foo",
-                        "--cognito-client-id=bar",
-                        "add",
-                        "--url=mock://git.acme.org/stacklet/policies.git",
-                        "--name=test-policies",
-                    ],
-                )
+                cli_args = [
+                    "repository",
+                    "--api=mock://stacklet.acme.org/api",
+                    "--cognito-region=us-east-1",
+                    "--cognito-user-pool-id=foo",
+                    "--cognito-client-id=bar",
+                ] + args
+
+                res = self.runner.invoke(self.cli, cli_args)
                 self.assertEqual(res.exit_code, 0)
-                self.assertEqual(
-                    res.output,
-                    "data:\n  addRepository:\n    name: test-policies\n    url: mock://git.acme.org/stacklet/policies.git\n\n",  # noqa
-                )
-                body = json.loads(adapter.last_request.body.decode("utf-8"))
-                self.assertEqual(
-                    body["query"].strip(),
-                    """mutation ($url: String!, $name: String!) {
+                return res, json.loads(adapter.last_request.body.decode("utf-8"))
+
+    def test_add_repository(self):
+        res, body = self.run_query(
+            [
+                "add",
+                "--url=mock://git.acme.org/stacklet/policies.git",
+                "--name=test-policies",
+            ]
+        )
+        assert res.output == dedent(
+            """\
+            data:
+              addRepository:
+                name: test-policies
+                url: mock://git.acme.org/stacklet/policies.git
+
+            """
+        )
+
+        assert (
+            body["query"].strip()
+            == """mutation ($url: String!, $name: String!) {
       addRepository(
         input: {
           url: $url
@@ -63,8 +84,51 @@ class RepositoryTest(BaseCliTest):
             name
         }
       }
-    }""",
-                )
+    }"""
+        )
+
+    def test_add_repository_deep(self):
+        res, body = self.run_query(
+            [
+                "add",
+                "--url=mock://git.acme.org/stacklet/policies.git",
+                "--name=test-policies",
+                "--deep-import=true",
+            ]
+        )
+        assert res.output == dedent(
+            """\
+            data:
+              addRepository:
+                name: test-policies
+                url: mock://git.acme.org/stacklet/policies.git
+
+            """
+        )
+
+        assert (
+            body["query"].strip()
+            == """mutation ($url: String!, $name: String!, $deep_import: Boolean!) {
+      addRepository(
+        input: {
+          url: $url
+          name: $name
+          deepImport: $deep_import
+        }
+      ) {
+        repository {
+            url
+            name
+        }
+      }
+    }"""
+        )
+        # Check the conversion of string to bool.
+        assert body["variables"] == {
+            "deep_import": True,
+            "name": "test-policies",
+            "url": "mock://git.acme.org/stacklet/policies.git",
+        }
 
     def test_process_repository(self):
         executor, adapter = get_executor_adapter()

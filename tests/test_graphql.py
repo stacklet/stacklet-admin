@@ -5,7 +5,7 @@ import json
 import yaml
 from unittest.mock import patch
 
-from utils import BaseCliTest, get_executor_adapter
+from .utils import BaseCliTest, get_executor_adapter
 
 
 class GraphqlTest(BaseCliTest):

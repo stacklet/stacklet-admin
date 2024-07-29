@@ -6,7 +6,7 @@ import os
 from tempfile import NamedTemporaryFile
 import textwrap
 
-from utils import BaseCliTest
+from .utils import BaseCliTest
 
 
 class AdminCliTest(BaseCliTest):
