@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from typing import Optional
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -12,7 +13,7 @@ from .utils import BaseCliTest, get_executor_adapter, JSONDict
 
 class RepositoryTest(BaseCliTest):
     def run_query(
-        self, args: list[str], response: JSONDict | None = None
+        self, args: list[str], response: Optional[JSONDict] = None
     ) -> tuple[Result, JSONDict]:
         if response is None:
             response = JSONDict(
