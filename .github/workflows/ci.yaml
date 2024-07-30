@@ -23,7 +23,7 @@ jobs:
           pre-commit run --all-files
 
   Tests:
-    name: Run the tests against python ${{ env.PYTHON_TOOL_VERSION }} (.tool-versions)
+    name: Run the tests against .tool-versions python
     needs: Lint
     runs-on: ubuntu-latest
     steps:
