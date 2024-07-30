@@ -49,3 +49,31 @@ jobs:
 
       - name: Pytest run
         run: just test -v
+
+  OldestPython:
+    needs: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wistia/parse-tool-versions@v1.0
+      - uses: extractions/setup-just@v1
+        with:
+          just-version: ${{ env.JUST_TOOL_VERSION }}
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_TOOL_VERSION }}
+          virtualenvs-in-project: true
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+          cache: poetry
+
+      - name: Install dependencies
+        shell: bash
+        run: poetry install
+
+      - name: Pytest run
+        run: just test -v
