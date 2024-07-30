@@ -183,6 +183,7 @@ class AddPolicyCollectionItem(StackletGraphqlSnippet):
     }
 
     optional = {"policy_version": "Policy Version"}
+    variable_transformers = {"policy_version": lambda x: x and int(x)}
 
 
 @StackletGraphqlExecutor.registry.register("remove-policy-collection-item")

@@ -3,14 +3,11 @@
 
 import json
 from textwrap import dedent
-from typing import Any
 from unittest.mock import patch
 
 from click.testing import Result
 
-from .utils import BaseCliTest, get_executor_adapter
-
-JSONDict = dict[str, Any]
+from .utils import BaseCliTest, get_executor_adapter, JSONDict
 
 
 class RepositoryTest(BaseCliTest):
@@ -18,39 +15,15 @@ class RepositoryTest(BaseCliTest):
         self, args: list[str], response: JSONDict | None = None
     ) -> tuple[Result, JSONDict]:
         if response is None:
-            response = {
-                "data": {
+            response = JSONDict(
+                data={
                     "addRepository": {
                         "url": "mock://git.acme.org/stacklet/policies.git",
                         "name": "test-policies",
                     }
                 }
-            }
-        executor, adapter = get_executor_adapter()
-        adapter.register_uri(
-            "POST",
-            "mock://stacklet.acme.org/api",
-            json=response,
-        )
-
-        with patch(
-            "stacklet.client.platform.executor.requests.Session", autospec=True
-        ) as patched:
-            with patch(
-                "stacklet.client.platform.executor.get_token", return_value="foo"
-            ):
-                patched.return_value = executor.session
-                cli_args = [
-                    "repository",
-                    "--api=mock://stacklet.acme.org/api",
-                    "--cognito-region=us-east-1",
-                    "--cognito-user-pool-id=foo",
-                    "--cognito-client-id=bar",
-                ] + args
-
-                res = self.runner.invoke(self.cli, cli_args)
-                self.assertEqual(res.exit_code, 0)
-                return res, json.loads(adapter.last_request.body.decode("utf-8"))
+            )
+        return super().run_query("repository", args, response)
 
     def test_add_repository(self):
         res, body = self.run_query(
