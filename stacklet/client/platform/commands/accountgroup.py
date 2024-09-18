@@ -86,7 +86,6 @@ class AddAccountGroupSnippet(StackletGraphqlSnippet):
     required = {
         "name": "Account Name in Stacklet",
         "provider": "Cloud Provider",
-        "region": {"help": "Cloud Regions", "multiple": True},
     }
 
     parameter_types = {
@@ -98,6 +97,7 @@ class AddAccountGroupSnippet(StackletGraphqlSnippet):
         "short_name": "Account Group Short Name",
         "variables": "Account Group Variables (JSON encoded)",
         "priority": "Account Group priority (0-99)",
+        "region": {"help": "Cloud Regions", "multiple": True},
     }
 
 
