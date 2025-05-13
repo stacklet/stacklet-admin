@@ -42,7 +42,7 @@ def add(ctx, username, password, email=None, phone_number=None, permanent=True):
         )
 
 
-@user.command()
+@user.command("ensure-group")
 @click.option("--username", required=True, help="the user to add to the group")
 @click.option(
     "--group", required=True, help="the group to add the user to (if it exists)"
