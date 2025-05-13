@@ -305,7 +305,7 @@ class RemoveAccountGroupItem(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
-@click.group(short_help="Run account group queries/mutations")
+@click.group("account-group", short_help="Run account group queries/mutations")
 @default_options()
 @click.pass_context
 def account_group(*args, **kwargs):
