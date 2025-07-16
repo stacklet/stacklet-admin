@@ -135,12 +135,16 @@ def configure(
     help="A Stacklet console URL or deployment prefix",
 )
 @click.option(
+    "--idp",
+    help="Name of the Identity Provider to use for authentication, if more than one is available",
+)
+@click.option(
     "--location",
     default="~/.stacklet/config.json",
     type=click.Path(path_type=pathlib.Path, dir_okay=False),
     show_default=True,
 )
-def auto_configure(url, location):
+def auto_configure(url, idp, location):
     """Automatically configure the stacklet-admin CLI
 
     Fetch configuration details from a live Stacklet instance and use it
@@ -210,9 +214,25 @@ def auto_configure(url, location):
             "auth_url": auth_url,
             "cubejs": f"https://{config['cubejs_domain']}",
         }
-        saml_config = config.get("saml")
-        if saml_config:
-            formatted_config["idp_id"], _ = saml_config.popitem()
+        if saml_config := config.get("saml"):
+            if len(saml_config) == 1:
+                idp_id, _ = saml_config.popitem()
+            else:
+                name_to_id = {name: idp_id for idp_id, name in saml_config.items()}
+                if not idp:
+                    click.echo(
+                        "Multiple identity providers available, specify one with --idp: "
+                        + ", ".join(name_to_id)
+                    )
+                    return
+                idp_id = name_to_id.get(idp)
+                if not idp_id:
+                    click.echo(
+                        f"Unknown identity provider '{idp}', known names: "
+                        + ", ".join(sorted(name_to_id))
+                    )
+                    return
+            formatted_config["idp_id"] = idp_id
     except KeyError as err:
         click.echo("The configuration details are missing a required key")
         click.echo(err)
