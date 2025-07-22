@@ -214,25 +214,30 @@ def auto_configure(url, idp, location):
             "auth_url": auth_url,
             "cubejs": f"https://{config['cubejs_domain']}",
         }
-        if saml_config := config.get("saml"):
-            if len(saml_config) == 1:
-                idp_id, _ = saml_config.popitem()
-            else:
-                name_to_id = {name: idp_id for idp_id, name in saml_config.items()}
-                if not idp:
-                    click.echo(
-                        "Multiple identity providers available, specify one with --idp: "
-                        + ", ".join(name_to_id)
-                    )
-                    return
-                idp_id = name_to_id.get(idp)
-                if not idp_id:
-                    click.echo(
-                        f"Unknown identity provider '{idp}', known names: "
-                        + ", ".join(sorted(name_to_id))
-                    )
-                    return
-            formatted_config["idp_id"] = idp_id
+
+        name_to_id: dict[str, str]
+        if saml_providers := config.get("saml_providers"):
+            name_to_id = {p["name"]: p["idp_id"] for p in saml_providers}
+        elif saml := config.get("saml"):
+            # XXX legacy key, should be removed once the new one is everywhere
+            name_to_id = {name: idp_id for idp_id, name in saml.items()}
+        if len(name_to_id) == 1:
+            _, idp_id = name_to_id.popitem()
+        else:
+            if not idp:
+                click.echo(
+                    "Multiple identity providers available, specify one with --idp: "
+                    + ", ".join(sorted(name_to_id))
+                )
+                return
+            idp_id = name_to_id.get(idp)
+            if not idp_id:
+                click.echo(
+                    f"Unknown identity provider '{idp}', known names: "
+                    + ", ".join(sorted(name_to_id))
+                )
+                return
+        formatted_config["idp_id"] = idp_id
     except KeyError as err:
         click.echo("The configuration details are missing a required key")
         click.echo(err)
