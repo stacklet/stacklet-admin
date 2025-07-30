@@ -4,7 +4,7 @@
 import boto3
 import pytest
 from click.testing import CliRunner
-from moto import mock_cognitoidp
+from moto import mock_aws
 
 from stacklet.client.platform.cli import cli
 from stacklet.client.platform.cognito import CognitoUserManager
@@ -19,7 +19,7 @@ class TestCognitoUserManager:
 
     @pytest.fixture(autouse=True)
     def mock_cognito(self):
-        with mock_cognitoidp():
+        with mock_aws():
             self.client = boto3.client("cognito-idp", region_name=self.region)
             resp = self.client.create_user_pool(PoolName="stackpool")
             self.cognito_user_pool_id = resp["UserPool"]["Id"]
