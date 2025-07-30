@@ -20,27 +20,24 @@ stacklet-admin = "stacklet.client.platform.cli:cli"
 [tool.poetry.dependencies]
 python = "^3.9"
 click = "^8.0.1"
-requests = "^2.25.1"
+requests = "^2.32.4"
 jsonschema = "^4.9.0"
 PyYAML = "^6.0"
 pyaml = "^21.10.1"
 PyJWT = "^2.4.0"
-boto3 = "1.24.65"
+boto3 = "^1.39.16"
 certifi = "2024.8.30"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^3.9.0"
-black = "^22.1.0"
+black = "^25.1.0"
 isort = "^5.8.0"
-pytest = "^6.2.3"
-pytest-cov = "^2.11.1"
+moto = { version = "^5.1.9", extras = ["cognitoidp"] }
+pytest = "^8.4"
+pytest-cov = "^6.2.1"
 requests-mock = "^1.8.0"
 pre-commit = "^2.12.0"
-Nuitka = "0.7.3"
+Nuitka = "^2.7.12"
 zstandard = "^0.15.2"
 semver = "^2.13.0"
 toml = "^0.10.2"
-
-[tool.poetry.dev-dependencies.moto]
-extras = [ "cognitoidp",]
-version = "^2.0.5"
