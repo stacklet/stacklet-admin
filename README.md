@@ -88,7 +88,7 @@ Options:
                                client-id, --cognito-region, and --api must
                                also be set.
 
-  --output [|plain|json|yaml]  Ouput type
+  --output [|plain|json|yaml]  Output type
   --config TEXT
   --help                       Show this message and exit.
 

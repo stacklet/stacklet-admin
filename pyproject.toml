@@ -18,14 +18,14 @@ include = "stacklet"
 stacklet-admin = "stacklet.client.platform.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
 click = "^8.0.1"
 requests = "^2.32.4"
 jsonschema = "^4.9.0"
 PyYAML = "^6.0"
 pyaml = "^21.10.1"
 PyJWT = "^2.4.0"
-boto3 = "^1.39.16"
+boto3 = "^1.40.3"
 certifi = "2024.8.30"
 
 [tool.poetry.group.dev.dependencies]

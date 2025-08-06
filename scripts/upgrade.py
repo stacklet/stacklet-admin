@@ -5,7 +5,6 @@ import sys
 
 import click
 
-# in python 3.11 we should switch out to tomllib
 import toml
 import semver
 
@@ -23,7 +22,7 @@ def cli():
 @click.option("--bump-major", is_flag=True, default=False)
 def upgrade(bump_patch, bump_minor, bump_major):
     if sum([bump_patch, bump_minor, bump_major]) != 1:
-        click.echo("Only one of --bump-patch/mintor/major may be selected")
+        click.echo("Only one of --bump-patch/minor/major may be selected")
         sys.exit(1)
 
     with open("pyproject.toml") as f:
