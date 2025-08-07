@@ -5,9 +5,10 @@ import json
 import logging
 
 import requests
-from stacklet.client.platform.registry import PluginRegistry
+
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.formatter import Formatter
+from stacklet.client.platform.registry import PluginRegistry
 from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token, wrap_command
 
 
@@ -76,9 +77,7 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
         if name and registry_snippet:
             snippet = registry_snippet
         elif name and registry_snippet is None:
-            raise Exception(
-                "No snippet found, got name:%s snippet:%s" % (name, registry_snippet)
-            )
+            raise Exception("No snippet found, got name:%s snippet:%s" % (name, registry_snippet))
 
         res = executor.run(snippet=snippet, variables=variables)
         if raw:

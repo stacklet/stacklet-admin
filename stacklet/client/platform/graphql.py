@@ -68,15 +68,11 @@ class StackletGraphqlSnippet:
         for k in set(cls.optional).intersection(variables):
             if variables[k] is None or variables[k] == ():
                 split_snippet = [
-                    line
-                    for line in split_snippet
-                    if f"${k.replace('-', '_')}" not in line
+                    line for line in split_snippet if f"${k.replace('-', '_')}" not in line
                 ]
         d = {}
         if variables:
-            d["variables"] = {
-                k: v for k, v in variables.items() if v is not None and v != ()
-            }
+            d["variables"] = {k: v for k, v in variables.items() if v is not None and v != ()}
         var_names = d.get("variables", ())
 
         if var_names:
@@ -86,8 +82,7 @@ class StackletGraphqlSnippet:
                 (
                     " ".join(
                         [
-                            "$%s: %s,"
-                            % (s, gql_type(variables[s], cls.parameter_types.get(s)))
+                            "$%s: %s," % (s, gql_type(variables[s], cls.parameter_types.get(s)))
                             for s in var_names
                         ]
                     )

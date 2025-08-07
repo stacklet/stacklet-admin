@@ -4,8 +4,7 @@
 import click
 
 from stacklet.client.platform.exceptions import InvalidInputException
-from stacklet.client.platform.executor import _run_graphql
-from stacklet.client.platform.executor import StackletGraphqlExecutor, snippet_options
+from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
 from stacklet.client.platform.utils import click_group_entry, default_options
 
@@ -185,7 +184,7 @@ def show_source(ctx, **kwargs):
     """
     check_show_input(kwargs)
     click.echo(
-        _run_graphql(ctx=ctx, name="show-policy", variables=kwargs, raw=True)["data"][
-            "policy"
-        ]["sourceYAML"]
+        _run_graphql(ctx=ctx, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
+            "sourceYAML"
+        ]
     )

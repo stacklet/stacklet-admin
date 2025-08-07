@@ -1,15 +1,15 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
 import io
-import sys
-import requests
-import click
 import json
+import sys
 import textwrap
-
+from datetime import datetime
 from pprint import pformat
+
+import click
+import requests
 
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.utils import click_group_entry, default_options, get_token

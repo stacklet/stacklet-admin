@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import yaml
 from unittest.mock import patch
+
+import yaml
 
 from .utils import BaseCliTest, get_executor_adapter
 
@@ -83,12 +84,8 @@ class GraphqlTest(BaseCliTest):
             json={"data": {"platform": {"version": "1.2.3+git.abcdef0"}}},
         )
 
-        with patch(
-            "stacklet.client.platform.executor.requests.Session", autospec=True
-        ) as patched:
-            with patch(
-                "stacklet.client.platform.executor.get_token", return_value="foo"
-            ):
+        with patch("stacklet.client.platform.executor.requests.Session", autospec=True) as patched:
+            with patch("stacklet.client.platform.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,
