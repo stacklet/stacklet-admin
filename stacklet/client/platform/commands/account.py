@@ -1,11 +1,11 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import click
 import json
 
-from stacklet.client.platform.executor import _run_graphql
-from stacklet.client.platform.executor import StackletGraphqlExecutor, snippet_options
+import click
+
+from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
 from stacklet.client.platform.utils import click_group_entry, default_options
 

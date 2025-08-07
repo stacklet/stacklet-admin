@@ -1,13 +1,12 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import click
 import os
 
+import click
 
 from stacklet.client.platform.exceptions import InvalidInputException
-from stacklet.client.platform.executor import _run_graphql
-from stacklet.client.platform.executor import StackletGraphqlExecutor, snippet_options
+from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
 from stacklet.client.platform.utils import click_group_entry, default_options
 
@@ -61,9 +60,7 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
         },
         "deep_import": "Deep Import Repository true | false",
     }
-    variable_transformers = {
-        "deep_import": lambda x: x and x.lower() in ("true", "t", "yes", "y")
-    }
+    variable_transformers = {"deep_import": lambda x: x and x.lower() in ("true", "t", "yes", "y")}
 
 
 @StackletGraphqlExecutor.registry.register("process-repository")
@@ -224,9 +221,7 @@ def add(ctx, **kwargs):
     auth_user = kwargs.get("auth_user")
     if private_key:
         if auth_user is None:
-            raise InvalidInputException(
-                "Both --auth-user and --ssh-private-key are required"
-            )
+            raise InvalidInputException("Both --auth-user and --ssh-private-key are required")
         with open(os.path.expanduser(private_key), "r") as f:
             kwargs["ssh_private_key"] = f.read().strip("\n")
     click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))

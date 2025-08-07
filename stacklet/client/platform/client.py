@@ -3,15 +3,15 @@
 
 # platform client using cli
 
-import jmespath
 from pathlib import Path
 
-from stacklet.client.platform.executor import StackletGraphqlExecutor
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import get_token, _PAGINATION_OPTIONS
+import jmespath
 
 # import the commands so the registry is populated when the client is instantiated
 import stacklet.client.platform.commands  # noqa
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.executor import StackletGraphqlExecutor
+from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token
 
 
 def platform_client(pager=False, expr=False):

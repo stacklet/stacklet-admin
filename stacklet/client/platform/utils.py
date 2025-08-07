@@ -5,6 +5,7 @@ import logging
 import os
 
 import click
+
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.formatter import Formatter
 
@@ -69,7 +70,7 @@ _PAGINATION_OPTIONS = {
 def wrap_command(func, options, required=False, prompt=False):
     for name, details in options.items():
         if not name.startswith("-"):
-            name = f'--{name.replace("_", "-")}'
+            name = f"--{name.replace('_', '-')}"
         if isinstance(details, str):
             click.option(
                 name,
@@ -85,9 +86,7 @@ def wrap_command(func, options, required=False, prompt=False):
                 **details,
             )(func)
         else:
-            raise Exception(
-                "Options should be of type str or dict, got %s" % type(details)
-            )
+            raise Exception("Options should be of type str or dict, got %s" % type(details))
     return func
 
 

@@ -4,10 +4,10 @@
 import sys
 
 import click
+import semver
 
 # in python 3.11 we should switch out to tomllib
 import toml
-import semver
 
 
 @click.group()

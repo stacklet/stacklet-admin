@@ -5,6 +5,15 @@ install:
 	poetry install
 	poetry run pre-commit install
 
+lint:
+  poetry run ruff check
+  poetry run ruff format --check
+  poetry run deptry .
+
+format:
+  poetry run ruff format
+  poetry run ruff check --fix
+
 test *flags:
 	poetry run pytest --cov=stacklet tests {{ flags }}
 

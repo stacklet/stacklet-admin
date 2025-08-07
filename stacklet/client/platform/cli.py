@@ -4,8 +4,8 @@
 import json
 import os
 import pathlib
-
 from urllib.parse import urlsplit, urlunsplit
+
 import click
 import jwt
 import requests
@@ -88,9 +88,7 @@ def cli(*args, **kwargs):
 @click.option("--idp-id", prompt="(SSO) IDP ID", default="")
 @click.option("--auth-url", prompt="(SSO) Auth Url", default="")
 @click.option("--cubejs", prompt="Stacklet cube.js endpoint", default="")
-@click.option(
-    "--location", prompt="Config File Location", default="~/.stacklet/config.json"
-)  # noqa
+@click.option("--location", prompt="Config File Location", default="~/.stacklet/config.json")  # noqa
 @click.pass_context
 def configure(
     ctx,
@@ -316,12 +314,8 @@ def login(ctx, username, password):
         if not os.path.exists(
             os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))
         ):
-            os.makedirs(
-                os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))
-            )
-        with open(
-            os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+"
-        ) as f:  # noqa
+            os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
+        with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
             f.write(res)
 
 

@@ -3,8 +3,8 @@
 
 import json
 import os
-from tempfile import NamedTemporaryFile
 import textwrap
+from tempfile import NamedTemporaryFile
 
 from .utils import BaseCliTest
 

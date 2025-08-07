@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from typing import Optional
 from textwrap import dedent
+from typing import Optional
 from unittest.mock import patch
 
 from click.testing import Result
 
-from .utils import BaseCliTest, get_executor_adapter, JSONDict
+from .utils import BaseCliTest, JSONDict, get_executor_adapter
 
 
 class RepositoryTest(BaseCliTest):
@@ -109,17 +109,11 @@ class RepositoryTest(BaseCliTest):
         adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
-            json={
-                "data": {"processRepository": "34c10c3e-d841-4e63-9d51-01b92f36c502"}
-            },
+            json={"data": {"processRepository": "34c10c3e-d841-4e63-9d51-01b92f36c502"}},
         )
 
-        with patch(
-            "stacklet.client.platform.executor.requests.Session", autospec=True
-        ) as patched:
-            with patch(
-                "stacklet.client.platform.executor.get_token", return_value="foo"
-            ):
+        with patch("stacklet.client.platform.executor.requests.Session", autospec=True) as patched:
+            with patch("stacklet.client.platform.executor.get_token", return_value="foo"):
                 patched.return_value = executor.session
                 res = self.runner.invoke(
                     self.cli,

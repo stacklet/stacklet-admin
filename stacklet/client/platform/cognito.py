@@ -61,9 +61,7 @@ class CognitoUserManager:
             return True
 
         # update the password so it's set permantently
-        self.log.debug(
-            "Resetting admin password to disable temporary password for %s" % user
-        )
+        self.log.debug("Resetting admin password to disable temporary password for %s" % user)
         res = self.client.admin_set_user_password(
             UserPoolId=self.user_pool_id,
             Username=user,

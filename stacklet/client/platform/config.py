@@ -4,10 +4,12 @@
 """
 Handle configuration for the CLI
 """
+
 import json
 import os
 
 from jsonschema import ValidationError, validate
+
 from stacklet.client.platform.exceptions import ConfigValidationException
 
 MISSING = "missing"
@@ -45,9 +47,7 @@ class StackletConfig:
         self.auth_url = auth_url
         self.cubejs = cubejs
 
-        if not all(
-            [self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]
-        ):
+        if not all([self.api, self.cognito_user_pool_id, self.cognito_client_id, self.region]):
             try:
                 path = "~/.stacklet/config.json"
                 if os.environ.get("STACKLET_CONFIG"):

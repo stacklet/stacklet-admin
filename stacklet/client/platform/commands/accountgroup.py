@@ -3,8 +3,7 @@
 
 import click
 
-from stacklet.client.platform.executor import _run_graphql
-from stacklet.client.platform.executor import StackletGraphqlExecutor, snippet_options
+from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
 from stacklet.client.platform.utils import click_group_entry, default_options
 
@@ -379,6 +378,4 @@ def remove_item(ctx, **kwargs):
     """
     Remove account group item
     """
-    click.echo(
-        _run_graphql(ctx=ctx, name="remove-account-group-item", variables=kwargs)
-    )
+    click.echo(_run_graphql(ctx=ctx, name="remove-account-group-item", variables=kwargs))
