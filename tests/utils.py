@@ -4,7 +4,7 @@
 import json
 from typing import Any
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import requests_mock
 from click.testing import CliRunner, Result
@@ -14,22 +14,6 @@ from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.executor import StackletGraphqlExecutor
 
 JSONDict = dict[str, Any]
-
-
-def get_mock_context():
-    mock_ctx = MagicMock()
-    mock_ctx.config = {
-        "config": None,
-        "output": "yaml",
-        "page_variables": {"first": 20, "last": 20, "before": "", "after": ""},
-        "raw_config": {
-            "cognito_user_pool_id": "foo",
-            "cognito_client_id": "bar",
-            "region": "us-east-1",
-            "api": "https://stacklet.acme.org/api",
-        },
-    }
-    return mock_ctx
 
 
 def get_executor_adapter():
