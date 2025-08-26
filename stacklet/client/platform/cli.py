@@ -128,9 +128,11 @@ def configure(
 @cli.command()
 @click.option(
     "--url",
+    help="A Stacklet console URL",
+)
+@click.option(
     "--prefix",
-    required=True,
-    help="A Stacklet console URL or deployment prefix",
+    help="A deployment prefix (assumes hosting at .stacklet.io)",
 )
 @click.option(
     "--idp",
@@ -142,7 +144,7 @@ def configure(
     type=click.Path(path_type=pathlib.Path, dir_okay=False),
     show_default=True,
 )
-def auto_configure(url, idp, location):
+def auto_configure(url, prefix, idp, location):
     """Automatically configure the stacklet-admin CLI
 
     Fetch configuration details from a live Stacklet instance and use it
@@ -163,23 +165,36 @@ def auto_configure(url, idp, location):
     # Using a deployment prefix (assumes hosting at .stacklet.io)
     > stacklet-admin auto-configure --prefix myorg
     """
-    parts = urlsplit(url, scheme="https", allow_fragments=False)
-    host = parts.netloc or parts.path
+    # Validate mutual exclusion
+    if url and prefix:
+        raise click.ClickException(
+            "Cannot specify both --url and --prefix. Please provide one or the other."
+        )
 
-    if "." not in host:
-        # Assume that we have a prefix for a Stacklet instance
-        # hosted under stacklet.io
-        host = f"console.{host}.stacklet.io"
-    if not host.startswith("console"):
-        # Be forgiving if we get a base URL like customer.stacklet.io
-        host = f"console.{host}"
+    if not url and not prefix:
+        raise click.ClickException("Must specify either --url or --prefix.")
+
+    # Determine the host based on input type
+    if prefix:
+        # Handle prefix: always generate .stacklet.io URL
+        host = f"console.{prefix}.stacklet.io"
+        scheme = "https"
+    else:
+        # Handle URL: parse and potentially add console prefix
+        parts = urlsplit(url, scheme="https", allow_fragments=False)
+        host = parts.netloc or parts.path
+        scheme = parts.scheme
+
+        if not host.startswith("console"):
+            # Be forgiving if we get a base URL like customer.stacklet.io
+            host = f"console.{host}"
 
     config = {}
     try:
         for config_path in ("config/cognito.json", "config/cubejs.json"):
             config_url = urlunsplit(
                 (
-                    parts.scheme,
+                    scheme,
                     host,
                     config_path,
                     None,
@@ -190,17 +205,15 @@ def auto_configure(url, idp, location):
             response.raise_for_status()
             config.update(response.json())
     except requests.exceptions.ConnectionError as err:
-        click.echo(f"Unable to connect to {config_url}")
-        click.echo(err)
-        return
+        raise click.ClickException(f"Unable to connect to {config_url}\n{err}")
     except requests.exceptions.HTTPError as err:
-        click.echo(f"Unable to retrieve configuration details from {config_url}")
-        click.echo(err)
-        return
+        raise click.ClickException(
+            f"Unable to retrieve configuration details from {config_url}\n{err}"
+        )
     except requests.exceptions.JSONDecodeError as err:
-        click.echo(f"Unable to parse configuration details from {config_url}")
-        click.echo(err)
-        return
+        raise click.ClickException(
+            f"Unable to parse configuration details from {config_url}\n{err}"
+        )
 
     try:
         auth_url = f"https://{config['cognito_install']}"
@@ -223,23 +236,19 @@ def auto_configure(url, idp, location):
             _, idp_id = name_to_id.popitem()
         else:
             if not idp:
-                click.echo(
+                raise click.ClickException(
                     "Multiple identity providers available, specify one with --idp: "
                     + ", ".join(sorted(name_to_id))
                 )
-                return
             idp_id = name_to_id.get(idp)
             if not idp_id:
-                click.echo(
+                raise click.ClickException(
                     f"Unknown identity provider '{idp}', known names: "
                     + ", ".join(sorted(name_to_id))
                 )
-                return
         formatted_config["idp_id"] = idp_id
     except KeyError as err:
-        click.echo("The configuration details are missing a required key")
-        click.echo(err)
-        return
+        raise click.ClickException(f"The configuration details are missing a required key: {err}")
 
     config_file = location.expanduser()
     if not config_file.exists():
