@@ -82,7 +82,7 @@ class AdminCliTest(BaseCliTest):
             "cognito_user_pool_id": "us-east-2_test123",
             "cognito_user_pool_client_id": "test-client-id",
             "cubejs_domain": "cubejs.dev.stacklet.dev",
-            "saml_providers": [{"name": "TestIDP", "idp_id": "test-idp-id"}]
+            "saml_providers": [{"name": "TestIDP", "idp_id": "test-idp-id"}],
         }
 
         with requests_mock.Mocker() as m:
@@ -125,7 +125,7 @@ class AdminCliTest(BaseCliTest):
             "cognito_user_pool_id": "us-west-2_test456",
             "cognito_user_pool_client_id": "test-client-id-2",
             "cubejs_domain": "cubejs.myorg.stacklet.io",
-            "saml_providers": [{"name": "OrgIDP", "idp_id": "org-idp-id"}]
+            "saml_providers": [{"name": "OrgIDP", "idp_id": "org-idp-id"}],
         }
 
         with requests_mock.Mocker() as m:
@@ -162,7 +162,7 @@ class AdminCliTest(BaseCliTest):
             "cognito_user_pool_id": "eu-west-1_test789",
             "cognito_user_pool_client_id": "test-client-id-3",
             "cubejs_domain": "cubejs.example.stacklet.io",
-            "saml_providers": [{"name": "ExampleIDP", "idp_id": "example-idp-id"}]
+            "saml_providers": [{"name": "ExampleIDP", "idp_id": "example-idp-id"}],
         }
 
         with requests_mock.Mocker() as m:
@@ -221,8 +221,10 @@ class AdminCliTest(BaseCliTest):
 
         with requests_mock.Mocker() as m:
             # Mock connection error
-            m.get("https://console.nonexistent.stacklet.dev/config/cognito.json",
-                  exc=requests.exceptions.ConnectionError)
+            m.get(
+                "https://console.nonexistent.stacklet.dev/config/cognito.json",
+                exc=requests.exceptions.ConnectionError,
+            )
 
             res = self.runner.invoke(
                 self.cli,
@@ -250,8 +252,8 @@ class AdminCliTest(BaseCliTest):
             "cubejs_domain": "cubejs.multi.stacklet.dev",
             "saml_providers": [
                 {"name": "IDP1", "idp_id": "idp-1"},
-                {"name": "IDP2", "idp_id": "idp-2"}
-            ]
+                {"name": "IDP2", "idp_id": "idp-2"},
+            ],
         }
 
         with requests_mock.Mocker() as m:
@@ -287,8 +289,8 @@ class AdminCliTest(BaseCliTest):
             "cubejs_domain": "cubejs.multi.stacklet.dev",
             "saml_providers": [
                 {"name": "IDP1", "idp_id": "idp-1"},
-                {"name": "IDP2", "idp_id": "idp-2"}
-            ]
+                {"name": "IDP2", "idp_id": "idp-2"},
+            ],
         }
 
         with requests_mock.Mocker() as m:
