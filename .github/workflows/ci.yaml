@@ -23,7 +23,6 @@ jobs:
           pre-commit run --all-files
 
   Tests:
-    name: Run the tests
     needs: Lint
     runs-on: ubuntu-latest
     strategy:
