@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "stacklet.client.platform"
-version = "0.1.5"
+version = "0.1.6"
 description = "Stacklet Platform Client"
 readme = "README.md"
 authors = ["Sonny Shi <sonny@stacklet.io>"]
