@@ -55,6 +55,9 @@ jobs:
     name: Run the tests against python 3.9 (oldest supported version)
     needs: Lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: wistia/parse-tool-versions@v1.0
@@ -67,10 +70,10 @@ jobs:
           version: ${{ env.POETRY_TOOL_VERSION }}
           virtualenvs-in-project: true
 
-      - name: Set up Python 3.9
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
           cache: poetry
 
       - name: Install dependencies
