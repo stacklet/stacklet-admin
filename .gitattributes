@@ -1,1 +1,3 @@
+*.py text diff=python
+uv.lock linguist-generated=true
 justfile linguist-language=Makefile

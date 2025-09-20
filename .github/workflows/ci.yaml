@@ -34,21 +34,19 @@ jobs:
       - uses: extractions/setup-just@v1
         with:
           just-version: ${{ env.JUST_TOOL_VERSION }}
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          version: ${{ env.POETRY_TOOL_VERSION }}
-          virtualenvs-in-project: true
+          version: ${{ env.UV_TOOL_VERSION }}
+          activate-environment: true
+          enable-cache: true
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: poetry
+      - name: Install Python
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
         shell: bash
-        run: poetry install
+        run: uv sync
 
       - name: Pytest run
         run: just test -v
