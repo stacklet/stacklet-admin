@@ -29,7 +29,7 @@ def upgrade(bump_patch, bump_minor, bump_major):
     with open("pyproject.toml") as f:
         pyproject = toml.load(f)
 
-    current = pyproject["tool"]["poetry"]["version"]
+    current = pyproject["project"]["version"]
     current_parsed = semver.VersionInfo.parse(current)
 
     major = current_parsed.major
@@ -45,7 +45,7 @@ def upgrade(bump_patch, bump_minor, bump_major):
 
     upgraded = ".".join([str(x) for x in (major, minor, patch)])
     click.echo(f"stacklet-admin: {current_parsed} -> {upgraded}")
-    pyproject["tool"]["poetry"]["version"] = upgraded
+    pyproject["project"]["version"] = upgraded
 
     with open("pyproject.toml", "w+") as f:
         toml.dump(pyproject, f)

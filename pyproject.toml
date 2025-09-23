@@ -1,44 +1,57 @@
 [build-system]
-requires = [ "poetry-core>=1.0.0",]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "stacklet.client.platform"
 version = "0.1.6"
 description = "Stacklet Platform Client"
+authors = [{ name = "Sonny Shi", email = "sonny@stacklet.io" }]
+requires-python = ">=3.9,<=3.13"
 readme = "README.md"
-authors = ["Sonny Shi <sonny@stacklet.io>"]
-maintainers = ["Stacklet <hello@stacklet.io>"]
 license = "Apache-2.0"
-include = [ "stacklet/client/platform/vendored/auth_landing_pages/ok.html", "stacklet/client/platform/vendored/auth_landing_pages/fail.html",]
-[[tool.poetry.packages]]
-include = "stacklet"
+maintainers = [{ name = "Stacklet", email = "hello@stacklet.io" }]
+dependencies = [
+    "click>=8.0.1,<9",
+    "requests>=2.32.4,<3",
+    "jsonschema>=4.9.0,<5",
+    "PyYAML~=6.0",
+    "PyJWT>=2.4.0,<3",
+    "boto3>=1.39.16,<2",
+    "charset_normalizer>=3.4.2,<4",
+    "jmespath>=1.0.1,<2",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 stacklet-admin = "stacklet.client.platform.cli:cli"
 
-[tool.poetry.dependencies]
-python = "^3.9"
-click = "^8.0.1"
-requests = "^2.32.4"
-jsonschema = "^4.9.0"
-PyYAML = "^6.0"
-PyJWT = "^2.4.0"
-boto3 = "^1.39.16"
-charset_normalizer = "^3.4.2"
-jmespath = "^1.0.1"
+[dependency-groups]
+dev = [
+    "ruff>=0.12.7,<0.13",
+    "moto[cognitoidp]>=5.1.9,<6",
+    "pytest~=8.4",
+    "pytest-cov>=6.2.1,<7",
+    "requests-mock>=1.8.0,<2",
+    "pre-commit>=2.12.0,<3",
+    "Nuitka>=2.7.12,<3",
+    "semver>=2.13.0,<3",
+    "toml>=0.10.2,<0.11",
+    "deptry>=0.23.1,<0.24",
+]
 
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.12.7"
-moto = { version = "^5.1.9", extras = ["cognitoidp"] }
-pytest = "^8.4"
-pytest-cov = "^6.2.1"
-requests-mock = "^1.8.0"
-pre-commit = "^2.12.0"
-Nuitka = "^2.7.12"
-semver = "^2.13.0"
-toml = "^0.10.2"
-deptry = "^0.23.1"
+[tool.hatch.build.targets.sdist]
+include = [
+    "stacklet",
+    "stacklet/client/platform/vendored/auth_landing_pages/ok.html",
+    "stacklet/client/platform/vendored/auth_landing_pages/fail.html",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "stacklet",
+    "stacklet/client/platform/vendored/auth_landing_pages/ok.html",
+    "stacklet/client/platform/vendored/auth_landing_pages/fail.html",
+]
 
 [tool.ruff]
 line-length = 100
