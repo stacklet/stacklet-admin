@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "stacklet.client.platform"
-version = "0.1.6"
+version = "2025.11.0"
 description = "Stacklet Platform Client"
 authors = [{ name = "Sonny Shi", email = "sonny@stacklet.io" }]
-requires-python = ">=3.9,<=3.13"
+requires-python = ">=3.9,<=3.14"
 readme = "README.md"
 license = "Apache-2.0"
 maintainers = [{ name = "Stacklet", email = "hello@stacklet.io" }]
@@ -27,14 +27,14 @@ stacklet-admin = "stacklet.client.platform.cli:cli"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.7,<0.13",
+    "ruff>=0.14,<0.15",
     "moto[cognitoidp]>=5.1.9,<6",
     "pytest~=8.4",
-    "pytest-cov>=6.2.1,<7",
+    "pytest-cov>=7,<8",
     "requests-mock>=1.8.0,<2",
-    "pre-commit>=2.12.0,<3",
+    "pre-commit>=4,<5",
     "Nuitka>=2.7.12,<3",
-    "semver>=2.13.0,<3",
+    "semver>=3,<4",
     "toml>=0.10.2,<0.11",
     "deptry>=0.23.1,<0.24",
 ]
