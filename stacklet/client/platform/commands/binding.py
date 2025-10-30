@@ -27,6 +27,7 @@ class QueryBindingsSnippet(StackletGraphqlSnippet):
                 schedule
                 variables
                 lastDeployed
+                system
                 accountGroup {
                     uuid
                     name
