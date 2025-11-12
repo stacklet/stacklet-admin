@@ -1562,7 +1562,7 @@ wheels = [
 
 [[package]]
 name = "stacklet-client-platform"
-version = "0.1.6"
+version = "2025.11.0"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
