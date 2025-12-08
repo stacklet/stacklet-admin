@@ -226,13 +226,16 @@ def auto_configure(url, prefix, idp, location):
             "cubejs": f"https://{config['cubejs_domain']}",
         }
 
-        name_to_id: dict[str, str]
+        name_to_id: dict[str, str] = {}
         if saml_providers := config.get("saml_providers"):
             name_to_id = {p["name"]: p["idp_id"] for p in saml_providers}
         elif saml := config.get("saml"):
             # XXX legacy key, should be removed once the new one is everywhere
             name_to_id = {name: idp_id for idp_id, name in saml.items()}
-        if len(name_to_id) == 1:
+        if len(name_to_id) == 0:
+            # No SAML providers configured
+            idp_id = ""
+        elif len(name_to_id) == 1:
             _, idp_id = name_to_id.popitem()
         else:
             if not idp:
