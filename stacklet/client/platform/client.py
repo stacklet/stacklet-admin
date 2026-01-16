@@ -7,24 +7,23 @@
 import jmespath
 
 # import the commands so the registry is populated when the client is instantiated
-import stacklet.client.platform.commands  # noqa
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.executor import StackletGraphqlExecutor
-from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token
+from . import commands  # noqa
+from .config import StackletConfigFiles
+from .context import StackletContext
+from .executor import StackletGraphqlExecutor
+from .utils import _PAGINATION_OPTIONS
 
 
 def platform_client(pager=False, expr=False):
     # for more pythonic experience, pass expr=True to de-graphqlize the result
     # for automatic pagination handling, pass pager=True
-    if (
-        not StackletContext.DEFAULT_CONFIG.exists()
-        or not StackletContext.DEFAULT_CREDENTIALS.exists()
-    ):
+    files = StackletConfigFiles()
+    token = files.api_token()
+    if not files.read_config() or not token:
         raise ValueError("Please configure and authenticate on stacklet-admin cli")
 
     d = {}
     ctx = StackletContext(raw_config={})
-    token = get_token()
     executor = StackletGraphqlExecutor(ctx, token)
 
     for k, snippet in StackletGraphqlExecutor.registry.items():

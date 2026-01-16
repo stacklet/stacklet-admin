@@ -270,9 +270,8 @@ def show(ctx):
     """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         fmt = Formatter.registry.get(ctx.obj["output"])()
-        if StackletContext.DEFAULT_ID.exists():
-            with StackletContext.DEFAULT_ID.open() as f:
-                id_details = jwt.decode(f.read(), options={"verify_signature": False})
+        if id_token := StackletConfigFiles().id_token():
+            id_details = jwt.decode(id_token, options={"verify_signature": False})
             click.echo(fmt(id_details))
             click.echo()
         click.echo(fmt(context.config.to_json()))

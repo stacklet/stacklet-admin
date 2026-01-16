@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 
 import click
 
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
+from .config import StackletConfigFiles
+from .formatter import Formatter
 
 _DEFAULT_OPTIONS = {
     "config": {"default": "", "help": ""},
@@ -91,9 +90,7 @@ def wrap_command(func, options, required=False, prompt=False):
 
 
 def get_token():
-    if token := os.getenv("STACKLET_API_KEY"):
-        return token
-    return StackletContext.DEFAULT_CREDENTIALS.read_text()
+    return StackletConfigFiles().api_token()  # XXX
 
 
 def default_options(*args, **kwargs):
@@ -141,7 +138,7 @@ def click_group_entry(
             + "--cognito-client-id, --cognito-region, and --api"
         )
     # inherit the parent's configs if they exist
-    ctx.obj.setdefault("config", ctx.obj.get("config", StackletContext.DEFAULT_CONFIG))
+    ctx.obj.setdefault("config", ctx.obj.get("config", StackletConfigFiles()._config_file))  # XXX
     ctx.obj.setdefault("output", ctx.obj.get("output", "yaml"))
     ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
     if config:
