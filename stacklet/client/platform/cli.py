@@ -1,8 +1,6 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import os
 import pathlib
 from urllib.parse import urlsplit, urlunsplit
 
@@ -10,18 +8,42 @@ import click
 import jwt
 import requests
 
-from stacklet.client.platform.cognito import CognitoUserManager
-from stacklet.client.platform.commands import commands
-from stacklet.client.platform.config import StackletConfig
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
-from stacklet.client.platform.utils import click_group_entry, default_options
+from .cognito import CognitoUserManager
+from .commands import commands
+from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT, StackletConfig
+from .context import StackletContext
+from .formatter import Formatter
+from .utils import setup_logging
 
 
 @click.group()
-@default_options()
+@click.option(
+    "--config",
+    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    default=DEFAULT_CONFIG_FILE,
+    envvar="STACKLET_CONFIG",
+    show_envvar=True,
+    help="Configuration file",
+)
+@click.option(
+    "--output",
+    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
+    default=DEFAULT_OUTPUT_FORMAT,
+    help="Output type",
+)
+@click.option(
+    "-v",
+    count=True,
+    default=0,
+    help="Verbosity level, increase verbosity by appending v, e.g. -vvv",
+)
 @click.pass_context
-def cli(*args, **kwargs):
+def cli(
+    ctx,
+    config,
+    output,
+    v,
+):
     """
     Stacklet CLI
 
@@ -29,6 +51,21 @@ def cli(*args, **kwargs):
     and follow prompts to configure your Stacklet CLI:
 
         $ stacklet-admin configure
+
+    or specify the configuration parameters directly:
+
+    \b
+        $ stacklet-admin \\
+            configure \\
+            --api $stacklet_api \\
+            --cognito-client-id $cognito_client_id \\
+            --cognito-user-pool-id $cognito_user_pool_id \\
+            --region $region
+     \b
+
+    In alternative, autoconfiguration can be used by specifying the deployment URL:
+
+        $ stacklet-admin auto-configure --url https://console.myorg.stacklet.io
 
     If this is your first time using Stacklet, create a user:
 
@@ -50,22 +87,13 @@ def cli(*args, **kwargs):
 
     \b
         $ stacklet-admin \\
-            --api $stacklet_api \\
-            --cognito-client-id $cognito_client_id \\
-            --cognito-user-pool-id $cognito_user_pool_id \\
-            --region $region \\
-            login
-
-    or:
-
-    \b
-        $ stacklet-admin \\
             --config $config_file_location \\
             login
+    \b
 
     Specify different output types:
 
-        $ stacklet-admin account --output json list --provider AWS
+        $ stacklet-admin --output json account list --provider AWS
 
     Stacklet queries default to 20 entries per page. To use pagiantion:
 
@@ -76,22 +104,30 @@ def cli(*args, **kwargs):
             --before $before_token \\
             --after $after_token \\
             list
+    \b
     """
-    click_group_entry(*args, **kwargs)
+    setup_logging(v)
+    ctx.obj = StackletContext(config_file=config, output_format=output)
 
 
 @cli.command(short_help="Configure stacklet-admin cli")
-@click.option("--api", prompt="Stacklet API endpoint")
-@click.option("--region", prompt="Cognito Region")
-@click.option("--cognito-client-id", prompt="Cognito User Pool Client ID")
-@click.option("--cognito-user-pool-id", prompt="Cognito User Pool ID")
-@click.option("--idp-id", prompt="(SSO) IDP ID", default="")
-@click.option("--auth-url", prompt="(SSO) Auth Url", default="")
-@click.option("--cubejs", prompt="Stacklet cube.js endpoint", default="")
-@click.option("--location", prompt="Config File Location", default="~/.stacklet/config.json")  # noqa
-@click.pass_context
+@click.option("--api", prompt="Stacklet API endpoint", help="Stacklet API endpoint")
+@click.option("--region", prompt="Cognito Region", help="Cognito Region")
+@click.option(
+    "--cognito-client-id", prompt="Cognito User Pool Client ID", help="Cognito User Pool Client ID"
+)
+@click.option("--cognito-user-pool-id", prompt="Cognito User Pool ID", help="Cognito User Pool ID")
+@click.option("--cubejs", prompt="Stacklet cube.js endpoint", help="Stacklet cube.js endpoint")
+@click.option("--idp-id", prompt="(SSO) IDP ID", default="", help="(SSO) IDP ID")
+@click.option("--auth-url", prompt="(SSO) Auth Url", default="", help="(SSO) Auth Url")
+@click.option(
+    "--location",
+    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    default=DEFAULT_CONFIG_FILE,
+    prompt="Config File Location",
+    help="Config File Location",
+)
 def configure(
-    ctx,
     api,
     region,
     cognito_client_id,
@@ -104,24 +140,18 @@ def configure(
     """
     Interactively save a Stacklet Config file
     """
-    config = {
-        "api": api,
-        "region": region,
-        "cognito_client_id": cognito_client_id,
-        "cognito_user_pool_id": cognito_user_pool_id,
-        "idp_id": idp_id,
-        "auth_url": auth_url,
-        "cubejs": cubejs,
-    }
-
-    StackletConfig.validate(config)
-
-    if not os.path.exists(location):
-        dirs = location.rsplit("/", 1)[0]
-        os.makedirs(os.path.expanduser(dirs), exist_ok=True)
-
-    with open(os.path.expanduser(location), "w+") as f:
-        f.write(json.dumps(config))
+    config = StackletConfig.from_dict(
+        {
+            "api": api,
+            "region": region,
+            "cognito_client_id": cognito_client_id,
+            "cognito_user_pool_id": cognito_user_pool_id,
+            "idp_id": idp_id,
+            "auth_url": auth_url,
+            "cubejs": cubejs,
+        }
+    )
+    config.to_file(location)
     click.echo(f"Saved config to {location}")
 
 
@@ -140,7 +170,7 @@ def configure(
 )
 @click.option(
     "--location",
-    default="~/.stacklet/config.json",
+    default=str(DEFAULT_CONFIG_FILE),
     type=click.Path(path_type=pathlib.Path, dir_okay=False),
     show_default=True,
 )
@@ -253,34 +283,28 @@ def auto_configure(url, prefix, idp, location):
     except KeyError as err:
         raise click.ClickException(f"The configuration details are missing a required key: {err}")
 
-    config_file = location.expanduser()
-    if not config_file.exists():
-        config_file.parent.mkdir(parents=True, exist_ok=True)
-
-    config_file.write_text(json.dumps(formatted_config, indent=4, sort_keys=True))
-
-    click.echo(f"Saved config to {config_file}")
+    config = StackletConfig.from_dict(formatted_config)
+    config.to_file(location)
+    click.echo(f"Saved config to {location}")
 
 
 @cli.command()
-@click.pass_context
-def show(ctx):
+@click.pass_obj
+def show(obj):
     """
     Show your config
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    fmt = Formatter.registry.get(ctx.obj["output"])()
-    if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
-        with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
-            id_details = jwt.decode(f.read(), options={"verify_signature": False})
+    fmt = obj.formatter()
+    if id_token := obj.credentials.id_token():
+        id_details = jwt.decode(id_token, options={"verify_signature": False})
         click.echo(fmt(id_details))
         click.echo()
-    click.echo(fmt(context.config.to_json()))
+    click.echo(fmt(obj.config.to_dict()))
 
 
 @cli.command(short_help="Login to Stacklet")
-@click.option("--username", required=False)
-@click.option("--password", hide_input=True, required=False)
+@click.option("--username", help="Login username", required=False)
+@click.option("--password", help="Login password", hide_input=True, required=False)
 @click.pass_context
 def login(ctx, username, password):
     """
@@ -295,23 +319,25 @@ def login(ctx, username, password):
 
     If password is not passed in, your password will be prompted
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    context = ctx.obj
+    config = context.config
+    can_sso_login = bool(config.auth_url)
     # sso login
-    if context.can_sso_login() and not any([username, password]):
-        from stacklet.client.platform.vendored.auth import BrowserAuthenticator
+    if can_sso_login and not any([username, password]):
+        from .vendored.auth import BrowserAuthenticator
 
         BrowserAuthenticator(
-            authority_url=context.config.auth_url,
-            client_id=context.config.cognito_client_id,
-            idp_id=context.config.idp_id,
+            authority_url=config.auth_url,
+            client_id=config.cognito_client_id,
+            idp_id=config.idp_id,
         )()
         return
-    elif not context.can_sso_login() and not any([username, password]):
+    elif not can_sso_login and not any([username, password]):
         click.echo(
             "To login with SSO ensure that your configuration includes "
             + "auth_url, and cognito_client_id values."
         )
-        raise Exception()
+        ctx.exit(1)
 
     # handle login with username/password
     if not username:
@@ -319,14 +345,11 @@ def login(ctx, username, password):
     if not password:
         password = click.prompt("Password", hide_input=True)
     manager = CognitoUserManager.from_context(context)
-    res = manager.login(
+    id_token, access_token = manager.login(
         user=username,
         password=password,
     )
-    if not os.path.exists(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))):
-        os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
-    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
-        f.write(res)
+    context.credentials.write(id_token, access_token)
 
 
 for c in commands:

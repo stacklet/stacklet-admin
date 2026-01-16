@@ -6,10 +6,9 @@ import logging
 
 import requests
 
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
-from stacklet.client.platform.registry import PluginRegistry
-from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token, wrap_command
+from .context import StackletContext
+from .registry import PluginRegistry
+from .utils import _PAGINATION_OPTIONS, wrap_command
 
 
 class StackletGraphqlExecutor:
@@ -19,16 +18,14 @@ class StackletGraphqlExecutor:
 
     registry = PluginRegistry("StackletGraphqlSnippets")
 
-    def __init__(self, context, token):
-        self.context = context
-        self.api = self.context.config.api
-        self.token = token
+    def __init__(self, context: StackletContext):
+        self.api = context.config.api
         self.log = logging.getLogger("StackletGraphqlExecutor")
 
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "Authorization": f"Bearer {self.token}",
+                "Authorization": f"Bearer {context.credentials.api_token}",
             }
         )
 
@@ -58,10 +55,8 @@ def snippet_options(*args, **kwargs):
     return wrapper
 
 
-def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    token = get_token()
-    executor = StackletGraphqlExecutor(context, token)
+def _run_graphql(context: StackletContext, name=None, variables=None, snippet=None, raw=False):
+    executor = StackletGraphqlExecutor(context)
 
     if variables is None:
         variables = {}
@@ -82,5 +77,5 @@ def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
     res = executor.run(snippet=snippet, variables=variables)
     if raw:
         return res
-    fmt = Formatter.registry.get(ctx.obj["output"])()
+    fmt = context.formatter()
     return fmt(res)

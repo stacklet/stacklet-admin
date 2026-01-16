@@ -3,9 +3,8 @@
 
 import click
 
-from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..graphql import StackletGraphqlSnippet
 
 
 @StackletGraphqlExecutor.registry.register("list-account-groups")
@@ -305,77 +304,77 @@ class RemoveAccountGroupItem(StackletGraphqlSnippet):
 
 
 @click.group("account-group", short_help="Run account group queries/mutations")
-@default_options()
-@click.pass_context
 def account_group(*args, **kwargs):
-    click_group_entry(*args, **kwargs)
+    """
+    Manage account groups
+    """
 
 
 @account_group.command()
 @snippet_options("list-account-groups")
-@click.pass_context
-def list(ctx, **kwargs):
+@click.pass_obj
+def list(obj, **kwargs):
     """
     List account groups in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="list-account-groups", variables=kwargs))
+    click.echo(_run_graphql(obj, name="list-account-groups", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("add-account-group")
-@click.pass_context
-def add(ctx, **kwargs):
+@click.pass_obj
+def add(obj, **kwargs):
     """
     Add account group
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-account-group", variables=kwargs))
+    click.echo(_run_graphql(obj, name="add-account-group", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("update-account-group")
-@click.pass_context
-def update(ctx, **kwargs):
+@click.pass_obj
+def update(obj, **kwargs):
     """
     Update account group
     """
-    click.echo(_run_graphql(ctx=ctx, name="update-account-group", variables=kwargs))
+    click.echo(_run_graphql(obj, name="update-account-group", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("show-account-group")
-@click.pass_context
-def show(ctx, **kwargs):
+@click.pass_obj
+def show(obj, **kwargs):
     """
     Show account group
     """
-    click.echo(_run_graphql(ctx=ctx, name="show-account-group", variables=kwargs))
+    click.echo(_run_graphql(obj, name="show-account-group", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("remove-account-group")
-@click.pass_context
-def remove(ctx, **kwargs):
+@click.pass_obj
+def remove(obj, **kwargs):
     """
     Remove account group
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-account-group", variables=kwargs))
+    click.echo(_run_graphql(obj, name="remove-account-group", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("add-account-group-item")
-@click.pass_context
-def add_item(ctx, **kwargs):
+@click.pass_obj
+def add_item(obj, **kwargs):
     """
     Add account group item
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-account-group-item", variables=kwargs))
+    click.echo(_run_graphql(obj, name="add-account-group-item", variables=kwargs))
 
 
 @account_group.command()
 @snippet_options("remove-account-group-item")
-@click.pass_context
-def remove_item(ctx, **kwargs):
+@click.pass_obj
+def remove_item(obj, **kwargs):
     """
     Remove account group item
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-account-group-item", variables=kwargs))
+    click.echo(_run_graphql(obj, name="remove-account-group-item", variables=kwargs))

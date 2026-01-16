@@ -5,17 +5,11 @@ import json
 
 import yaml
 
-from stacklet.client.platform.registry import PluginRegistry
+from .registry import PluginRegistry
 
 
 class Formatter:
     registry = PluginRegistry("formats")
-
-
-@Formatter.registry.register("")
-class NullFormatter(Formatter):
-    def __call__(self, value):
-        raise NotImplementedError("Null Formatter")
 
 
 @Formatter.registry.register("plain")

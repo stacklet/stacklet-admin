@@ -82,9 +82,6 @@ Usage: stacklet-admin account [OPTIONS] COMMAND [ARGS]...
       $ stacklet account --output json list
 
 Options:
-  -v                           Verbosity level, increase verbosity by
-                               appending v, e.g. -vvv
-
   --api TEXT                   If set, --cognito-user-pool-id, --cognito-
                                client-id, --cognito-region, and --api must
                                also be set.

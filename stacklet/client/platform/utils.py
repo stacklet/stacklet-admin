@@ -2,51 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
-from pathlib import Path
 
 import click
-
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
-
-_DEFAULT_OPTIONS = {
-    "config": {"default": "", "help": ""},
-    "output": {
-        "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-        "default": "",
-        "help": "Output type",
-    },
-    "cognito_user_pool_id": {
-        "help": (
-            "If set, --cognito-user-pool-id, --cognito-client-id, "
-            "--cognito-region, and --api must also be set."
-        )
-    },
-    "cognito_client_id": {
-        "help": (
-            "If set, --cognito-user-pool-id, --cognito-client-id, "
-            "--cognito-region, and --api must also be set."
-        )
-    },
-    "cognito_region": {
-        "help": (
-            "If set, --cognito-user-pool-id, --cognito-client-id, "
-            "--cognito-region, and --api must also be set."
-        )
-    },
-    "api": {
-        "help": (
-            "If set, --cognito-user-pool-id, --cognito-client-id, "
-            "--cognito-region, and --api must also be set."
-        )
-    },
-    "-v": {
-        "count": True,
-        "default": 0,
-        "help": "Verbosity level, increase verbosity by appending v, e.g. -vvv",
-    },
-}
 
 _PAGINATION_OPTIONS = {
     "first": {
@@ -91,21 +48,6 @@ def wrap_command(func, options, required=False, prompt=False):
     return func
 
 
-def get_token():
-    if token := os.getenv("STACKLET_API_KEY"):
-        return token
-
-    return Path(StackletContext.DEFAULT_CREDENTIALS).expanduser().read_text()
-
-
-def default_options(*args, **kwargs):
-    def wrapper(func):
-        wrap_command(func, _DEFAULT_OPTIONS, required=False, prompt=False)
-        return func
-
-    return wrapper
-
-
 def get_log_level(verbose):
     # Default to Error level (40)
     level = 40 - (verbose * 10)
@@ -116,44 +58,12 @@ def get_log_level(verbose):
     return level
 
 
-def click_group_entry(
-    ctx,
-    config,
-    output,
-    cognito_user_pool_id,
-    cognito_client_id,
-    cognito_region,
-    api,
-    v,
-):
+def setup_logging(level):
     logging.basicConfig()
     # Don't make botocore or urllib3 more verbose
     logging.getLogger("botocore").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     root_handler = logging.getLogger()
-    if v != 0:
-        root_handler.setLevel(level=get_log_level(v))
-
-    ctx.ensure_object(dict)
-    config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
-    if any(config_items) and not all(config_items):
-        raise Exception(
-            "All options must be set for config items: --cognito-user-pool-id, "
-            + "--cognito-client-id, --cognito-region, and --api"
-        )
-    # inherit the parent's configs if they exist
-    ctx.obj.setdefault("config", ctx.obj.get("config", StackletContext.DEFAULT_CONFIG))
-    ctx.obj.setdefault("output", ctx.obj.get("output", StackletContext.DEFAULT_OUTPUT))
-    ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
-    if config:
-        ctx.obj["config"] = config
-    if output:
-        ctx.obj["output"] = output
-    if all(config_items):
-        ctx.obj["raw_config"] = {
-            "cognito_user_pool_id": cognito_user_pool_id,
-            "cognito_client_id": cognito_client_id,
-            "region": cognito_region,
-            "api": api,
-        }
+    if level:
+        root_handler.setLevel(level=get_log_level(level))
