@@ -8,7 +8,7 @@ import click
 
 from stacklet.client.platform.executor import _run_graphql
 from stacklet.client.platform.graphql import AdHocSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @click.group()
@@ -18,7 +18,6 @@ def graphql(*args, **kwargs):
     """
     Run arbitrary graphql snippets
     """
-    click_group_entry(*args, **kwargs)
 
 
 @graphql.command()

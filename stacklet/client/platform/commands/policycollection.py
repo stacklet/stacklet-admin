@@ -5,7 +5,7 @@ import click
 
 from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-policy-collections")
@@ -256,7 +256,9 @@ class RemovePolicyCollection(StackletGraphqlSnippet):
 @default_options()
 @click.pass_context
 def policy_collection(*args, **kwargs):
-    click_group_entry(*args, **kwargs)
+    """
+    Manage policy collections
+    """
 
 
 @policy_collection.command()

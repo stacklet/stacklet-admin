@@ -5,7 +5,7 @@ import click
 
 from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-bindings")
@@ -265,7 +265,6 @@ def binding(*args, **kwargs):
     """
     Query and run mutations against bindings in Stacklet Platform
     """
-    click_group_entry(*args, **kwargs)
 
 
 @binding.command()

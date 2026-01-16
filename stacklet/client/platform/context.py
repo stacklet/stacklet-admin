@@ -1,25 +1,22 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-from stacklet.client.platform.config import StackletConfig, StackletConfigFiles
+import os
+
+from .config import DEFAULT_CONFIG_FILE, StackletConfig
 
 
 class StackletContext:
-    """CLI Execution Context"""
+    """CLI Execution Context."""
 
-    def __init__(self, config=None, raw_config=None):
-        if len(raw_config.values()) != 0:
+    def __init__(self, raw_config: dict | None = None, config_file: str | None = None):
+        self.raw_config = raw_config
+        if raw_config:
             self.config = StackletConfig(**raw_config)
-        elif config:
-            self.config = StackletConfig.from_file(config)
         else:
-            self.config = StackletConfigFiles().read_config()  # XXX
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        return
+            if not config_file:
+                config_file = os.getenv("STACKLET_CONFIG", str(DEFAULT_CONFIG_FILE))
+            self.config = StackletConfig.from_file(config_file)
 
     def can_sso_login(self):
         return all(

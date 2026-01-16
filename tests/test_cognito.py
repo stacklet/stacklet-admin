@@ -56,28 +56,28 @@ class TestCognitoUserManager:
         users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
         assert len(users["Users"]) == 0
 
-        with StackletContext(raw_config=config) as context:
-            manager = CognitoUserManager.from_context(context)
-            manager.create_user(
-                user="test-user",
-                password="Foobar123!",
-                email="foo@acme.org",
-                phone_number="+15551234567",
-            )
-            users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
-            assert users["Users"][0]["Username"] == "test-user"
+        context = StackletContext(raw_config=config)
+        manager = CognitoUserManager.from_context(context)
+        manager.create_user(
+            user="test-user",
+            password="Foobar123!",
+            email="foo@acme.org",
+            phone_number="+15551234567",
+        )
+        users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
+        assert users["Users"][0]["Username"] == "test-user"
 
-            # creating a user is an idempotent action, this should return true without
-            # raising an error
-            res = manager.create_user(
-                user="test-user",
-                password="Foobar123!",
-                email="foo@acme.org",
-                phone_number="+15551234567",
-            )
-            assert res is True
-            users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
-            assert users["Users"][0]["Username"] == "test-user"
+        # creating a user is an idempotent action, this should return true without
+        # raising an error
+        res = manager.create_user(
+            user="test-user",
+            password="Foobar123!",
+            email="foo@acme.org",
+            phone_number="+15551234567",
+        )
+        assert res is True
+        users = self.client.list_users(UserPoolId=self.cognito_user_pool_id)
+        assert users["Users"][0]["Username"] == "test-user"
 
     def default_args(self) -> list[str]:
         return [

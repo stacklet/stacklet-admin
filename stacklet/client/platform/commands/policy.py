@@ -6,7 +6,7 @@ import click
 from stacklet.client.platform.exceptions import InvalidInputException
 from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-policies")
@@ -144,7 +144,9 @@ class ShowPolicy(StackletGraphqlSnippet):
 @default_options()
 @click.pass_context
 def policy(*args, **kwargs):
-    click_group_entry(*args, **kwargs)
+    """
+    Manage policies
+    """
 
 
 @policy.command()

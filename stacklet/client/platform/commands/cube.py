@@ -12,7 +12,7 @@ import click
 import requests
 
 from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import click_group_entry, default_options, get_token
+from stacklet.client.platform.utils import default_options, get_token
 
 
 @click.group()
@@ -22,7 +22,6 @@ def cubejs(*args, **kwargs):
     """
     Run arbitrary cubejs queries
     """
-    click_group_entry(*args, **kwargs)
 
 
 @cubejs.command()

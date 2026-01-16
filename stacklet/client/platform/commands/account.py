@@ -7,7 +7,7 @@ import click
 
 from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
 from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @StackletGraphqlExecutor.registry.register("list-accounts")
@@ -287,7 +287,6 @@ def account(*args, **kwargs):
         $ stacklet account --output json list
 
     """
-    click_group_entry(*args, **kwargs)
 
 
 @account.command()

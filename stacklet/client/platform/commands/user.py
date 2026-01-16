@@ -5,7 +5,7 @@ import click
 
 from stacklet.client.platform.cognito import CognitoUserManager
 from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @click.group(short_help="Run user queries/mutations")
@@ -15,7 +15,6 @@ def user(*args, **kwargs):
     """
     Execute User Operations
     """
-    click_group_entry(*args, **kwargs)
 
 
 @user.command()

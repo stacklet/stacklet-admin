@@ -5,11 +5,11 @@ import logging
 
 import click
 
-from .config import StackletConfigFiles
+from .config import DEFAULT_CONFIG_FILE, StackletCredentials
 from .formatter import Formatter
 
 _DEFAULT_OPTIONS = {
-    "config": {"default": "", "help": ""},
+    "config": {"default": DEFAULT_CONFIG_FILE, "help": "Configuration file"},
     "output": {
         "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
         "default": "",
@@ -90,7 +90,7 @@ def wrap_command(func, options, required=False, prompt=False):
 
 
 def get_token():
-    return StackletConfigFiles().api_token()  # XXX
+    return StackletCredentials().api_token()  # XXX
 
 
 def default_options(*args, **kwargs):
@@ -111,44 +111,12 @@ def get_log_level(verbose):
     return level
 
 
-def click_group_entry(
-    ctx,
-    config,
-    output,
-    cognito_user_pool_id,
-    cognito_client_id,
-    cognito_region,
-    api,
-    v,
-):
+def setup_logging(level):
     logging.basicConfig()
     # Don't make botocore or urllib3 more verbose
     logging.getLogger("botocore").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     root_handler = logging.getLogger()
-    if v != 0:
-        root_handler.setLevel(level=get_log_level(v))
-
-    ctx.ensure_object(dict)
-    config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
-    if any(config_items) and not all(config_items):
-        raise Exception(
-            "All options must be set for config items: --cognito-user-pool-id, "
-            + "--cognito-client-id, --cognito-region, and --api"
-        )
-    # inherit the parent's configs if they exist
-    ctx.obj.setdefault("config", ctx.obj.get("config", StackletConfigFiles()._config_file))  # XXX
-    ctx.obj.setdefault("output", ctx.obj.get("output", "yaml"))
-    ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
-    if config:
-        ctx.obj["config"] = config
-    if output:
-        ctx.obj["output"] = output
-    if all(config_items):
-        ctx.obj["raw_config"] = {
-            "cognito_user_pool_id": cognito_user_pool_id,
-            "cognito_client_id": cognito_client_id,
-            "region": cognito_region,
-            "api": api,
-        }
+    if level:
+        root_handler.setLevel(level=get_log_level(level))
