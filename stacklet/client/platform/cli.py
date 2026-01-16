@@ -12,8 +12,8 @@ import requests
 
 from .cognito import CognitoUserManager
 from .commands import commands
-from .config import StackletConfig
-from .context import StackletContext, StackletCredentialWriter
+from .config import StackletConfig, StackletConfigFiles
+from .context import StackletContext
 from .formatter import Formatter
 from .utils import click_group_entry, default_options
 
@@ -319,11 +319,11 @@ def login(ctx, username, password):
         if not password:
             password = click.prompt("Password", hide_input=True)
         manager = CognitoUserManager.from_context(context)
-        res = manager.login(
+        id_token, access_token = manager.login(
             user=username,
             password=password,
         )
-        StackletCredentialWriter(res, StackletContext.DEFAULT_CREDENTIALS)()
+        StackletConfigFiles().write_tokens(id_token, access_token)
 
 
 for c in commands:

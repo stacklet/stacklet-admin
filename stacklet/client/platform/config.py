@@ -7,11 +7,12 @@ Handle configuration for the CLI
 
 import json
 import os
+import typing as t
 from pathlib import Path
 
 from jsonschema import ValidationError, validate
 
-from stacklet.client.platform.exceptions import ConfigValidationException
+from .exceptions import ConfigValidationException
 
 MISSING = "missing"
 
@@ -79,3 +80,57 @@ class StackletConfig:
             res = json.load(f)
         cls.validate(res)
         return cls(**res)
+
+
+JSONDict = dict[str, t.Any]
+
+
+class StackletConfigFiles:
+    """Manage configuration files."""
+
+    def __init__(self, config_dir: Path = Path("~/.stacklet").expanduser()) -> None:
+        self.config_dir = config_dir
+        self._config_file = self.config_dir / "config.json"
+        self._access_token_file = self.config_dir / "credentials"
+        self._id_token_file = self.config_dir / "id"
+
+    def id_token(self) -> str | None:
+        """Return the ID token."""
+        return self._read_file(self._id_token_file)
+
+    def api_token(self) -> str | None:
+        """Return the API token.
+
+        This can be the API key (if set in the environment), or the access
+        token.
+        """
+        if token := os.getenv("STACKLET_API_KEY"):
+            return token
+        return self._read_file(self._access_token_file)
+
+    def read_config(self) -> JSONDict | None:
+        """Read current configuration."""
+        config = self._read_file(self._config_file)
+        if config is None:
+            return None
+        return json.loads(config)
+
+    def write_config(self, config: JSONDict) -> None:
+        """Write configuration to file."""
+        self._ensure_dirs()
+        with self._config_file.open("w") as fd:
+            json.dump(config, fd)
+
+    def write_tokens(self, id_token: str, access_token: str) -> None:
+        """Write id and access tokens to file."""
+        self._ensure_dirs()
+        self._id_token_file.write_text(id_token)
+        self._access_token_file.write_text(access_token)
+
+    def _read_file(self, path: Path) -> str | None:
+        if not path.exists():
+            return None
+        return path.read_text()
+
+    def _ensure_dirs(self):
+        self.config_dir.mkdir(parents=True, exist_ok=True)

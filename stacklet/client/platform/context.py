@@ -37,13 +37,3 @@ class StackletContext:
                 self.config.cognito_client_id,
             ]
         )
-
-
-class StackletCredentialWriter:
-    def __init__(self, credentials: str, location: Path):
-        self.credentials = credentials
-        self.location = location
-
-    def __call__(self):
-        self.location.parent.mkdir(parents=True, exist_ok=True)
-        self.location.write_text(self.credentials)
