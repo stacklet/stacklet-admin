@@ -60,31 +60,31 @@ def resource_counts(ctx):
 
 
 def _run_query(ctx, query):
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        token = get_token()
+    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    token = get_token()
 
-        url = f"https://{context.config.cubejs}/cubejs-api/v1/load"
+    url = f"https://{context.config.cubejs}/cubejs-api/v1/load"
 
-        data = {"query": query}
-        response = requests.post(
-            url=url,
-            headers={"Authorization": token, "Content-Type": "application/json"},
-            data=json.dumps(data),
-        )
-        return response.json()
+    data = {"query": query}
+    response = requests.post(
+        url=url,
+        headers={"Authorization": token, "Content-Type": "application/json"},
+        data=json.dumps(data),
+    )
+    return response.json()
 
 
 def _get(ctx, path: str):
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        token = get_token()
+    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    token = get_token()
 
-        url = f"https://{context.config.cubejs}/cubejs-api/{path}"
+    url = f"https://{context.config.cubejs}/cubejs-api/{path}"
 
-        response = requests.get(
-            url=url,
-            headers={"Authorization": token, "Content-Type": "application/json"},
-        )
-        return response.json()
+    response = requests.get(
+        url=url,
+        headers={"Authorization": token, "Content-Type": "application/json"},
+    )
+    return response.json()
 
 
 _resource_counts = {

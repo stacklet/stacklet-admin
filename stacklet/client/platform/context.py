@@ -24,12 +24,6 @@ class StackletContext:
         else:
             self.config = StackletConfig.from_file(self.DEFAULT_CONFIG)
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        return
-
     def can_sso_login(self):
         return all(
             [
