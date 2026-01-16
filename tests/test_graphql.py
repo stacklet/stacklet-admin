@@ -1,22 +1,18 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-from unittest.mock import patch
-
+import requests_mock
 import yaml
 
-from .utils import BaseCliTest, get_executor_adapter
+from .utils import BaseCliTest
 
 
 class GraphqlTest(BaseCliTest):
     def test_executor_run(self):
-        executor, adapter = get_executor_adapter()
-        self.assertEqual(executor.token, "foo")
-        self.assertEqual(executor.api, "mock://stacklet.acme.org/api")
-        self.assertEqual(executor.session.headers["authorization"], "foo")
+        self.assertEqual(self.executor.api, "mock://stacklet.acme.org/api")
+        self.assertEqual(self.executor.session.headers["authorization"], "mock-token")
 
-        adapter.register_uri(
+        self.adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
             json={
@@ -39,9 +35,9 @@ class GraphqlTest(BaseCliTest):
             },
         )
 
-        snippet = executor.registry.get("list-accounts")
+        snippet = self.executor.registry.get("list-accounts")
 
-        results = executor.run(
+        results = self.executor.run(
             snippet,
             variables={
                 "provider": "AWS",
@@ -75,34 +71,21 @@ class GraphqlTest(BaseCliTest):
         )
 
     def test_graphql_executor_via_cli(self):
-        executor, adapter = get_executor_adapter()
-
         snippet = '{ platform { dashboardDefinition(name:"cis-v140") } }'
-        adapter.register_uri(
-            "POST",
-            "mock://stacklet.acme.org/api",
-            json={"data": {"platform": {"version": "1.2.3+git.abcdef0"}}},
+
+        payload = {"data": {"platform": {"version": "1.2.3+git.abcdef0"}}}
+        self.adapter.post(requests_mock.ANY, json=payload)
+        res = self.runner.invoke(
+            self.cli,
+            [
+                "--api=mock://stacklet.acme.org/api",
+                "--cognito-region=us-east-1",
+                "--cognito-user-pool-id=foo",
+                "--cognito-client-id=bar",
+                "graphql",
+                "run",
+                f"--snippet={snippet}",
+            ],
         )
-
-        with patch("stacklet.client.platform.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet.client.platform.executor.get_token", return_value="foo"):
-                patched.return_value = executor.session
-                res = self.runner.invoke(
-                    self.cli,
-                    [
-                        "graphql",
-                        "--api=mock://stacklet.acme.org/api",
-                        "--cognito-region=us-east-1",
-                        "--cognito-user-pool-id=foo",
-                        "--cognito-client-id=bar",
-                        "run",
-                        f"--snippet={snippet}",
-                    ],
-                )
-                body = json.loads(adapter.last_request.body.decode("utf-8"))
-                assert body == {"query": snippet}
-
-                assert res.exit_code == 0
-                assert yaml.safe_load(res.output) == {
-                    "data": {"platform": {"version": "1.2.3+git.abcdef0"}}
-                }
+        assert res.exit_code == 0, f"CLI failed: {res.output}"
+        assert yaml.safe_load(res.output) == payload

@@ -11,35 +11,33 @@ from pprint import pformat
 import click
 import requests
 
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import click_group_entry, default_options, get_token
+from ..context import StackletContext
+from ..utils import default_options
 
 
 @click.group()
 @default_options()
-@click.pass_context
 def cubejs(*args, **kwargs):
     """
     Run arbitrary cubejs queries
     """
-    click_group_entry(*args, **kwargs)
 
 
 @cubejs.command()
 @click.option("--query", help="Graphql Query or Mutation", default=sys.stdin)
-@click.pass_context
-def run(ctx, query):
+@click.pass_obj
+def run(obj, query):
     if isinstance(query, io.IOBase):
         query = query.read()
 
-    response = _run_query(ctx, json.loads(query))
+    response = _run_query(obj, json.loads(query))
     click.echo(pformat(response))
 
 
 @cubejs.command()
-@click.pass_context
-def meta(ctx):
-    data = _get(ctx, "v1/meta")
+@click.pass_obj
+def meta(obj):
+    data = _get(obj, "v1/meta")
 
     cubes = {cube["name"]: cube for cube in data["cubes"]}
     for name in sorted(cubes):
@@ -49,9 +47,9 @@ def meta(ctx):
 
 
 @cubejs.command()
-@click.pass_context
-def resource_counts(ctx):
-    response = _run_query(ctx, _resource_counts)
+@click.pass_obj
+def resource_counts(obj):
+    response = _run_query(obj, _resource_counts)
     data = response["data"]
     for row in data:
         date = datetime.fromisoformat(row["ResourceCounts.date"])
@@ -59,9 +57,8 @@ def resource_counts(ctx):
         click.echo(f"{date.date().isoformat()}: {count}")
 
 
-def _run_query(ctx, query):
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    token = get_token()
+def _run_query(context: StackletContext, query):
+    token = context.credentials.api_token()
 
     url = f"https://{context.config.cubejs}/cubejs-api/v1/load"
 
@@ -74,9 +71,8 @@ def _run_query(ctx, query):
     return response.json()
 
 
-def _get(ctx, path: str):
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    token = get_token()
+def _get(context: StackletContext, path: str):
+    token = context.credentials.api_token()
 
     url = f"https://{context.config.cubejs}/cubejs-api/{path}"
 

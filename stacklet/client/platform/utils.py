@@ -2,18 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 
 import click
 
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
+from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT
+from .formatter import Formatter
 
 _DEFAULT_OPTIONS = {
-    "config": {"default": "", "help": ""},
+    "config": {"default": DEFAULT_CONFIG_FILE, "help": "Configuration file"},
     "output": {
         "type": click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
-        "default": "",
+        "default": DEFAULT_OUTPUT_FORMAT,
         "help": "Output type",
     },
     "cognito_user_pool_id": {
@@ -90,12 +89,6 @@ def wrap_command(func, options, required=False, prompt=False):
     return func
 
 
-def get_token():
-    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "r") as f:
-        token = f.read()
-    return token
-
-
 def default_options(*args, **kwargs):
     def wrapper(func):
         wrap_command(func, _DEFAULT_OPTIONS, required=False, prompt=False)
@@ -114,44 +107,12 @@ def get_log_level(verbose):
     return level
 
 
-def click_group_entry(
-    ctx,
-    config,
-    output,
-    cognito_user_pool_id,
-    cognito_client_id,
-    cognito_region,
-    api,
-    v,
-):
+def setup_logging(level):
     logging.basicConfig()
     # Don't make botocore or urllib3 more verbose
     logging.getLogger("botocore").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     root_handler = logging.getLogger()
-    if v != 0:
-        root_handler.setLevel(level=get_log_level(v))
-
-    ctx.ensure_object(dict)
-    config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
-    if any(config_items) and not all(config_items):
-        raise Exception(
-            "All options must be set for config items: --cognito-user-pool-id, "
-            + "--cognito-client-id, --cognito-region, and --api"
-        )
-    # inherit the parent's configs if they exist
-    ctx.obj.setdefault("config", ctx.obj.get("config", StackletContext.DEFAULT_CONFIG))
-    ctx.obj.setdefault("output", ctx.obj.get("output", StackletContext.DEFAULT_OUTPUT))
-    ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
-    if config:
-        ctx.obj["config"] = config
-    if output:
-        ctx.obj["output"] = output
-    if all(config_items):
-        ctx.obj["raw_config"] = {
-            "cognito_user_pool_id": cognito_user_pool_id,
-            "cognito_client_id": cognito_client_id,
-            "region": cognito_region,
-            "api": api,
-        }
+    if level:
+        root_handler.setLevel(level=get_log_level(level))

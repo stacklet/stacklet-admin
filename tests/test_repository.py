@@ -3,36 +3,27 @@
 
 import json
 from textwrap import dedent
-from typing import Optional
-from unittest.mock import patch
 
-from click.testing import Result
-
-from .utils import BaseCliTest, JSONDict, get_executor_adapter
+from .utils import BaseCliTest, JSONDict
 
 
 class RepositoryTest(BaseCliTest):
-    def run_query(
-        self, args: list[str], response: Optional[JSONDict] = None
-    ) -> tuple[Result, JSONDict]:
-        if response is None:
-            response = JSONDict(
+    def test_add_repository(self):
+        res, body = self.run_query(
+            "repository",
+            [
+                "add",
+                "--url=mock://git.acme.org/stacklet/policies.git",
+                "--name=test-policies",
+            ],
+            response=JSONDict(
                 data={
                     "addRepository": {
                         "url": "mock://git.acme.org/stacklet/policies.git",
                         "name": "test-policies",
                     }
                 }
-            )
-        return super().run_query("repository", args, response)
-
-    def test_add_repository(self):
-        res, body = self.run_query(
-            [
-                "add",
-                "--url=mock://git.acme.org/stacklet/policies.git",
-                "--name=test-policies",
-            ]
+            ),
         )
         assert res.output == dedent(
             """\
@@ -63,12 +54,21 @@ class RepositoryTest(BaseCliTest):
 
     def test_add_repository_deep(self):
         res, body = self.run_query(
+            "repository",
             [
                 "add",
                 "--url=mock://git.acme.org/stacklet/policies.git",
                 "--name=test-policies",
                 "--deep-import=true",
-            ]
+            ],
+            response=JSONDict(
+                data={
+                    "addRepository": {
+                        "url": "mock://git.acme.org/stacklet/policies.git",
+                        "name": "test-policies",
+                    }
+                }
+            ),
         )
         assert res.output == dedent(
             """\
@@ -105,37 +105,32 @@ class RepositoryTest(BaseCliTest):
         }
 
     def test_process_repository(self):
-        executor, adapter = get_executor_adapter()
-        adapter.register_uri(
+        self.adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
             json={"data": {"processRepository": "34c10c3e-d841-4e63-9d51-01b92f36c502"}},
         )
-
-        with patch("stacklet.client.platform.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet.client.platform.executor.get_token", return_value="foo"):
-                patched.return_value = executor.session
-                res = self.runner.invoke(
-                    self.cli,
-                    [
-                        "repository",
-                        "--api=mock://stacklet.acme.org/api",
-                        "--cognito-region=us-east-1",
-                        "--cognito-user-pool-id=foo",
-                        "--cognito-client-id=bar",
-                        "process",
-                        "--url=mock://git.acme.org/stacklet/policies.git",
-                    ],
-                )
-                self.assertEqual(res.exit_code, 0)
-                self.assertEqual(
-                    res.output,
-                    "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n",
-                )
-                body = json.loads(adapter.last_request.body.decode("utf-8"))
-                self.assertEqual(
-                    body["query"].strip(),
-                    """mutation ($url: String!) {
+        res = self.runner.invoke(
+            self.cli,
+            [
+                "--api=mock://stacklet.acme.org/api",
+                "--cognito-region=us-east-1",
+                "--cognito-user-pool-id=foo",
+                "--cognito-client-id=bar",
+                "repository",
+                "process",
+                "--url=mock://git.acme.org/stacklet/policies.git",
+            ],
+        )
+        self.assertEqual(res.exit_code, 0)
+        self.assertEqual(
+            res.output,
+            "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n",
+        )
+        body = json.loads(self.adapter.last_request.body.decode("utf-8"))
+        self.assertEqual(
+            body["query"].strip(),
+            """mutation ($url: String!) {
       processRepository(input:{url: $url})
     }""",
-                )
+        )

@@ -4,18 +4,15 @@
 import click
 
 from stacklet.client.platform.cognito import CognitoUserManager
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import click_group_entry, default_options
+from stacklet.client.platform.utils import default_options
 
 
 @click.group(short_help="Run user queries/mutations")
 @default_options()
-@click.pass_context
 def user(*args, **kwargs):
     """
     Execute User Operations
     """
-    click_group_entry(*args, **kwargs)
 
 
 @user.command()
@@ -24,13 +21,12 @@ def user(*args, **kwargs):
 @click.option("--email")
 @click.option("--phone-number")
 @click.option("--permanent/--not-permanent", default=True)
-@click.pass_context
-def add(ctx, username, password, email=None, phone_number=None, permanent=True):
+@click.pass_obj
+def add(obj, username, password, email=None, phone_number=None, permanent=True):
     """
     Add a cognito user in Stacklet
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    manager = CognitoUserManager.from_context(context)
+    manager = CognitoUserManager.from_context(obj)
     manager.create_user(
         user=username,
         password=password,
@@ -48,8 +44,7 @@ def ensure_group(ctx, username, group):
     """
     Ensure that the specified user has the group if the group is available.
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    manager = CognitoUserManager.from_context(context)
+    manager = CognitoUserManager.from_context(ctx.obj)
     success = manager.ensure_group(
         user=username,
         group=group,

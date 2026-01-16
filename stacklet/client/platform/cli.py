@@ -10,18 +10,26 @@ import click
 import jwt
 import requests
 
-from stacklet.client.platform.cognito import CognitoUserManager
-from stacklet.client.platform.commands import commands
-from stacklet.client.platform.config import StackletConfig
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
-from stacklet.client.platform.utils import click_group_entry, default_options
+from .cognito import CognitoUserManager
+from .commands import commands
+from .config import DEFAULT_CONFIG_FILE, StackletConfig
+from .context import StackletContext
+from .utils import default_options, setup_logging
 
 
 @click.group()
 @default_options()
 @click.pass_context
-def cli(*args, **kwargs):
+def cli(
+    ctx,
+    config,
+    output,
+    cognito_user_pool_id,
+    cognito_client_id,
+    cognito_region,
+    api,
+    v,
+):
     """
     Stacklet CLI
 
@@ -77,7 +85,25 @@ def cli(*args, **kwargs):
             --after $after_token \\
             list
     """
-    click_group_entry(*args, **kwargs)
+    setup_logging(v)
+
+    config_items = [cognito_user_pool_id, cognito_client_id, cognito_region, api]
+    if any(config_items) and not all(config_items):
+        raise Exception(
+            "All options must be set for config items: --cognito-user-pool-id, "
+            + "--cognito-client-id, --cognito-region, and --api"
+        )
+
+    raw_config = None
+    if all(config_items):
+        raw_config = {
+            "cognito_user_pool_id": cognito_user_pool_id,
+            "cognito_client_id": cognito_client_id,
+            "region": cognito_region,
+            "api": api,
+        }
+
+    ctx.obj = StackletContext(raw_config=raw_config, config_file=config, output_format=output)
 
 
 @cli.command(short_help="Configure stacklet-admin cli")
@@ -89,9 +115,7 @@ def cli(*args, **kwargs):
 @click.option("--auth-url", prompt="(SSO) Auth Url", default="")
 @click.option("--cubejs", prompt="Stacklet cube.js endpoint", default="")
 @click.option("--location", prompt="Config File Location", default="~/.stacklet/config.json")  # noqa
-@click.pass_context
 def configure(
-    ctx,
     api,
     region,
     cognito_client_id,
@@ -140,7 +164,7 @@ def configure(
 )
 @click.option(
     "--location",
-    default="~/.stacklet/config.json",
+    default=str(DEFAULT_CONFIG_FILE),
     type=click.Path(path_type=pathlib.Path, dir_okay=False),
     show_default=True,
 )
@@ -263,19 +287,17 @@ def auto_configure(url, prefix, idp, location):
 
 
 @cli.command()
-@click.pass_context
-def show(ctx):
+@click.pass_obj
+def show(obj):
     """
     Show your config
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    fmt = Formatter.registry.get(ctx.obj["output"])()
-    if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
-        with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
-            id_details = jwt.decode(f.read(), options={"verify_signature": False})
+    fmt = obj.formatter()
+    if id_token := obj.credentials.id_token():
+        id_details = jwt.decode(id_token, options={"verify_signature": False})
         click.echo(fmt(id_details))
         click.echo()
-    click.echo(fmt(context.config.to_json()))
+    click.echo(fmt(obj.config.to_json()))
 
 
 @cli.command(short_help="Login to Stacklet")
@@ -295,23 +317,25 @@ def login(ctx, username, password):
 
     If password is not passed in, your password will be prompted
     """
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    context = ctx.obj
+    config = context.config
+    can_sso_login = context.can_sso_login()
     # sso login
-    if context.can_sso_login() and not any([username, password]):
+    if can_sso_login and not any([username, password]):
         from stacklet.client.platform.vendored.auth import BrowserAuthenticator
 
         BrowserAuthenticator(
-            authority_url=context.config.auth_url,
-            client_id=context.config.cognito_client_id,
-            idp_id=context.config.idp_id,
+            authority_url=config.auth_url,
+            client_id=config.cognito_client_id,
+            idp_id=config.idp_id,
         )()
         return
-    elif not context.can_sso_login() and not any([username, password]):
+    elif not can_sso_login and not any([username, password]):
         click.echo(
             "To login with SSO ensure that your configuration includes "
             + "auth_url, and cognito_client_id values."
         )
-        raise Exception()
+        ctx.exit(1)
 
     # handle login with username/password
     if not username:
@@ -319,14 +343,11 @@ def login(ctx, username, password):
     if not password:
         password = click.prompt("Password", hide_input=True)
     manager = CognitoUserManager.from_context(context)
-    res = manager.login(
+    id_token, access_token = manager.login(
         user=username,
         password=password,
     )
-    if not os.path.exists(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))):
-        os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
-    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
-        f.write(res)
+    context.credentials.write(id_token, access_token)
 
 
 for c in commands:

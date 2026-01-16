@@ -4,14 +4,13 @@
 import os
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
-from unittest.mock import patch
 
 from stacklet.client.platform.formatter import (
     JsonFormatter,
     RawFormatter,
     YamlFormatter,
 )
-from stacklet.client.platform.utils import get_log_level, get_token
+from stacklet.client.platform.utils import get_log_level
 
 
 class UtilsTest(TestCase):
@@ -22,12 +21,6 @@ class UtilsTest(TestCase):
 
     def tearDown(self):
         os.unlink(self.credential_file.name)
-
-    @patch("stacklet.client.platform.utils.StackletContext")
-    def test_get_token(self, patched_context):
-        patched_context.DEFAULT_CREDENTIALS = self.credential_file.name
-        token = get_token()
-        self.assertEqual(token, "foo")
 
     def test_get_log_level(self):
         self.assertEqual(get_log_level(-9999), 50)

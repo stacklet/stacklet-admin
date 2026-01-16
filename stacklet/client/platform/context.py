@@ -2,27 +2,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from typing import Any
 
-from stacklet.client.platform.config import StackletConfig
+from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT, StackletConfig, StackletCredentials
+from .formatter import Formatter
 
 
 class StackletContext:
-    """
-    CLI Execution Context
-    """
+    """CLI Execution Context."""
 
-    DEFAULT_CONFIG = "~/.stacklet/config.json"
-    DEFAULT_CREDENTIALS = "~/.stacklet/credentials"
-    DEFAULT_ID = "~/.stacklet/id"
-    DEFAULT_OUTPUT = "yaml"
+    raw_config: dict[str, Any]
+    formatter: Formatter
+    config: StackletConfig
+    credentials: StackletCredentials
 
-    def __init__(self, config=None, raw_config=None):
-        if len(raw_config.values()) != 0:
+    def __init__(
+        self,
+        raw_config: dict | None = None,
+        config_file: str | None = None,
+        output_format: str = DEFAULT_OUTPUT_FORMAT,
+    ):
+        self.formatter = Formatter.registry.get(output_format)
+        self.credentials = StackletCredentials()
+
+        if raw_config:
             self.config = StackletConfig(**raw_config)
-        elif config:
-            self.config = StackletConfig.from_file(config)
         else:
-            self.config = StackletConfig.from_file(self.DEFAULT_CONFIG)
+            if not config_file:
+                config_file = os.getenv("STACKLET_CONFIG", str(DEFAULT_CONFIG_FILE))
+            self.config = StackletConfig.from_file(config_file)
 
     def can_sso_login(self):
         return all(
@@ -31,15 +39,3 @@ class StackletContext:
                 self.config.cognito_client_id,
             ]
         )
-
-
-class StackletCredentialWriter:
-    def __init__(self, credentials, location=StackletContext.DEFAULT_CREDENTIALS):
-        self.credentials = credentials
-        self.location = location
-
-    def __call__(self):
-        if not os.path.exists(os.path.dirname(os.path.expanduser(self.location))):
-            os.makedirs(os.path.dirname(os.path.expanduser(self.location)))
-        with open(os.path.expanduser(self.location), "w+") as f:
-            f.write(self.credentials)

@@ -39,7 +39,7 @@ import webbrowser
 
 import click
 
-from stacklet.client.platform.context import StackletContext, StackletCredentialWriter
+from ..config import StackletCredentials
 
 
 class ClientRedirectServer(http.server.HTTPServer):
@@ -78,8 +78,7 @@ class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         res = self.get_request_body()
         res = json.loads(res)
-        StackletCredentialWriter(res["access_token"])()
-        StackletCredentialWriter(res["id_token"], StackletContext.DEFAULT_ID)()
+        StackletCredentials().write(res["id_token"], res["access_token"])
         self.send_response(200)
         self.server.completed = True
 
