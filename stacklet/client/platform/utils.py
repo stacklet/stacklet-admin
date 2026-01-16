@@ -91,9 +91,9 @@ def wrap_command(func, options, required=False, prompt=False):
 
 
 def get_token():
-    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "r") as f:
-        token = f.read()
-    return token
+    if token := os.getenv("STACKLET_API_KEY"):
+        return token
+    return StackletContext.DEFAULT_CREDENTIALS.read_text()
 
 
 def default_options(*args, **kwargs):
@@ -142,7 +142,7 @@ def click_group_entry(
         )
     # inherit the parent's configs if they exist
     ctx.obj.setdefault("config", ctx.obj.get("config", StackletContext.DEFAULT_CONFIG))
-    ctx.obj.setdefault("output", ctx.obj.get("output", StackletContext.DEFAULT_OUTPUT))
+    ctx.obj.setdefault("output", ctx.obj.get("output", "yaml"))
     ctx.obj.setdefault("raw_config", ctx.obj.get("raw_config", {}))
     if config:
         ctx.obj["config"] = config

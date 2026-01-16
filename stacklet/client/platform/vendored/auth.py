@@ -78,7 +78,7 @@ class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         res = self.get_request_body()
         res = json.loads(res)
-        StackletCredentialWriter(res["access_token"])()
+        StackletCredentialWriter(res["access_token"], StackletContext.DEFAULT_CREDENTIALS)()
         StackletCredentialWriter(res["id_token"], StackletContext.DEFAULT_ID)()
         self.send_response(200)
         self.server.completed = True

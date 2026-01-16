@@ -7,6 +7,7 @@ Handle configuration for the CLI
 
 import json
 import os
+from pathlib import Path
 
 from jsonschema import ValidationError, validate
 
@@ -74,7 +75,7 @@ class StackletConfig:
 
     @classmethod
     def from_file(cls, filename):
-        with open(os.path.expanduser(filename), "r") as f:
+        with Path(filename).expanduser().open() as f:
             res = json.load(f)
         cls.validate(res)
         return cls(**res)

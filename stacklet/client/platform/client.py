@@ -3,7 +3,6 @@
 
 # platform client using cli
 
-from pathlib import Path
 
 import jmespath
 
@@ -18,8 +17,8 @@ def platform_client(pager=False, expr=False):
     # for more pythonic experience, pass expr=True to de-graphqlize the result
     # for automatic pagination handling, pass pager=True
     if (
-        not Path(StackletContext.DEFAULT_CONFIG).expanduser().exists()
-        or not Path(StackletContext.DEFAULT_CREDENTIALS).expanduser().exists()
+        not StackletContext.DEFAULT_CONFIG.exists()
+        or not StackletContext.DEFAULT_CREDENTIALS.exists()
     ):
         raise ValueError("Please configure and authenticate on stacklet-admin cli")
 

@@ -10,12 +10,12 @@ import click
 import jwt
 import requests
 
-from stacklet.client.platform.cognito import CognitoUserManager
-from stacklet.client.platform.commands import commands
-from stacklet.client.platform.config import StackletConfig
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.formatter import Formatter
-from stacklet.client.platform.utils import click_group_entry, default_options
+from .cognito import CognitoUserManager
+from .commands import commands
+from .config import StackletConfig
+from .context import StackletContext, StackletCredentialWriter
+from .formatter import Formatter
+from .utils import click_group_entry, default_options
 
 
 @click.group()
@@ -270,8 +270,8 @@ def show(ctx):
     """
     with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
         fmt = Formatter.registry.get(ctx.obj["output"])()
-        if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
-            with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
+        if StackletContext.DEFAULT_ID.exists():
+            with StackletContext.DEFAULT_ID.open() as f:
                 id_details = jwt.decode(f.read(), options={"verify_signature": False})
             click.echo(fmt(id_details))
             click.echo()
@@ -323,12 +323,7 @@ def login(ctx, username, password):
             user=username,
             password=password,
         )
-        if not os.path.exists(
-            os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))
-        ):
-            os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
-        with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
-            f.write(res)
+        StackletCredentialWriter(res, StackletContext.DEFAULT_CREDENTIALS)()
 
 
 for c in commands:

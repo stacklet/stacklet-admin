@@ -1,7 +1,7 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+from pathlib import Path
 
 from stacklet.client.platform.config import StackletConfig
 
@@ -11,10 +11,10 @@ class StackletContext:
     CLI Execution Context
     """
 
-    DEFAULT_CONFIG = "~/.stacklet/config.json"
-    DEFAULT_CREDENTIALS = "~/.stacklet/credentials"
-    DEFAULT_ID = "~/.stacklet/id"
-    DEFAULT_OUTPUT = "yaml"
+    DEFAULT_CONFIG_DIR = Path("~/.stacklet").expanduser()
+    DEFAULT_CONFIG = DEFAULT_CONFIG_DIR / "config.json"
+    DEFAULT_CREDENTIALS = DEFAULT_CONFIG_DIR / "credentials"
+    DEFAULT_ID = DEFAULT_CONFIG_DIR / "id"
 
     def __init__(self, config=None, raw_config=None):
         if len(raw_config.values()) != 0:
@@ -40,12 +40,10 @@ class StackletContext:
 
 
 class StackletCredentialWriter:
-    def __init__(self, credentials, location=StackletContext.DEFAULT_CREDENTIALS):
+    def __init__(self, credentials: str, location: Path):
         self.credentials = credentials
         self.location = location
 
     def __call__(self):
-        if not os.path.exists(os.path.dirname(os.path.expanduser(self.location))):
-            os.makedirs(os.path.dirname(os.path.expanduser(self.location)))
-        with open(os.path.expanduser(self.location), "w+") as f:
-            f.write(self.credentials)
+        self.location.parent.mkdir(parents=True, exist_ok=True)
+        self.location.write_text(self.credentials)

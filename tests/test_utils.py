@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
@@ -25,7 +26,7 @@ class UtilsTest(TestCase):
 
     @patch("stacklet.client.platform.utils.StackletContext")
     def test_get_token(self, patched_context):
-        patched_context.DEFAULT_CREDENTIALS = self.credential_file.name
+        patched_context.DEFAULT_CREDENTIALS = Path(self.credential_file.name)
         token = get_token()
         self.assertEqual(token, "foo")
 
