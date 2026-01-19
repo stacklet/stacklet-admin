@@ -268,14 +268,14 @@ def show(ctx):
     """
     Show your config
     """
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        fmt = Formatter.registry.get(ctx.obj["output"])()
-        if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
-            with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
-                id_details = jwt.decode(f.read(), options={"verify_signature": False})
-            click.echo(fmt(id_details))
-            click.echo()
-        click.echo(fmt(context.config.to_json()))
+    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    fmt = Formatter.registry.get(ctx.obj["output"])()
+    if os.path.exists(os.path.expanduser(StackletContext.DEFAULT_ID)):
+        with open(os.path.expanduser(StackletContext.DEFAULT_ID), "r") as f:
+            id_details = jwt.decode(f.read(), options={"verify_signature": False})
+        click.echo(fmt(id_details))
+        click.echo()
+    click.echo(fmt(context.config.to_json()))
 
 
 @cli.command(short_help="Login to Stacklet")
@@ -295,40 +295,38 @@ def login(ctx, username, password):
 
     If password is not passed in, your password will be prompted
     """
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        # sso login
-        if context.can_sso_login() and not any([username, password]):
-            from stacklet.client.platform.vendored.auth import BrowserAuthenticator
+    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    # sso login
+    if context.can_sso_login() and not any([username, password]):
+        from stacklet.client.platform.vendored.auth import BrowserAuthenticator
 
-            BrowserAuthenticator(
-                authority_url=context.config.auth_url,
-                client_id=context.config.cognito_client_id,
-                idp_id=context.config.idp_id,
-            )()
-            return
-        elif not context.can_sso_login() and not any([username, password]):
-            click.echo(
-                "To login with SSO ensure that your configuration includes "
-                + "auth_url, and cognito_client_id values."
-            )
-            raise Exception()
-
-        # handle login with username/password
-        if not username:
-            username = click.prompt("Username")
-        if not password:
-            password = click.prompt("Password", hide_input=True)
-        manager = CognitoUserManager.from_context(context)
-        res = manager.login(
-            user=username,
-            password=password,
+        BrowserAuthenticator(
+            authority_url=context.config.auth_url,
+            client_id=context.config.cognito_client_id,
+            idp_id=context.config.idp_id,
+        )()
+        return
+    elif not context.can_sso_login() and not any([username, password]):
+        click.echo(
+            "To login with SSO ensure that your configuration includes "
+            + "auth_url, and cognito_client_id values."
         )
-        if not os.path.exists(
-            os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))
-        ):
-            os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
-        with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
-            f.write(res)
+        raise Exception()
+
+    # handle login with username/password
+    if not username:
+        username = click.prompt("Username")
+    if not password:
+        password = click.prompt("Password", hide_input=True)
+    manager = CognitoUserManager.from_context(context)
+    res = manager.login(
+        user=username,
+        password=password,
+    )
+    if not os.path.exists(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS))):
+        os.makedirs(os.path.dirname(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS)))
+    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "w+") as f:  # noqa
+        f.write(res)
 
 
 for c in commands:

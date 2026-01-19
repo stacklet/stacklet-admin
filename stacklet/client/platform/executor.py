@@ -59,28 +59,28 @@ def snippet_options(*args, **kwargs):
 
 
 def _run_graphql(ctx, name=None, variables=None, snippet=None, raw=False):
-    with StackletContext(ctx.obj["config"], ctx.obj["raw_config"]) as context:
-        token = get_token()
-        executor = StackletGraphqlExecutor(context, token)
+    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
+    token = get_token()
+    executor = StackletGraphqlExecutor(context, token)
 
-        if variables is None:
-            variables = {}
+    if variables is None:
+        variables = {}
 
-        registry_snippet = StackletGraphqlExecutor.registry.get(name)
+    registry_snippet = StackletGraphqlExecutor.registry.get(name)
 
-        for k, v in variables.items():
-            transformer = registry_snippet.variable_transformers.get(k)
-            if not transformer:
-                continue
-            variables[k] = transformer(v)
+    for k, v in variables.items():
+        transformer = registry_snippet.variable_transformers.get(k)
+        if not transformer:
+            continue
+        variables[k] = transformer(v)
 
-        if name and registry_snippet:
-            snippet = registry_snippet
-        elif name and registry_snippet is None:
-            raise Exception("No snippet found, got name:%s snippet:%s" % (name, registry_snippet))
+    if name and registry_snippet:
+        snippet = registry_snippet
+    elif name and registry_snippet is None:
+        raise Exception("No snippet found, got name:%s snippet:%s" % (name, registry_snippet))
 
-        res = executor.run(snippet=snippet, variables=variables)
-        if raw:
-            return res
-        fmt = Formatter.registry.get(ctx.obj["output"])()
-        return fmt(res)
+    res = executor.run(snippet=snippet, variables=variables)
+    if raw:
+        return res
+    fmt = Formatter.registry.get(ctx.obj["output"])()
+    return fmt(res)
