@@ -49,6 +49,19 @@ This will prompt for a password. It is also possible to use the `--password` arg
 to avoid the prompt, though that is a less secure option as it can expose the password
 through command history and process listings.
 
+
+### With API keys
+
+It's possible to use the CLI with API keys. In this case the `login` step is
+not run, but the API key is set in the environment via `STACKLET_API_KEY`.
+
+This can be done once via `export STACKLET_API_KEY=<my-key>` or by passing it before every command, like:
+
+```
+STACKLET_API_KEY=<my-key> stacklet-admin <command> <subcommand>
+```
+
+
 ## Running Commands
 
 Commands are grouped into command groups, for example, all the commands relating to accounts can be
