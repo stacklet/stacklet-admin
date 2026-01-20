@@ -28,7 +28,7 @@ class StackletGraphqlExecutor:
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "Authorization": self.token,
+                "Authorization": f"Bearer {self.token}",
             }
         )
 

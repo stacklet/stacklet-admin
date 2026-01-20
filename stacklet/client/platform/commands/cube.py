@@ -63,12 +63,15 @@ def _run_query(ctx, query):
     context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
     token = get_token()
 
-    url = f"https://{context.config.cubejs}/cubejs-api/v1/load"
+    url = f"{context.config.cubejs}/cubejs-api/v1/load"
 
     data = {"query": query}
     response = requests.post(
         url=url,
-        headers={"Authorization": token, "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
         data=json.dumps(data),
     )
     return response.json()
@@ -78,11 +81,14 @@ def _get(ctx, path: str):
     context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
     token = get_token()
 
-    url = f"https://{context.config.cubejs}/cubejs-api/{path}"
+    url = f"{context.config.cubejs}/cubejs-api/{path}"
 
     response = requests.get(
         url=url,
-        headers={"Authorization": token, "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
     )
     return response.json()
 
