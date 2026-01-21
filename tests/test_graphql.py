@@ -14,7 +14,7 @@ class GraphqlTest(BaseCliTest):
         executor, adapter = get_executor_adapter()
         self.assertEqual(executor.token, "foo")
         self.assertEqual(executor.api, "mock://stacklet.acme.org/api")
-        self.assertEqual(executor.session.headers["authorization"], "foo")
+        self.assertEqual(executor.session.headers["authorization"], "Bearer foo")
 
         adapter.register_uri(
             "POST",

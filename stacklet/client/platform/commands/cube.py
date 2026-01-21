@@ -7,6 +7,7 @@ import sys
 import textwrap
 from datetime import datetime
 from pprint import pformat
+from typing import Any
 
 import click
 import requests
@@ -39,7 +40,7 @@ def run(ctx, query):
 @cubejs.command()
 @click.pass_context
 def meta(ctx):
-    data = _get(ctx, "v1/meta")
+    data = _request(ctx, "GET", "v1/meta")
 
     cubes = {cube["name"]: cube for cube in data["cubes"]}
     for name in sorted(cubes):
@@ -60,29 +61,20 @@ def resource_counts(ctx):
 
 
 def _run_query(ctx, query):
+    return _request(ctx, "POST", "v1/load", payload={"query": query})
+
+
+def _request(ctx, method: str, path: str, payload: Any = None):
     context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
     token = get_token()
-
-    url = f"https://{context.config.cubejs}/cubejs-api/v1/load"
-
-    data = {"query": query}
-    response = requests.post(
-        url=url,
-        headers={"Authorization": token, "Content-Type": "application/json"},
-        data=json.dumps(data),
-    )
-    return response.json()
-
-
-def _get(ctx, path: str):
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    token = get_token()
-
-    url = f"https://{context.config.cubejs}/cubejs-api/{path}"
-
-    response = requests.get(
-        url=url,
-        headers={"Authorization": token, "Content-Type": "application/json"},
+    response = requests.request(
+        method,
+        url=f"{context.config.cubejs}/cubejs-api/{path}",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
     )
     return response.json()
 
