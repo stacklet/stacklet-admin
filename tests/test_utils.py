@@ -29,6 +29,18 @@ class UtilsTest(TestCase):
         token = get_token()
         self.assertEqual(token, "foo")
 
+    def test_get_token_env(self):
+        token = "foo"
+        with patch.dict(os.environ, {"STACKLET_API_KEY": token}):
+            self.assertEqual(get_token(), "foo")
+
+    @patch("stacklet.client.platform.utils.StackletContext")
+    def test_get_token_env_precedence(self, patched_context):
+        patched_context.DEFAULT_CREDENTIALS = self.credential_file.name
+        token = "another"
+        with patch.dict(os.environ, {"STACKLET_API_KEY": token}):
+            self.assertEqual(get_token(), "another")
+
     def test_get_log_level(self):
         self.assertEqual(get_log_level(-9999), 50)
         self.assertEqual(get_log_level(0), 40)

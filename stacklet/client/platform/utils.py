@@ -3,6 +3,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 import click
 
@@ -91,9 +92,10 @@ def wrap_command(func, options, required=False, prompt=False):
 
 
 def get_token():
-    with open(os.path.expanduser(StackletContext.DEFAULT_CREDENTIALS), "r") as f:
-        token = f.read()
-    return token
+    if token := os.getenv("STACKLET_API_KEY"):
+        return token
+
+    return Path(StackletContext.DEFAULT_CREDENTIALS).expanduser().read_text()
 
 
 def default_options(*args, **kwargs):
