@@ -6,7 +6,7 @@ import sys
 
 import click
 
-from ..executor import _run_graphql
+from ..executor import run_graphql
 from ..graphql import AdHocSnippet
 
 
@@ -25,7 +25,7 @@ def run(obj, snippet):
         snippet = snippet.read()
 
     # snippet must be a subclass, not an instance, of StackletGraphqlSnippet.
-    click.echo(_run_graphql(obj, snippet=_ad_hoc(snippet)))
+    click.echo(run_graphql(obj, snippet=_ad_hoc(snippet)))
 
 
 def _ad_hoc(snippet):

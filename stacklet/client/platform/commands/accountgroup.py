@@ -3,7 +3,7 @@
 
 import click
 
-from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
 from ..graphql import StackletGraphqlSnippet
 
 
@@ -317,7 +317,7 @@ def list(obj, **kwargs):
     """
     List account groups in Stacklet
     """
-    click.echo(_run_graphql(obj, name="list-account-groups", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-account-groups", variables=kwargs))
 
 
 @account_group.command()
@@ -327,7 +327,7 @@ def add(obj, **kwargs):
     """
     Add account group
     """
-    click.echo(_run_graphql(obj, name="add-account-group", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-account-group", variables=kwargs))
 
 
 @account_group.command()
@@ -337,7 +337,7 @@ def update(obj, **kwargs):
     """
     Update account group
     """
-    click.echo(_run_graphql(obj, name="update-account-group", variables=kwargs))
+    click.echo(run_graphql(obj, name="update-account-group", variables=kwargs))
 
 
 @account_group.command()
@@ -347,7 +347,7 @@ def show(obj, **kwargs):
     """
     Show account group
     """
-    click.echo(_run_graphql(obj, name="show-account-group", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-account-group", variables=kwargs))
 
 
 @account_group.command()
@@ -357,7 +357,7 @@ def remove(obj, **kwargs):
     """
     Remove account group
     """
-    click.echo(_run_graphql(obj, name="remove-account-group", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-account-group", variables=kwargs))
 
 
 @account_group.command()
@@ -367,7 +367,7 @@ def add_item(obj, **kwargs):
     """
     Add account group item
     """
-    click.echo(_run_graphql(obj, name="add-account-group-item", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-account-group-item", variables=kwargs))
 
 
 @account_group.command()
@@ -377,4 +377,4 @@ def remove_item(obj, **kwargs):
     """
     Remove account group item
     """
-    click.echo(_run_graphql(obj, name="remove-account-group-item", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-account-group-item", variables=kwargs))

@@ -3,7 +3,7 @@
 
 import click
 
-from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
 from ..graphql import StackletGraphqlSnippet
 
 
@@ -271,7 +271,7 @@ def list(obj, **kwargs):
     """
     List bindings in Stacklet
     """
-    click.echo(_run_graphql(obj, name="list-bindings", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-bindings", variables=kwargs))
 
 
 @binding.command()
@@ -281,7 +281,7 @@ def show(obj, **kwargs):
     """
     Show binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="show-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-binding", variables=kwargs))
 
 
 @binding.command()
@@ -291,7 +291,7 @@ def add(obj, **kwargs):
     """
     Add binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="add-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-binding", variables=kwargs))
 
 
 @binding.command()
@@ -301,7 +301,7 @@ def update(obj, **kwargs):
     """
     Update binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="update-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="update-binding", variables=kwargs))
 
 
 @binding.command()
@@ -311,7 +311,7 @@ def remove(obj, **kwargs):
     """
     Remove binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="remove-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-binding", variables=kwargs))
 
 
 @binding.command()
@@ -321,7 +321,7 @@ def deploy(obj, **kwargs):
     """
     Deploy binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="deploy-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="deploy-binding", variables=kwargs))
 
 
 @binding.command()
@@ -331,4 +331,4 @@ def run(obj, **kwargs):
     """
     Run a binding in Stacklet
     """
-    click.echo(_run_graphql(obj, name="run-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="run-binding", variables=kwargs))

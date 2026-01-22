@@ -6,7 +6,7 @@ import os
 import click
 
 from ..exceptions import InvalidInputException
-from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
 from ..graphql import StackletGraphqlSnippet
 
 
@@ -220,7 +220,7 @@ def add(obj, **kwargs):
             raise InvalidInputException("Both --auth-user and --ssh-private-key are required")
         with open(os.path.expanduser(private_key), "r") as f:
             kwargs["ssh_private_key"] = f.read().strip("\n")
-    click.echo(_run_graphql(obj, name="add-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-repository", variables=kwargs))
 
 
 @repository.command()
@@ -230,7 +230,7 @@ def process(obj, **kwargs):
     """
     Process a Policy Repository in Stacklet
     """
-    click.echo(_run_graphql(obj, name="process-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="process-repository", variables=kwargs))
 
 
 @repository.command()
@@ -240,7 +240,7 @@ def list(obj, **kwargs):
     """
     List repositories
     """
-    click.echo(_run_graphql(obj, name="list-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-repository", variables=kwargs))
 
 
 @repository.command()
@@ -250,7 +250,7 @@ def remove(obj, **kwargs):
     """
     Remove a Policy Repository to Stacklet
     """
-    click.echo(_run_graphql(obj, name="remove-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-repository", variables=kwargs))
 
 
 @repository.command()
@@ -260,7 +260,7 @@ def scan(obj, **kwargs):
     """
     Scan a repository for policies
     """
-    click.echo(_run_graphql(obj, name="scan-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="scan-repository", variables=kwargs))
 
 
 @repository.command()
@@ -270,4 +270,4 @@ def show(obj, **kwargs):
     """
     Show a repository
     """
-    click.echo(_run_graphql(obj, name="show-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-repository", variables=kwargs))

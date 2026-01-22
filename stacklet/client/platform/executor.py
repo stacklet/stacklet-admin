@@ -62,7 +62,7 @@ def snippet_options(*args, **kwargs):
     return wrapper
 
 
-def _run_graphql(context: StackletContext, name=None, variables=None, snippet=None, raw=False):
+def run_graphql(context: StackletContext, name=None, variables=None, snippet=None, raw=False):
     executor = StackletGraphqlExecutor(context)
 
     if variables is None:

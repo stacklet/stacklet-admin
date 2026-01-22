@@ -5,7 +5,7 @@ import json
 
 import click
 
-from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
 from ..graphql import StackletGraphqlSnippet
 
 
@@ -293,7 +293,7 @@ def list(obj, **kwargs):
     """
     List cloud accounts in Stacklet
     """
-    click.echo(_run_graphql(obj, name="list-accounts", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-accounts", variables=kwargs))
 
 
 @account.command()
@@ -303,7 +303,7 @@ def add(obj, **kwargs):
     """
     Add an account to Stacklet
     """
-    click.echo(_run_graphql(obj, name="add-account", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-account", variables=kwargs))
 
 
 @account.command()
@@ -313,7 +313,7 @@ def remove(obj, **kwargs):
     """
     Remove an account from Stacklet
     """
-    click.echo(_run_graphql(obj, name="remove-account", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-account", variables=kwargs))
 
 
 @account.command()
@@ -323,7 +323,7 @@ def update(obj, **kwargs):
     """
     Update an account in platform
     """
-    click.echo(_run_graphql(obj, name="update-account", variables=kwargs))
+    click.echo(run_graphql(obj, name="update-account", variables=kwargs))
 
 
 @account.command()
@@ -333,7 +333,7 @@ def show(obj, **kwargs):
     """
     Show an account in Stacklet
     """
-    click.echo(_run_graphql(obj, name="show-account", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-account", variables=kwargs))
 
 
 @account.command()
@@ -343,7 +343,7 @@ def validate(obj, **kwargs):
     """
     Validate an account in Stacklet
     """
-    click.echo(_run_graphql(obj, name="validate-account", variables=kwargs))
+    click.echo(run_graphql(obj, name="validate-account", variables=kwargs))
 
 
 @account.command()
@@ -353,16 +353,16 @@ def validate_all(obj, **kwargs):
     """
     Validate all accounts in Stacklet
     """
-    result = _run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
+    result = run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
 
     # get all the accounts
     count = result["data"]["accounts"]["pageInfo"]["total"]
     kwargs["last"] = count
 
-    result = _run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
+    result = run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
     account_provider_pairs = [
         {"provider": r["node"]["provider"], "key": r["node"]["key"]}
         for r in result["data"]["accounts"]["edges"]
     ]
     for pair in account_provider_pairs:
-        click.echo(_run_graphql(obj, name="validate-account", variables=pair))
+        click.echo(run_graphql(obj, name="validate-account", variables=pair))

@@ -4,7 +4,7 @@
 import click
 
 from ..exceptions import InvalidInputException
-from ..executor import StackletGraphqlExecutor, _run_graphql, snippet_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
 from ..graphql import StackletGraphqlSnippet
 
 
@@ -153,7 +153,7 @@ def list(obj, **kwargs):
     """
     List policies in Stacklet
     """
-    click.echo(_run_graphql(obj, name="list-policies", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-policies", variables=kwargs))
 
 
 def check_show_input(kwargs):
@@ -171,7 +171,7 @@ def show(obj, **kwargs):
     Show policy in Stacklet by either name or uuid
     """
     check_show_input(kwargs)
-    click.echo(_run_graphql(obj, name="show-policy", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-policy", variables=kwargs))
 
 
 @policy.command()
@@ -183,7 +183,7 @@ def show_source(obj, **kwargs):
     """
     check_show_input(kwargs)
     click.echo(
-        _run_graphql(obj, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
+        run_graphql(obj, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
             "sourceYAML"
         ]
     )
