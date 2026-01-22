@@ -9,7 +9,7 @@ import requests
 from .context import StackletContext
 from .exceptions import MissingToken
 from .registry import PluginRegistry
-from .utils import _PAGINATION_OPTIONS, wrap_command
+from .utils import PAGINATION_OPTIONS, get_user_agent, wrap_command
 
 
 class StackletGraphqlExecutor:
@@ -31,6 +31,7 @@ class StackletGraphqlExecutor:
         self.session.headers.update(
             {
                 "Authorization": f"Bearer {token}",
+                "User-Agent": get_user_agent(),
             }
         )
 
@@ -54,7 +55,7 @@ def snippet_options(*args, **kwargs):
         func = wrap_command(func, snippet.required, required=True)
         func = wrap_command(func, snippet.optional)
         if snippet.pagination:
-            func = wrap_command(func, _PAGINATION_OPTIONS)
+            func = wrap_command(func, PAGINATION_OPTIONS)
         return func
 
     return wrapper

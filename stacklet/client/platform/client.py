@@ -11,7 +11,7 @@ from . import commands  # noqa
 from .config import DEFAULT_CONFIG_FILE
 from .context import StackletContext
 from .executor import StackletGraphqlExecutor
-from .utils import _PAGINATION_OPTIONS
+from .utils import PAGINATION_OPTIONS
 
 
 def platform_client(pager=False, expr=False):
@@ -78,14 +78,14 @@ def _method(executor, function_name, snippet, pager, expr):
         doc.append("")
     if snippet.pagination:
         doc.append("pagination: ")
-        for p in _PAGINATION_OPTIONS:
+        for p in PAGINATION_OPTIONS:
             doc.append(f" - {p}")
         doc.append("")
     doc = "\n".join(doc)
 
     defaults = {}
     if snippet.pagination:
-        for k, v in _PAGINATION_OPTIONS.items():
+        for k, v in PAGINATION_OPTIONS.items():
             defaults[k] = v["default"]
     for k, v in snippet.optional.items():
         defaults[k] = None

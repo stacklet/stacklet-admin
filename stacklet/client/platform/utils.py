@@ -1,6 +1,7 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib.metadata
 import logging
 from pathlib import Path
 
@@ -16,7 +17,7 @@ def expand_user_path(ctx, param, value):
     return value.expanduser()
 
 
-_PAGINATION_OPTIONS = {
+PAGINATION_OPTIONS = {
     "first": {
         "help": "For use with pagination. Return the first n results.",
         "default": 20,
@@ -78,3 +79,9 @@ def setup_logging(level):
     root_handler = logging.getLogger()
     if level:
         root_handler.setLevel(level=get_log_level(level))
+
+
+def get_user_agent():
+    package = "stacklet.client.platform"
+    version = importlib.metadata.version(package)
+    return f"{package}/{version}"
