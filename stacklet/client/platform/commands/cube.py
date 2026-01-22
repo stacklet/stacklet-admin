@@ -13,6 +13,7 @@ import click
 import requests
 
 from ..context import StackletContext
+from ..exceptions import MissingToken
 
 
 @click.group()
@@ -62,6 +63,8 @@ def _run_query(context, query):
 
 def _request(context: StackletContext, method: str, path: str, payload: Any = None):
     token = context.credentials.api_token()
+    if not token:
+        raise MissingToken()
     response = requests.request(
         method,
         url=f"{context.config.cubejs}/cubejs-api/{path}",

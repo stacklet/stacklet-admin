@@ -6,7 +6,8 @@ import requests_mock
 import yaml
 
 from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.executor import MissingToken, StackletGraphqlExecutor
+from stacklet.client.platform.exceptions import MissingToken
+from stacklet.client.platform.executor import StackletGraphqlExecutor
 
 
 @pytest.fixture

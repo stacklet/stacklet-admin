@@ -8,3 +8,8 @@ class ConfigValidationException(Exception):
 
 class InvalidInputException(Exception):
     pass
+
+
+class MissingToken(Exception):
+    def __init__(self):
+        super().__init__("Authorization token not configured")

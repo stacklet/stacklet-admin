@@ -7,11 +7,9 @@ import logging
 import requests
 
 from .context import StackletContext
+from .exceptions import MissingToken
 from .registry import PluginRegistry
 from .utils import _PAGINATION_OPTIONS, wrap_command
-
-
-class MissingToken(Exception): ...
 
 
 class StackletGraphqlExecutor:
@@ -24,7 +22,7 @@ class StackletGraphqlExecutor:
     def __init__(self, context: StackletContext):
         token = context.credentials.api_token()
         if not token:
-            raise MissingToken("Authorization token not configured.")
+            raise MissingToken()
 
         self.api = context.config.api
         self.log = logging.getLogger("StackletGraphqlExecutor")

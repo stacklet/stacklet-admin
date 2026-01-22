@@ -77,9 +77,9 @@ class StackletConfig:
             "region": self.region,
             "cubejs": self.cubejs,
         }
-        if self.idp_id:
+        if self.idp_id is not None:
             d["idp_id"] = self.idp_id
-        if self.auth_url:
+        if self.auth_url is not None:
             d["auth_url"] = self.auth_url
         return d
 
