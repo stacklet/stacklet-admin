@@ -1,22 +1,32 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-from unittest.mock import patch
-
+import pytest
+import requests_mock
 import yaml
 
-from .utils import BaseCliTest, get_executor_adapter
+from stacklet.client.platform.context import StackletContext
+from stacklet.client.platform.exceptions import MissingToken
+from stacklet.client.platform.executor import StackletGraphqlExecutor
 
 
-class GraphqlTest(BaseCliTest):
-    def test_executor_run(self):
-        executor, adapter = get_executor_adapter()
-        self.assertEqual(executor.token, "foo")
-        self.assertEqual(executor.api, "mock://stacklet.acme.org/api")
-        self.assertEqual(executor.session.headers["authorization"], "Bearer foo")
+@pytest.fixture
+def executor(mock_api_token, sample_config_file) -> StackletGraphqlExecutor:
+    context = StackletContext(config_file=sample_config_file)
+    return StackletGraphqlExecutor(context)
 
-        adapter.register_uri(
+
+class TestGraphqlExecutor:
+    def test_missing_token(self, sample_config_file):
+        context = StackletContext(config_file=sample_config_file)
+        with pytest.raises(MissingToken):
+            StackletGraphqlExecutor(context)
+
+    def test_executor_run(self, requests_adapter, executor):
+        assert executor.api == "mock://stacklet.acme.org/api"
+        assert executor.session.headers["authorization"] == "Bearer mock-token"
+
+        requests_adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
             json={
@@ -52,57 +62,36 @@ class GraphqlTest(BaseCliTest):
             },
         )
 
-        self.assertEqual(
-            results,
-            {
-                "data": {
-                    "accounts": {
-                        "edges": [
-                            {
-                                "node": {
-                                    "email": "foo@bar.com",
-                                    "id": "account:aws:123123123123",
-                                    "key": "123123123123",
-                                    "name": "test-account",
-                                    "path": "/",
-                                    "provider": "AWS",
-                                }
+        assert results == {
+            "data": {
+                "accounts": {
+                    "edges": [
+                        {
+                            "node": {
+                                "email": "foo@bar.com",
+                                "id": "account:aws:123123123123",
+                                "key": "123123123123",
+                                "name": "test-account",
+                                "path": "/",
+                                "provider": "AWS",
                             }
-                        ]
-                    }
+                        }
+                    ]
                 }
-            },
-        )
+            }
+        }
 
-    def test_graphql_executor_via_cli(self):
-        executor, adapter = get_executor_adapter()
-
+    def test_graphql_executor(
+        self, requests_adapter, sample_config_file, invoke_cli, mock_api_token
+    ):
         snippet = '{ platform { dashboardDefinition(name:"cis-v140") } }'
-        adapter.register_uri(
-            "POST",
-            "mock://stacklet.acme.org/api",
-            json={"data": {"platform": {"version": "1.2.3+git.abcdef0"}}},
+
+        payload = {"data": {"platform": {"version": "1.2.3+git.abcdef0"}}}
+        requests_adapter.post(requests_mock.ANY, json=payload)
+        res = invoke_cli(
+            "graphql",
+            "run",
+            f"--snippet={snippet}",
         )
-
-        with patch("stacklet.client.platform.executor.requests.Session", autospec=True) as patched:
-            with patch("stacklet.client.platform.executor.get_token", return_value="foo"):
-                patched.return_value = executor.session
-                res = self.runner.invoke(
-                    self.cli,
-                    [
-                        "graphql",
-                        "--api=mock://stacklet.acme.org/api",
-                        "--cognito-region=us-east-1",
-                        "--cognito-user-pool-id=foo",
-                        "--cognito-client-id=bar",
-                        "run",
-                        f"--snippet={snippet}",
-                    ],
-                )
-                body = json.loads(adapter.last_request.body.decode("utf-8"))
-                assert body == {"query": snippet}
-
-                assert res.exit_code == 0
-                assert yaml.safe_load(res.output) == {
-                    "data": {"platform": {"version": "1.2.3+git.abcdef0"}}
-                }
+        assert res.exit_code == 0, f"CLI failed: {res.output}"
+        assert yaml.safe_load(res.output) == payload

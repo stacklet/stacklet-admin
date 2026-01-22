@@ -1,23 +1,21 @@
 import uuid
 
-from .utils import BaseCliTest, JSONDict
 
-
-class TestPolicyCollection(BaseCliTest):
-    def test_add_item(self):
+class TestPolicyCollection:
+    def test_add_item(self, run_query):
         "Ensure that the policy version is converted properly."
         pc_uuid = str(uuid.uuid4())
         policy_uuid = str(uuid.uuid4())
 
         # Only giving a partial response because that isn't what we're testing.
-        response = JSONDict(
-            data={
+        response = {
+            "data": {
                 "addPolicyCollectionItems": {
                     "collection": {"id": "something-opaque", "uuid": pc_uuid}
                 }
             }
-        )
-        res, body = self.run_query(
+        }
+        res, body = run_query(
             "policy-collection",
             [
                 "add-item",

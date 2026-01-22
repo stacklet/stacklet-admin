@@ -3,10 +3,9 @@
 
 import click
 
-from stacklet.client.platform.exceptions import InvalidInputException
-from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from ..exceptions import InvalidInputException
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
+from ..graphql import StackletGraphqlSnippet
 
 
 @StackletGraphqlExecutor.registry.register("list-policies")
@@ -141,20 +140,20 @@ class ShowPolicy(StackletGraphqlSnippet):
 
 
 @click.group(short_help="Run policy queries")
-@default_options()
-@click.pass_context
 def policy(*args, **kwargs):
-    click_group_entry(*args, **kwargs)
+    """
+    Manage policies
+    """
 
 
 @policy.command()
 @snippet_options("list-policies")
-@click.pass_context
-def list(ctx, **kwargs):
+@click.pass_obj
+def list(obj, **kwargs):
     """
     List policies in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="list-policies", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-policies", variables=kwargs))
 
 
 def check_show_input(kwargs):
@@ -166,25 +165,25 @@ def check_show_input(kwargs):
 
 @policy.command()
 @snippet_options("show-policy")
-@click.pass_context
-def show(ctx, **kwargs):
+@click.pass_obj
+def show(obj, **kwargs):
     """
     Show policy in Stacklet by either name or uuid
     """
     check_show_input(kwargs)
-    click.echo(_run_graphql(ctx=ctx, name="show-policy", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-policy", variables=kwargs))
 
 
 @policy.command()
 @snippet_options("show-policy")
-@click.pass_context
-def show_source(ctx, **kwargs):
+@click.pass_obj
+def show_source(obj, **kwargs):
     """
     Show policy source in Stacklet by either name or uuid
     """
     check_show_input(kwargs)
     click.echo(
-        _run_graphql(ctx=ctx, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
+        run_graphql(obj, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
             "sourceYAML"
         ]
     )

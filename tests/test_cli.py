@@ -1,82 +1,64 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import os
 import textwrap
-from tempfile import NamedTemporaryFile
 
 import requests
-import requests_mock
 
-from .utils import BaseCliTest
+from .asserts import assert_config_has
 
 
-class AdminCliTest(BaseCliTest):
-    def test_cli_health_check(self):
-        res = self.runner.invoke(self.cli, ["--help"])
-        self.assertEqual(res.exit_code, 0)
+class TestAdminCli:
+    def test_cli_health_check(self, invoke_cli):
+        res = invoke_cli("--help", with_config=False)
+        assert res.exit_code == 0
 
-    def test_admin_save_config_and_show(self):
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
-        res = self.runner.invoke(
-            self.cli,
-            [
-                "configure",
-                "--api=baz",
-                "--region=us-east-1",
-                "--cognito-user-pool-id=foo",
-                "--cognito-client-id=bar",
-                "--idp-id=foo",
-                "--auth-url=bar",
-                "--cubejs=cube.local",
-                f"--location={file_location.name}",
-            ],
+    def test_admin_save_config_and_show(self, config_file, invoke_cli):
+        res = invoke_cli(
+            "configure",
+            "--api=baz",
+            "--region=us-east-1",
+            "--cognito-user-pool-id=foo",
+            "--cognito-client-id=bar",
+            "--idp-id=foo",
+            "--auth-url=bar",
+            "--cubejs=cube.local",
+            f"--location={config_file}",
+            with_config=False,
         )
-        self.assertEqual(res.exit_code, 0)
-        with open(file_location.name, "r") as f:
-            config = json.load(f)
-        self.assertEqual(config["api"], "baz")
-        self.assertEqual(config["region"], "us-east-1")
-        self.assertEqual(config["cognito_user_pool_id"], "foo")
-        self.assertEqual(config["cognito_client_id"], "bar")
-        self.assertEqual(config["idp_id"], "foo")
-        self.assertEqual(config["auth_url"], "bar")
-        self.assertEqual(config["cubejs"], "cube.local")
-
-        res = self.runner.invoke(
-            self.cli,
-            [
-                f"--config={file_location.name}",
-                "show",
-            ],
+        assert res.exit_code == 0
+        assert_config_has(
+            config_file,
+            {
+                "api": "baz",
+                "region": "us-east-1",
+                "cognito_user_pool_id": "foo",
+                "cognito_client_id": "bar",
+                "idp_id": "foo",
+                "auth_url": "bar",
+                "cubejs": "cube.local",
+            },
         )
-        self.assertEqual(res.exit_code, 0)
-        self.assertTrue(
-            res.output.endswith(
-                textwrap.dedent(
-                    """\
-                    api: baz
-                    auth_url: bar
-                    cognito_client_id: bar
-                    cognito_user_pool_id: foo
-                    cubejs: cube.local
-                    idp_id: foo
-                    region: us-east-1
 
-                    """
-                )
+        res = invoke_cli("show")
+        assert res.exit_code == 0
+        assert res.output.endswith(
+            textwrap.dedent(
+                """\
+                api: baz
+                auth_url: bar
+                cognito_client_id: bar
+                cognito_user_pool_id: foo
+                cubejs: cube.local
+                idp_id: foo
+                region: us-east-1
+
+                """
             )
         )
 
-        os.unlink(file_location.name)
-
-    def test_auto_configure_url_only(self):
-        """Test auto-configure with --url parameter"""
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
-
-        # Mock the HTTP responses for config endpoints
-        mock_config = {
+    def test_auto_configure_url_only(self, config_file, requests_adapter, invoke_cli):
+        config = {
             "cognito_install": "auth.console.dev.stacklet.dev",
             "cognito_user_pool_region": "us-east-2",
             "cognito_user_pool_id": "us-east-2_test123",
@@ -85,41 +67,32 @@ class AdminCliTest(BaseCliTest):
             "saml_providers": [{"name": "TestIDP", "idp_id": "test-idp-id"}],
         }
 
-        with requests_mock.Mocker() as m:
-            # Mock both config endpoints
-            m.get("https://console.dev.stacklet.dev/config/cognito.json", json=mock_config)
-            m.get("https://console.dev.stacklet.dev/config/cubejs.json", json={})
+        requests_adapter.get("https://console.dev.stacklet.dev/config/cognito.json", json=config)
+        requests_adapter.get("https://console.dev.stacklet.dev/config/cubejs.json", json={})
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--url=console.dev.stacklet.dev",
-                    f"--location={file_location.name}",
-                ],
-            )
+        res = invoke_cli(
+            "auto-configure",
+            "--url=console.dev.stacklet.dev",
+            f"--location={config_file}",
+            with_config=False,
+        )
 
-            self.assertEqual(res.exit_code, 0)
+        assert res.exit_code == 0
+        assert_config_has(
+            config_file,
+            {
+                "api": "https://api.dev.stacklet.dev",
+                "auth_url": "https://auth.console.dev.stacklet.dev",
+                "cognito_client_id": "test-client-id",
+                "cognito_user_pool_id": "us-east-2_test123",
+                "region": "us-east-2",
+                "cubejs": "https://cubejs.dev.stacklet.dev",
+                "idp_id": "test-idp-id",
+            },
+        )
 
-            # Verify the config was saved correctly
-            with open(file_location.name, "r") as f:
-                config = json.load(f)
-
-            self.assertEqual(config["api"], "https://api.dev.stacklet.dev")
-            self.assertEqual(config["auth_url"], "https://auth.console.dev.stacklet.dev")
-            self.assertEqual(config["cognito_client_id"], "test-client-id")
-            self.assertEqual(config["cognito_user_pool_id"], "us-east-2_test123")
-            self.assertEqual(config["region"], "us-east-2")
-            self.assertEqual(config["cubejs"], "https://cubejs.dev.stacklet.dev")
-            self.assertEqual(config["idp_id"], "test-idp-id")
-
-        os.unlink(file_location.name)
-
-    def test_auto_configure_prefix_only(self):
-        """Test auto-configure with --prefix parameter"""
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
-
-        mock_config = {
+    def test_auto_configure_prefix_only(self, config_file, requests_adapter, invoke_cli):
+        config = {
             "cognito_install": "auth.console.myorg.stacklet.io",
             "cognito_user_pool_region": "us-west-2",
             "cognito_user_pool_id": "us-west-2_test456",
@@ -128,35 +101,30 @@ class AdminCliTest(BaseCliTest):
             "saml_providers": [{"name": "OrgIDP", "idp_id": "org-idp-id"}],
         }
 
-        with requests_mock.Mocker() as m:
-            m.get("https://console.myorg.stacklet.io/config/cognito.json", json=mock_config)
-            m.get("https://console.myorg.stacklet.io/config/cubejs.json", json={})
+        requests_adapter.get("https://console.myorg.stacklet.io/config/cognito.json", json=config)
+        requests_adapter.get("https://console.myorg.stacklet.io/config/cubejs.json", json={})
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--prefix=myorg",
-                    f"--location={file_location.name}",
-                ],
-            )
+        res = invoke_cli(
+            "auto-configure",
+            "--prefix=myorg",
+            f"--location={config_file}",
+            with_config=False,
+        )
 
-            self.assertEqual(res.exit_code, 0)
+        assert res.exit_code == 0
+        assert_config_has(
+            config_file,
+            {
+                "api": "https://api.myorg.stacklet.io",
+                "auth_url": "https://auth.console.myorg.stacklet.io",
+                "cubejs": "https://cubejs.myorg.stacklet.io",
+            },
+        )
 
-            with open(file_location.name, "r") as f:
-                config = json.load(f)
-
-            self.assertEqual(config["api"], "https://api.myorg.stacklet.io")
-            self.assertEqual(config["auth_url"], "https://auth.console.myorg.stacklet.io")
-            self.assertEqual(config["cubejs"], "https://cubejs.myorg.stacklet.io")
-
-        os.unlink(file_location.name)
-
-    def test_auto_configure_url_without_console_prefix(self):
-        """Test auto-configure with URL that needs console prefix added"""
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
-
-        mock_config = {
+    def test_auto_configure_url_without_console_prefix(
+        self, config_file, requests_adapter, invoke_cli
+    ):
+        config = {
             "cognito_install": "auth.console.example.stacklet.io",
             "cognito_user_pool_region": "eu-west-1",
             "cognito_user_pool_id": "eu-west-1_test789",
@@ -165,86 +133,65 @@ class AdminCliTest(BaseCliTest):
             "saml_providers": [{"name": "ExampleIDP", "idp_id": "example-idp-id"}],
         }
 
-        with requests_mock.Mocker() as m:
-            m.get("https://console.example.stacklet.io/config/cognito.json", json=mock_config)
-            m.get("https://console.example.stacklet.io/config/cubejs.json", json={})
+        requests_adapter.get("https://console.example.stacklet.io/config/cognito.json", json=config)
+        requests_adapter.get("https://console.example.stacklet.io/config/cubejs.json", json={})
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--url=example.stacklet.io",  # Missing console prefix
-                    f"--location={file_location.name}",
-                ],
-            )
-
-            self.assertEqual(res.exit_code, 0)
-
-            # Verify it added the console prefix and connected correctly
-            with open(file_location.name, "r") as f:
-                config = json.load(f)
-
-            self.assertEqual(config["region"], "eu-west-1")
-            self.assertEqual(config["cognito_user_pool_id"], "eu-west-1_test789")
-
-        os.unlink(file_location.name)
-
-    def test_auto_configure_both_url_and_prefix_error(self):
-        """Test that providing both --url and --prefix results in an error"""
-        res = self.runner.invoke(
-            self.cli,
-            [
-                "auto-configure",
-                "--url=console.dev.stacklet.dev",
-                "--prefix=dev",
-            ],
+        res = invoke_cli(
+            "auto-configure",
+            "--url=example.stacklet.io",
+            f"--location={config_file}",
+            with_config=False,
         )
 
-        self.assertEqual(res.exit_code, 1)  # Command should exit with error code
-        self.assertIn("Cannot specify both --url and --prefix", res.output)
-
-    def test_auto_configure_neither_url_nor_prefix_error(self):
-        """Test that providing neither --url nor --prefix results in an error"""
-        res = self.runner.invoke(
-            self.cli,
-            [
-                "auto-configure",
-            ],
+        assert res.exit_code == 0
+        assert_config_has(
+            config_file,
+            {
+                "region": "eu-west-1",
+                "cognito_user_pool_id": "eu-west-1_test789",
+            },
         )
 
-        self.assertEqual(res.exit_code, 1)  # Command should exit with error code
-        self.assertIn("Must specify either --url or --prefix", res.output)
+    def test_auto_configure_both_url_and_prefix_error(self, invoke_cli):
+        res = invoke_cli(
+            "auto-configure",
+            "--url=console.dev.stacklet.dev",
+            "--prefix=dev",
+            with_config=False,
+        )
 
-    def test_auto_configure_connection_error(self):
-        """Test auto-configure behavior when connection fails"""
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
+        assert res.exit_code == 1
+        assert "Cannot specify both --url and --prefix" in res.output
 
-        with requests_mock.Mocker() as m:
-            # Mock connection error
-            m.get(
-                "https://console.nonexistent.stacklet.dev/config/cognito.json",
-                exc=requests.exceptions.ConnectionError,
-            )
+    def test_auto_configure_neither_url_nor_prefix_error(self, invoke_cli):
+        res = invoke_cli(
+            "auto-configure",
+            with_config=False,
+        )
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--url=console.nonexistent.stacklet.dev",
-                    f"--location={file_location.name}",
-                ],
-            )
+        assert res.exit_code == 1
+        assert "Must specify either --url or --prefix" in res.output
 
-            self.assertEqual(res.exit_code, 1)  # Command should exit with error code
-            self.assertIn("Unable to connect to", res.output)
+    def test_auto_configure_connection_error(self, config_file, requests_adapter, invoke_cli):
+        requests_adapter.get(
+            "https://console.nonexistent.stacklet.dev/config/cognito.json",
+            exc=requests.exceptions.ConnectionError,
+        )
 
-        os.unlink(file_location.name)
+        res = invoke_cli(
+            "auto-configure",
+            "--url=console.nonexistent.stacklet.dev",
+            f"--location={config_file}",
+            with_config=False,
+        )
 
-    def test_auto_configure_multiple_idps_with_selection(self):
-        """Test auto-configure with multiple IDPs and explicit selection"""
-        file_location = NamedTemporaryFile(mode="w+", delete=False)
+        assert res.exit_code == 1
+        assert "Unable to connect to" in res.output
 
-        mock_config = {
+    def test_auto_configure_multiple_idps_with_selection(
+        self, config_file, requests_adapter, invoke_cli
+    ):
+        config = {
             "cognito_install": "auth.console.multi.stacklet.dev",
             "cognito_user_pool_region": "us-east-1",
             "cognito_user_pool_id": "us-east-1_multi123",
@@ -256,32 +203,27 @@ class AdminCliTest(BaseCliTest):
             ],
         }
 
-        with requests_mock.Mocker() as m:
-            m.get("https://console.multi.stacklet.dev/config/cognito.json", json=mock_config)
-            m.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cognito.json", json=config)
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--url=console.multi.stacklet.dev",
-                    "--idp=IDP2",
-                    f"--location={file_location.name}",
-                ],
-            )
+        res = invoke_cli(
+            "auto-configure",
+            "--url=console.multi.stacklet.dev",
+            "--idp=IDP2",
+            f"--location={config_file}",
+            with_config=False,
+        )
 
-            self.assertEqual(res.exit_code, 0)
+        assert res.exit_code == 0
+        assert_config_has(
+            config_file,
+            {
+                "idp_id": "idp-2",
+            },
+        )
 
-            with open(file_location.name, "r") as f:
-                config = json.load(f)
-
-            self.assertEqual(config["idp_id"], "idp-2")  # Should use the selected IDP
-
-        os.unlink(file_location.name)
-
-    def test_auto_configure_multiple_idps_no_selection_error(self):
-        """Test auto-configure with multiple IDPs but no selection results in error"""
-        mock_config = {
+    def test_auto_configure_multiple_idps_no_selection_error(self, requests_adapter, invoke_cli):
+        config = {
             "cognito_install": "auth.console.multi.stacklet.dev",
             "cognito_user_pool_region": "us-east-1",
             "cognito_user_pool_id": "us-east-1_multi123",
@@ -293,18 +235,14 @@ class AdminCliTest(BaseCliTest):
             ],
         }
 
-        with requests_mock.Mocker() as m:
-            m.get("https://console.multi.stacklet.dev/config/cognito.json", json=mock_config)
-            m.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cognito.json", json=config)
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
 
-            res = self.runner.invoke(
-                self.cli,
-                [
-                    "auto-configure",
-                    "--url=console.multi.stacklet.dev",
-                    # No --idp specified
-                ],
-            )
+        res = invoke_cli(
+            "auto-configure",
+            "--url=console.multi.stacklet.dev",
+            with_config=False,
+        )
 
-            self.assertEqual(res.exit_code, 1)  # Command should exit with error code
-            self.assertIn("Multiple identity providers available", res.output)
+        assert res.exit_code == 1
+        assert "Multiple identity providers available" in res.output

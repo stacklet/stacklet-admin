@@ -3,9 +3,8 @@
 
 import click
 
-from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
+from ..graphql import StackletGraphqlSnippet
 
 
 @StackletGraphqlExecutor.registry.register("list-policy-collections")
@@ -253,77 +252,77 @@ class RemovePolicyCollection(StackletGraphqlSnippet):
 
 
 @click.group(short_help="Run policy collection queries/mutations")
-@default_options()
-@click.pass_context
 def policy_collection(*args, **kwargs):
-    click_group_entry(*args, **kwargs)
+    """
+    Manage policy collections
+    """
 
 
 @policy_collection.command()
 @snippet_options("list-policy-collections")
-@click.pass_context
-def list(ctx, **kwargs):
+@click.pass_obj
+def list(obj, **kwargs):
     """
     List policy collections in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="list-policy-collections", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-policy-collections", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("add-policy-collection")
-@click.pass_context
-def add(ctx, **kwargs):
+@click.pass_obj
+def add(obj, **kwargs):
     """
     Add policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-policy-collection", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-policy-collection", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("show-policy-collection")
-@click.pass_context
-def show(ctx, **kwargs):
+@click.pass_obj
+def show(obj, **kwargs):
     """
     Show policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="show-policy-collection", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-policy-collection", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("update-policy-collection")
-@click.pass_context
-def update(ctx, **kwargs):
+@click.pass_obj
+def update(obj, **kwargs):
     """
     Update policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="update-policy-collection", variables=kwargs))
+    click.echo(run_graphql(obj, name="update-policy-collection", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("add-policy-collection-item")
-@click.pass_context
-def add_item(ctx, **kwargs):
+@click.pass_obj
+def add_item(obj, **kwargs):
     """
     Add item to policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-policy-collection-item", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-policy-collection-item", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("remove-policy-collection")
-@click.pass_context
-def remove(ctx, **kwargs):
+@click.pass_obj
+def remove(obj, **kwargs):
     """
     Remove policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-policy-collection", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-policy-collection", variables=kwargs))
 
 
 @policy_collection.command()
 @snippet_options("remove-policy-collection-item")
-@click.pass_context
-def remove_item(ctx, **kwargs):
+@click.pass_obj
+def remove_item(obj, **kwargs):
     """
     Remove item from a policy collection in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-policy-collection-item", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-policy-collection-item", variables=kwargs))

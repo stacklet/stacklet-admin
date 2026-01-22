@@ -6,12 +6,9 @@ from unittest.mock import patch
 from stacklet.client.platform.client import platform_client
 
 
-@patch("stacklet.client.platform.client.get_token")
 @patch("stacklet.client.platform.client.StackletContext")
-@patch("stacklet.client.platform.client.Path")
-def test_client_loaded_commands(patched_path, patched_stacklet_context, patched_get_token):
-    client = platform_client()
-    assert hasattr(client, "list_bindings")
-    assert hasattr(client, "list_accounts")
-    assert hasattr(client, "list_repository")
-    assert hasattr(client, "list_policies")
+def test_client_loaded_commands(_, sample_config_file):
+    with patch("stacklet.client.platform.client.DEFAULT_CONFIG_FILE", sample_config_file):
+        client = platform_client()
+    for attr in ("list_bindings", "list_accounts", "list_repository", "list_policies"):
+        assert hasattr(client, attr)

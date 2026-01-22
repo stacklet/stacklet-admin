@@ -3,9 +3,8 @@
 
 import click
 
-from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
+from ..graphql import StackletGraphqlSnippet
 
 
 @StackletGraphqlExecutor.registry.register("list-bindings")
@@ -259,80 +258,77 @@ class RunBindingSnippet(StackletGraphqlSnippet):
 
 
 @click.group(short_help="Run binding queries/mutations")
-@default_options()
-@click.pass_context
 def binding(*args, **kwargs):
     """
     Query and run mutations against bindings in Stacklet Platform
     """
-    click_group_entry(*args, **kwargs)
 
 
 @binding.command()
 @snippet_options("list-bindings")
-@click.pass_context
-def list(ctx, **kwargs):
+@click.pass_obj
+def list(obj, **kwargs):
     """
     List bindings in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="list-bindings", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-bindings", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("show-binding")
-@click.pass_context
-def show(ctx, **kwargs):
+@click.pass_obj
+def show(obj, **kwargs):
     """
     Show binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="show-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-binding", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("add-binding")
-@click.pass_context
-def add(ctx, **kwargs):
+@click.pass_obj
+def add(obj, **kwargs):
     """
     Add binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="add-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-binding", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("update-binding")
-@click.pass_context
-def update(ctx, **kwargs):
+@click.pass_obj
+def update(obj, **kwargs):
     """
     Update binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="update-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="update-binding", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("remove-binding")
-@click.pass_context
-def remove(ctx, **kwargs):
+@click.pass_obj
+def remove(obj, **kwargs):
     """
     Remove binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-binding", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("deploy-binding")
-@click.pass_context
-def deploy(ctx, **kwargs):
+@click.pass_obj
+def deploy(obj, **kwargs):
     """
     Deploy binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="deploy-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="deploy-binding", variables=kwargs))
 
 
 @binding.command()
 @snippet_options("run-binding")
-@click.pass_context
-def run(ctx, **kwargs):
+@click.pass_obj
+def run(obj, **kwargs):
     """
     Run a binding in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="run-binding", variables=kwargs))
+    click.echo(run_graphql(obj, name="run-binding", variables=kwargs))

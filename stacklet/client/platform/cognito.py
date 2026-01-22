@@ -71,14 +71,15 @@ class CognitoUserManager:
         self.log.debug(res)
         return True
 
-    def login(self, user, password):
+    def login(self, user, password) -> tuple[str, str]:
         res = self.client.initiate_auth(
             ClientId=self.user_pool_client_id,
             AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={"USERNAME": user, "PASSWORD": password},
         )
         self.log.debug("Authentication Success")
-        return res["AuthenticationResult"]["AccessToken"]
+        auth = res["AuthenticationResult"]
+        return auth["IdToken"], auth["AccessToken"]
 
     def ensure_group(self, user, group) -> bool:
         try:

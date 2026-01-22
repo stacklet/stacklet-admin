@@ -68,7 +68,6 @@ Commands are grouped into command groups, for example, all the commands relating
 found by running the following command:
 
 ```
-stacklet-admin account --help
 Usage: stacklet-admin account [OPTIONS] COMMAND [ARGS]...
 
   Query against and Run mutations against Account objects in Stacklet.
@@ -82,34 +81,16 @@ Usage: stacklet-admin account [OPTIONS] COMMAND [ARGS]...
       $ stacklet account --output json list
 
 Options:
-  -v                           Verbosity level, increase verbosity by
-                               appending v, e.g. -vvv
-
-  --api TEXT                   If set, --cognito-user-pool-id, --cognito-
-                               client-id, --cognito-region, and --api must
-                               also be set.
-
-  --cognito-region TEXT        If set, --cognito-user-pool-id, --cognito-
-                               client-id, --cognito-region, and --api must
-                               also be set.
-
-  --cognito-client-id TEXT     If set, --cognito-user-pool-id, --cognito-
-                               client-id, --cognito-region, and --api must
-                               also be set.
-
-  --cognito-user-pool-id TEXT  If set, --cognito-user-pool-id, --cognito-
-                               client-id, --cognito-region, and --api must
-                               also be set.
-
-  --output [|plain|json|yaml]  Ouput type
-  --config TEXT
-  --help                       Show this message and exit.
+  --help  Show this message and exit.
 
 Commands:
-  add     Add an account to Stacklet
-  list    List cloud accounts in Stacklet
-  remove  Remove an account from Stacklet
-  show    Show an account in Stacklet
+  add           Add an account to Stacklet
+  list          List cloud accounts in Stacklet
+  remove        Remove an account from Stacklet
+  show          Show an account in Stacklet
+  update        Update an account in platform
+  validate      Validate an account in Stacklet
+  validate-all  Validate all accounts in Stacklet
 ```
 
 Then run the command:

@@ -5,10 +5,9 @@ import os
 
 import click
 
-from stacklet.client.platform.exceptions import InvalidInputException
-from stacklet.client.platform.executor import StackletGraphqlExecutor, _run_graphql, snippet_options
-from stacklet.client.platform.graphql import StackletGraphqlSnippet
-from stacklet.client.platform.utils import click_group_entry, default_options
+from ..exceptions import InvalidInputException
+from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
+from ..graphql import StackletGraphqlSnippet
 
 
 @StackletGraphqlExecutor.registry.register("add-repository")
@@ -146,8 +145,6 @@ class ScanRepositorySnippet(StackletGraphqlSnippet):
 
 
 @click.group(short_help="Run repository queries/mutations")
-@default_options()
-@click.pass_context
 def repository(*args, **kwargs):
     """
     Query against and Run mutations against Repository objects in Stacklet
@@ -161,7 +158,6 @@ def repository(*args, **kwargs):
         $ stacklet repository --output json list
 
     """
-    click_group_entry(*args, **kwargs)
 
 
 @StackletGraphqlExecutor.registry.register("show-repository")
@@ -212,8 +208,8 @@ class ShowRepositorySnippet(StackletGraphqlSnippet):
 
 @repository.command()
 @snippet_options("add-repository")
-@click.pass_context
-def add(ctx, **kwargs):
+@click.pass_obj
+def add(obj, **kwargs):
     """
     Add a Policy Repository to Stacklet
     """
@@ -224,54 +220,54 @@ def add(ctx, **kwargs):
             raise InvalidInputException("Both --auth-user and --ssh-private-key are required")
         with open(os.path.expanduser(private_key), "r") as f:
             kwargs["ssh_private_key"] = f.read().strip("\n")
-    click.echo(_run_graphql(ctx=ctx, name="add-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="add-repository", variables=kwargs))
 
 
 @repository.command()
 @snippet_options("process-repository")
-@click.pass_context
-def process(ctx, **kwargs):
+@click.pass_obj
+def process(obj, **kwargs):
     """
     Process a Policy Repository in Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="process-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="process-repository", variables=kwargs))
 
 
 @repository.command()
 @snippet_options("list-repository")
-@click.pass_context
-def list(ctx, **kwargs):
+@click.pass_obj
+def list(obj, **kwargs):
     """
     List repositories
     """
-    click.echo(_run_graphql(ctx=ctx, name="list-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="list-repository", variables=kwargs))
 
 
 @repository.command()
 @snippet_options("remove-repository")
-@click.pass_context
-def remove(ctx, **kwargs):
+@click.pass_obj
+def remove(obj, **kwargs):
     """
     Remove a Policy Repository to Stacklet
     """
-    click.echo(_run_graphql(ctx=ctx, name="remove-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="remove-repository", variables=kwargs))
 
 
 @repository.command()
 @snippet_options("scan-repository")
-@click.pass_context
-def scan(ctx, **kwargs):
+@click.pass_obj
+def scan(obj, **kwargs):
     """
     Scan a repository for policies
     """
-    click.echo(_run_graphql(ctx=ctx, name="scan-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="scan-repository", variables=kwargs))
 
 
 @repository.command()
 @snippet_options("show-repository")
-@click.pass_context
-def show(ctx, **kwargs):
+@click.pass_obj
+def show(obj, **kwargs):
     """
     Show a repository
     """
-    click.echo(_run_graphql(ctx=ctx, name="show-repository", variables=kwargs))
+    click.echo(run_graphql(obj, name="show-repository", variables=kwargs))

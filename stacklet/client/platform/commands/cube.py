@@ -12,35 +12,32 @@ from typing import Any
 import click
 import requests
 
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.utils import click_group_entry, default_options, get_token
+from ..context import StackletContext
+from ..exceptions import MissingToken
 
 
 @click.group()
-@default_options()
-@click.pass_context
 def cubejs(*args, **kwargs):
     """
     Run arbitrary cubejs queries
     """
-    click_group_entry(*args, **kwargs)
 
 
 @cubejs.command()
 @click.option("--query", help="Graphql Query or Mutation", default=sys.stdin)
-@click.pass_context
-def run(ctx, query):
+@click.pass_obj
+def run(obj, query):
     if isinstance(query, io.IOBase):
         query = query.read()
 
-    response = _run_query(ctx, json.loads(query))
+    response = _run_query(obj, json.loads(query))
     click.echo(pformat(response))
 
 
 @cubejs.command()
-@click.pass_context
-def meta(ctx):
-    data = _request(ctx, "GET", "v1/meta")
+@click.pass_obj
+def meta(obj):
+    data = _request(obj, "GET", "v1/meta")
 
     cubes = {cube["name"]: cube for cube in data["cubes"]}
     for name in sorted(cubes):
@@ -50,9 +47,9 @@ def meta(ctx):
 
 
 @cubejs.command()
-@click.pass_context
-def resource_counts(ctx):
-    response = _run_query(ctx, _resource_counts)
+@click.pass_obj
+def resource_counts(obj):
+    response = _run_query(obj, _resource_counts)
     data = response["data"]
     for row in data:
         date = datetime.fromisoformat(row["ResourceCounts.date"])
@@ -60,13 +57,14 @@ def resource_counts(ctx):
         click.echo(f"{date.date().isoformat()}: {count}")
 
 
-def _run_query(ctx, query):
-    return _request(ctx, "POST", "v1/load", payload={"query": query})
+def _run_query(context, query):
+    return _request(context, "POST", "v1/load", payload={"query": query})
 
 
-def _request(ctx, method: str, path: str, payload: Any = None):
-    context = StackletContext(ctx.obj["config"], ctx.obj["raw_config"])
-    token = get_token()
+def _request(context: StackletContext, method: str, path: str, payload: Any = None):
+    token = context.credentials.api_token()
+    if not token:
+        raise MissingToken()
     response = requests.request(
         method,
         url=f"{context.config.cubejs}/cubejs-api/{path}",

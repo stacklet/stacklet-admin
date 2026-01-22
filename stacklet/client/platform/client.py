@@ -3,30 +3,27 @@
 
 # platform client using cli
 
-from pathlib import Path
 
 import jmespath
 
 # import the commands so the registry is populated when the client is instantiated
-import stacklet.client.platform.commands  # noqa
-from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.executor import StackletGraphqlExecutor
-from stacklet.client.platform.utils import _PAGINATION_OPTIONS, get_token
+from . import commands  # noqa
+from .config import DEFAULT_CONFIG_FILE
+from .context import StackletContext
+from .executor import StackletGraphqlExecutor
+from .utils import _PAGINATION_OPTIONS
 
 
 def platform_client(pager=False, expr=False):
     # for more pythonic experience, pass expr=True to de-graphqlize the result
     # for automatic pagination handling, pass pager=True
-    if (
-        not Path(StackletContext.DEFAULT_CONFIG).expanduser().exists()
-        or not Path(StackletContext.DEFAULT_CREDENTIALS).expanduser().exists()
-    ):
+    context = StackletContext(config_file=DEFAULT_CONFIG_FILE)
+    if not DEFAULT_CONFIG_FILE.exists() or not context.credentials.api_token():
         raise ValueError("Please configure and authenticate on stacklet-admin cli")
 
     d = {}
-    ctx = StackletContext(raw_config={})
-    token = get_token()
-    executor = StackletGraphqlExecutor(ctx, token)
+
+    executor = StackletGraphqlExecutor(context)
 
     for k, snippet in StackletGraphqlExecutor.registry.items():
         # assert k == snippet.name, f"{k} mismatch {snippet.name}"
