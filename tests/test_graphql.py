@@ -6,7 +6,7 @@ import requests_mock
 import yaml
 
 from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.executor import StackletGraphqlExecutor
+from stacklet.client.platform.executor import MissingToken, StackletGraphqlExecutor
 
 
 @pytest.fixture
@@ -16,6 +16,11 @@ def executor(mock_api_token, sample_config_file) -> StackletGraphqlExecutor:
 
 
 class TestGraphqlExecutor:
+    def test_missing_token(self, sample_config_file):
+        context = StackletContext(config_file=sample_config_file)
+        with pytest.raises(MissingToken):
+            StackletGraphqlExecutor(context)
+
     def test_executor_run(self, requests_adapter, executor):
         assert executor.api == "mock://stacklet.acme.org/api"
         assert executor.session.headers["authorization"] == "Bearer mock-token"
@@ -75,7 +80,9 @@ class TestGraphqlExecutor:
             }
         }
 
-    def test_graphql_executor(self, requests_adapter, sample_config_file, invoke_cli):
+    def test_graphql_executor(
+        self, requests_adapter, sample_config_file, invoke_cli, mock_api_token
+    ):
         snippet = '{ platform { dashboardDefinition(name:"cis-v140") } }'
 
         payload = {"data": {"platform": {"version": "1.2.3+git.abcdef0"}}}

@@ -58,7 +58,7 @@ class TestAdminCli:
         )
 
     def test_auto_configure_url_only(self, config_file, requests_adapter, invoke_cli):
-        mock_config = {
+        config = {
             "cognito_install": "auth.console.dev.stacklet.dev",
             "cognito_user_pool_region": "us-east-2",
             "cognito_user_pool_id": "us-east-2_test123",
@@ -67,9 +67,7 @@ class TestAdminCli:
             "saml_providers": [{"name": "TestIDP", "idp_id": "test-idp-id"}],
         }
 
-        requests_adapter.get(
-            "https://console.dev.stacklet.dev/config/cognito.json", json=mock_config
-        )
+        requests_adapter.get("https://console.dev.stacklet.dev/config/cognito.json", json=config)
         requests_adapter.get("https://console.dev.stacklet.dev/config/cubejs.json", json={})
 
         res = invoke_cli(
@@ -94,7 +92,7 @@ class TestAdminCli:
         )
 
     def test_auto_configure_prefix_only(self, config_file, requests_adapter, invoke_cli):
-        mock_config = {
+        config = {
             "cognito_install": "auth.console.myorg.stacklet.io",
             "cognito_user_pool_region": "us-west-2",
             "cognito_user_pool_id": "us-west-2_test456",
@@ -103,9 +101,7 @@ class TestAdminCli:
             "saml_providers": [{"name": "OrgIDP", "idp_id": "org-idp-id"}],
         }
 
-        requests_adapter.get(
-            "https://console.myorg.stacklet.io/config/cognito.json", json=mock_config
-        )
+        requests_adapter.get("https://console.myorg.stacklet.io/config/cognito.json", json=config)
         requests_adapter.get("https://console.myorg.stacklet.io/config/cubejs.json", json={})
 
         res = invoke_cli(
@@ -128,7 +124,7 @@ class TestAdminCli:
     def test_auto_configure_url_without_console_prefix(
         self, config_file, requests_adapter, invoke_cli
     ):
-        mock_config = {
+        config = {
             "cognito_install": "auth.console.example.stacklet.io",
             "cognito_user_pool_region": "eu-west-1",
             "cognito_user_pool_id": "eu-west-1_test789",
@@ -137,9 +133,7 @@ class TestAdminCli:
             "saml_providers": [{"name": "ExampleIDP", "idp_id": "example-idp-id"}],
         }
 
-        requests_adapter.get(
-            "https://console.example.stacklet.io/config/cognito.json", json=mock_config
-        )
+        requests_adapter.get("https://console.example.stacklet.io/config/cognito.json", json=config)
         requests_adapter.get("https://console.example.stacklet.io/config/cubejs.json", json={})
 
         res = invoke_cli(
@@ -197,7 +191,7 @@ class TestAdminCli:
     def test_auto_configure_multiple_idps_with_selection(
         self, config_file, requests_adapter, invoke_cli
     ):
-        mock_config = {
+        config = {
             "cognito_install": "auth.console.multi.stacklet.dev",
             "cognito_user_pool_region": "us-east-1",
             "cognito_user_pool_id": "us-east-1_multi123",
@@ -209,9 +203,7 @@ class TestAdminCli:
             ],
         }
 
-        requests_adapter.get(
-            "https://console.multi.stacklet.dev/config/cognito.json", json=mock_config
-        )
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cognito.json", json=config)
         requests_adapter.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
 
         res = invoke_cli(
@@ -231,7 +223,7 @@ class TestAdminCli:
         )
 
     def test_auto_configure_multiple_idps_no_selection_error(self, requests_adapter, invoke_cli):
-        mock_config = {
+        config = {
             "cognito_install": "auth.console.multi.stacklet.dev",
             "cognito_user_pool_region": "us-east-1",
             "cognito_user_pool_id": "us-east-1_multi123",
@@ -243,9 +235,7 @@ class TestAdminCli:
             ],
         }
 
-        requests_adapter.get(
-            "https://console.multi.stacklet.dev/config/cognito.json", json=mock_config
-        )
+        requests_adapter.get("https://console.multi.stacklet.dev/config/cognito.json", json=config)
         requests_adapter.get("https://console.multi.stacklet.dev/config/cubejs.json", json={})
 
         res = invoke_cli(

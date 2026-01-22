@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from abc import abstractmethod
 
 import yaml
 
@@ -10,6 +11,9 @@ from .registry import PluginRegistry
 
 class Formatter:
     registry = PluginRegistry("formats")
+
+    @abstractmethod
+    def __call__(self, value): ...
 
 
 @Formatter.registry.register("plain")

@@ -11,6 +11,9 @@ from .registry import PluginRegistry
 from .utils import _PAGINATION_OPTIONS, wrap_command
 
 
+class MissingToken(Exception): ...
+
+
 class StackletGraphqlExecutor:
     """
     Execute Graphql against the API
@@ -19,13 +22,17 @@ class StackletGraphqlExecutor:
     registry = PluginRegistry("StackletGraphqlSnippets")
 
     def __init__(self, context: StackletContext):
+        token = context.credentials.api_token()
+        if not token:
+            raise MissingToken("Authorization token not configured.")
+
         self.api = context.config.api
         self.log = logging.getLogger("StackletGraphqlExecutor")
 
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "Authorization": f"Bearer {context.credentials.api_token}",
+                "Authorization": f"Bearer {token}",
             }
         )
 

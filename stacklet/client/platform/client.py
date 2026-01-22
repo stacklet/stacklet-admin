@@ -17,7 +17,7 @@ from .utils import _PAGINATION_OPTIONS
 def platform_client(pager=False, expr=False):
     # for more pythonic experience, pass expr=True to de-graphqlize the result
     # for automatic pagination handling, pass pager=True
-    context = StackletContext(raw_config={})
+    context = StackletContext(config_file=DEFAULT_CONFIG_FILE)
     if not DEFAULT_CONFIG_FILE.exists() or not context.credentials.api_token():
         raise ValueError("Please configure and authenticate on stacklet-admin cli")
 

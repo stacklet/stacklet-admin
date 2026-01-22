@@ -20,12 +20,9 @@ def requests_adapter() -> Iterator[requests_mock.Adapter]:
 
 @pytest.fixture
 def mock_api_token() -> Iterator[str]:
-    from unittest.mock import PropertyMock
-
     token = "mock-token"
     with patch(
         "stacklet.client.platform.config.StackletCredentials.api_token",
-        new_callable=PropertyMock,
         return_value=token,
     ):
         yield token
@@ -70,7 +67,7 @@ def invoke_cli(config_file):
 
 
 @pytest.fixture
-def run_query(requests_adapter, sample_config_file, invoke_cli):
+def run_query(requests_adapter, sample_config_file, mock_api_token, invoke_cli):
     def run(base_command: str, args: list[str], response: JSONDict) -> tuple[Result, JSONDict]:
         requests_adapter.register_uri(
             "POST",

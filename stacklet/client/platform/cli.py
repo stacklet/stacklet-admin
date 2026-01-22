@@ -29,6 +29,8 @@ from .utils import setup_logging
     "--output",
     type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
     default=DEFAULT_OUTPUT_FORMAT,
+    envvar="STACKLET_OUTPUT_FORMAT",
+    show_envvar=True,
     help="Output type",
 )
 @click.option(

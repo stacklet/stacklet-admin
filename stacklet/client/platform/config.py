@@ -85,6 +85,7 @@ class StackletConfig:
 
     @classmethod
     def from_file(cls, path: Path):
+        path = path.expanduser()
         if not path.exists():
             raise ConfigValidationException(f"Configuration file not found: {path}")
         with path.open() as f:
@@ -92,6 +93,7 @@ class StackletConfig:
         return cls.from_dict(config)
 
     def to_file(self, path: Path):
+        path = path.expanduser()
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w") as fd:
             json.dump(self.to_dict(), fd, indent=4, sort_keys=True)
