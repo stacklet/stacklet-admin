@@ -2,8 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from pathlib import Path
 
 import click
+
+
+def expand_user_path(ctx, param, value):
+    """Callback for click options to expand user paths."""
+    if value is None:
+        return value
+    if not isinstance(value, Path):
+        value = Path(value)
+    return value.expanduser()
+
 
 _PAGINATION_OPTIONS = {
     "first": {

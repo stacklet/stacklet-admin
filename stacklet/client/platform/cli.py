@@ -1,7 +1,7 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import pathlib
+from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 import click
@@ -13,16 +13,17 @@ from .commands import commands
 from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT, StackletConfig
 from .context import StackletContext
 from .formatter import Formatter
-from .utils import setup_logging
+from .utils import expand_user_path, setup_logging
 
 
 @click.group()
 @click.option(
     "--config",
-    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    type=click.Path(path_type=Path, dir_okay=False),
     default=DEFAULT_CONFIG_FILE,
     envvar="STACKLET_CONFIG",
     show_envvar=True,
+    callback=expand_user_path,
     help="Configuration file",
 )
 @click.option(
@@ -124,9 +125,10 @@ def cli(
 @click.option("--auth-url", prompt="(SSO) Auth Url", default="", help="(SSO) Auth Url")
 @click.option(
     "--location",
-    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    type=click.Path(path_type=Path, dir_okay=False),
     default=DEFAULT_CONFIG_FILE,
     prompt="Config File Location",
+    callback=expand_user_path,
     help="Config File Location",
 )
 def configure(
@@ -173,8 +175,9 @@ def configure(
 @click.option(
     "--location",
     default=str(DEFAULT_CONFIG_FILE),
-    type=click.Path(path_type=pathlib.Path, dir_okay=False),
+    type=click.Path(path_type=Path, dir_okay=False),
     show_default=True,
+    callback=expand_user_path,
 )
 def auto_configure(url, prefix, idp, location):
     """Automatically configure the stacklet-admin CLI
