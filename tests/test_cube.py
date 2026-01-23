@@ -16,7 +16,7 @@ class TestCubeJS:
         with pytest.raises(MissingToken):
             _request(context, "GET", "v1/meta")
 
-    def test_request_with_token(self, requests_adapter, sample_config_file, mock_api_token):
+    def test_request_with_token(self, requests_adapter, sample_config_file, api_token_in_file):
         """Test that cubejs request works with valid token."""
         context = StackletContext(config_file=sample_config_file)
 
@@ -31,7 +31,7 @@ class TestCubeJS:
         assert result == expected_response
 
     def test_cubejs_meta_command(
-        self, requests_adapter, sample_config_file, invoke_cli, mock_api_token
+        self, requests_adapter, sample_config_file, invoke_cli, api_token_in_file
     ):
         """Test cubejs meta command through CLI."""
         expected_response = {
