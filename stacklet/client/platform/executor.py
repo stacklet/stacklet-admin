@@ -9,7 +9,7 @@ import requests
 from .context import StackletContext
 from .exceptions import MissingToken
 from .registry import PluginRegistry
-from .utils import PAGINATION_OPTIONS, get_user_agent, wrap_command
+from .utils import PAGINATION_OPTIONS, USER_AGENT, wrap_command
 
 
 class StackletGraphqlExecutor:
@@ -31,7 +31,7 @@ class StackletGraphqlExecutor:
         self.session.headers.update(
             {
                 "Authorization": f"Bearer {token}",
-                "User-Agent": get_user_agent(),
+                "User-Agent": USER_AGENT,
             }
         )
 
