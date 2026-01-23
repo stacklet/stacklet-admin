@@ -136,7 +136,7 @@ class BrowserAuthenticator:
     REDIRECT_URI = f"http://localhost:{CLI_REDIRECT_PORT}"
     SHORT_LINK = f"http://localhost:{CLI_REDIRECT_PORT}/stacklet_auth"
 
-    SCOPES = {"email", "openid", "stacklet/platform"}
+    SCOPES = ("email", "openid", "stacklet/platform")
 
     def __init__(self, authority_url, client_id, idp_id=""):
         self.authority_url = authority_url
