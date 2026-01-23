@@ -14,6 +14,7 @@ import requests
 
 from ..context import StackletContext
 from ..exceptions import MissingToken
+from ..utils import get_user_agent
 
 
 @click.group()
@@ -71,6 +72,7 @@ def _request(context: StackletContext, method: str, path: str, payload: Any = No
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
+            "User-Agent": get_user_agent(),
         },
         json=payload,
     )
