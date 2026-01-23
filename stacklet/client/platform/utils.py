@@ -1,11 +1,14 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import importlib.metadata
 import logging
 from pathlib import Path
 
 import click
+
+from . import __version__
+
+USER_AGENT = f"stacklet.client.platform/{__version__}"
 
 
 def expand_user_path(ctx, param, value):
@@ -79,9 +82,3 @@ def setup_logging(level):
     root_handler = logging.getLogger()
     if level:
         root_handler.setLevel(level=get_log_level(level))
-
-
-def get_user_agent():
-    package = "stacklet.client.platform"
-    version = importlib.metadata.version(package)
-    return f"{package}/{version}"
