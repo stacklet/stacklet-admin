@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "stacklet.client.platform"
 description = "Stacklet Platform Client"
-authors = [{ name = "Stacklet", email = "hello@stacklet.io" }]
+authors = [{ name = "Stacklet Engineering", email = "foss+stacklet-admin@stacklet.io" }]
+maintainers = [{ name = "Stacklet Engineering", email = "foss+stacklet-admin@stacklet.io" }]
 requires-python = ">=3.9,<=3.14"
 readme = "README.md"
 license = "Apache-2.0"
-maintainers = [{ name = "Stacklet", email = "hello@stacklet.io" }]
 dependencies = [
     "click>=8.0.1,<9",
     "requests>=2.32.4,<3",
