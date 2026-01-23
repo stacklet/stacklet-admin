@@ -19,6 +19,12 @@ def requests_adapter() -> Iterator[requests_mock.Adapter]:
 
 
 @pytest.fixture(autouse=True)
+def ensure_no_stacklet_api_key_env(monkeypatch) -> None:
+    """Ensure STACKLET_API_KEY doesn't come set from the env during tests."""
+    monkeypatch.delenv("STACKLET_API_KEY", raising=False)
+
+
+@pytest.fixture(autouse=True)
 def default_stacklet_dir(tmp_path_factory) -> Iterator[Path]:
     """A default .stacklet directory for testing."""
     default_config_dir = tmp_path_factory.mktemp(".stacklet")
