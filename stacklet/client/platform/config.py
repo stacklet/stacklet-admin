@@ -107,7 +107,9 @@ class StackletConfig:
 class StackletCredentials:
     """Manage credentials files."""
 
-    def __init__(self, config_dir: Path = DEFAULT_CONFIG_DIR) -> None:
+    def __init__(self, config_dir: Path | None = None) -> None:
+        if config_dir is None:
+            config_dir = DEFAULT_CONFIG_DIR
         self.config_dir = config_dir
         self._access_token_file = self.config_dir / "credentials"
         self._id_token_file = self.config_dir / "id"

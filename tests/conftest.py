@@ -18,14 +18,29 @@ def requests_adapter() -> Iterator[requests_mock.Adapter]:
         yield adapter
 
 
+@pytest.fixture(autouse=True)
+def default_stacklet_dir(tmp_path_factory) -> Iterator[Path]:
+    """A default .stacklet directory for testing."""
+    default_config_dir = tmp_path_factory.mktemp(".stacklet")
+    with patch("stacklet.client.platform.config.DEFAULT_CONFIG_DIR", default_config_dir):
+        yield default_config_dir
+
+
+@pytest.fixture(autouse=True)
+def default_config_file(default_stacklet_dir) -> Iterator[Path]:
+    """Override default config file path."""
+    default_config_file = default_stacklet_dir / "config.json"
+    with patch("stacklet.client.platform.config.DEFAULT_CONFIG_FILE", default_config_file):
+        yield default_config_file
+
+
 @pytest.fixture
-def mock_api_token() -> Iterator[str]:
-    token = "mock-token"
-    with patch(
-        "stacklet.client.platform.config.StackletCredentials.api_token",
-        return_value=token,
-    ):
-        yield token
+def api_token_in_file(default_stacklet_dir) -> str:
+    """Provide a configured API token saved to file."""
+    token = "fake-token"
+    token_file = default_stacklet_dir / "credentials"
+    token_file.write_text(token)
+    return token
 
 
 @pytest.fixture
@@ -67,7 +82,7 @@ def invoke_cli(config_file):
 
 
 @pytest.fixture
-def run_query(requests_adapter, sample_config_file, mock_api_token, invoke_cli):
+def run_query(requests_adapter, sample_config_file, api_token_in_file, invoke_cli):
     def run(base_command: str, args: list[str], response: JSONDict) -> tuple[Result, JSONDict]:
         requests_adapter.register_uri(
             "POST",
