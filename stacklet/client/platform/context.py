@@ -5,7 +5,9 @@ from functools import cached_property
 from pathlib import Path
 
 from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT, StackletConfig, StackletCredentials
+from .exceptions import MissingToken
 from .formatter import Formatter
+from .graphql import StackletGraphqlExecutor
 
 
 class StackletContext:
@@ -26,3 +28,11 @@ class StackletContext:
     @cached_property
     def config(self) -> StackletConfig:
         return StackletConfig.from_file(self.config_file)
+
+    @cached_property
+    def executor(self) -> StackletGraphqlExecutor:
+        token = self.credentials.api_token()
+        if not token:
+            raise MissingToken()
+
+        return StackletGraphqlExecutor(self.config.api, token)

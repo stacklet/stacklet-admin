@@ -78,7 +78,7 @@ Usage: stacklet-admin account [OPTIONS] COMMAND [ARGS]...
 
   Example:
 
-      $ stacklet account --output json list
+      $ stacklet --output json account list
 
 Options:
   --help  Show this message and exit.

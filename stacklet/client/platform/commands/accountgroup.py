@@ -3,11 +3,11 @@
 
 import click
 
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
-@StackletGraphqlExecutor.registry.register("list-account-groups")
+@GRAPHQL_SNIPPETS.register("list-account-groups")
 class QueryAccountGroupSnippet(StackletGraphqlSnippet):
     name = "list-account-groups"
     snippet = """
@@ -45,7 +45,7 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@StackletGraphqlExecutor.registry.register("add-account-group")
+@GRAPHQL_SNIPPETS.register("add-account-group")
 class AddAccountGroupSnippet(StackletGraphqlSnippet):
     name = "add-account-group"
     snippet = """
@@ -99,7 +99,7 @@ class AddAccountGroupSnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("update-account-group")
+@GRAPHQL_SNIPPETS.register("update-account-group")
 class UpdateAccountSnippet(StackletGraphqlSnippet):
     name = "update-account-group"
     snippet = """
@@ -149,7 +149,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("show-account-group")
+@GRAPHQL_SNIPPETS.register("show-account-group")
 class ShowAccountGroup(StackletGraphqlSnippet):
     name = "show-account-group"
     snippet = """
@@ -180,7 +180,7 @@ class ShowAccountGroup(StackletGraphqlSnippet):
     required = {"uuid": "Account group UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("remove-account-group")
+@GRAPHQL_SNIPPETS.register("remove-account-group")
 class RemoveAccountGroup(StackletGraphqlSnippet):
     name = "remove-account-group"
     snippet = """
@@ -213,7 +213,7 @@ class RemoveAccountGroup(StackletGraphqlSnippet):
     required = {"uuid": "Account group UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("add-account-group-item")
+@GRAPHQL_SNIPPETS.register("add-account-group-item")
 class AddAccountGroupItem(StackletGraphqlSnippet):
     name = "add-account-group-item"
     snippet = """
@@ -258,7 +258,7 @@ class AddAccountGroupItem(StackletGraphqlSnippet):
     optional = {"regions": "Account Regions"}
 
 
-@StackletGraphqlExecutor.registry.register("remove-account-group-item")
+@GRAPHQL_SNIPPETS.register("remove-account-group-item")
 class RemoveAccountGroupItem(StackletGraphqlSnippet):
     name = "remove-account-group-item"
     snippet = """
@@ -310,71 +310,15 @@ def account_group(*args, **kwargs):
     """
 
 
-@account_group.command()
-@snippet_options("list-account-groups")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List account groups in Stacklet
-    """
-    click.echo(run_graphql(obj, name="list-account-groups", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("add-account-group")
-@click.pass_obj
-def add(obj, **kwargs):
-    """
-    Add account group
-    """
-    click.echo(run_graphql(obj, name="add-account-group", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("update-account-group")
-@click.pass_obj
-def update(obj, **kwargs):
-    """
-    Update account group
-    """
-    click.echo(run_graphql(obj, name="update-account-group", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("show-account-group")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show account group
-    """
-    click.echo(run_graphql(obj, name="show-account-group", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("remove-account-group")
-@click.pass_obj
-def remove(obj, **kwargs):
-    """
-    Remove account group
-    """
-    click.echo(run_graphql(obj, name="remove-account-group", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("add-account-group-item")
-@click.pass_obj
-def add_item(obj, **kwargs):
-    """
-    Add account group item
-    """
-    click.echo(run_graphql(obj, name="add-account-group-item", variables=kwargs))
-
-
-@account_group.command()
-@snippet_options("remove-account-group-item")
-@click.pass_obj
-def remove_item(obj, **kwargs):
-    """
-    Remove account group item
-    """
-    click.echo(run_graphql(obj, name="remove-account-group-item", variables=kwargs))
+register_graphql_commands(
+    account_group,
+    [
+        GraphQLCommand("list", "list-account-groups", "List account groups in Stacklet"),
+        GraphQLCommand("add", "add-account-group", "Add account group"),
+        GraphQLCommand("update", "update-account-group", "Update account group"),
+        GraphQLCommand("show", "show-account-group", "Show account group"),
+        GraphQLCommand("remove", "remove-account-group", "Remove account group"),
+        GraphQLCommand("add-item", "add-account-group-item", "Add account group item"),
+        GraphQLCommand("remove-item", "remove-account-group-item", "Remove account group item"),
+    ],
+)

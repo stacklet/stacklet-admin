@@ -6,8 +6,7 @@ import sys
 
 import click
 
-from ..executor import run_graphql
-from ..graphql import AdHocSnippet
+from ..graphql_cli import run_graphql
 
 
 @click.group()
@@ -24,10 +23,4 @@ def run(obj, snippet):
     if isinstance(snippet, io.IOBase):
         snippet = snippet.read()
 
-    # snippet must be a subclass, not an instance, of StackletGraphqlSnippet.
-    click.echo(run_graphql(obj, snippet=_ad_hoc(snippet)))
-
-
-def _ad_hoc(snippet):
-    "In practice, this is the most convenient way to create the subclass."
-    return type("AdHocSnippet", (AdHocSnippet,), {"snippet": snippet})
+    click.echo(run_graphql(obj, snippet=snippet))
