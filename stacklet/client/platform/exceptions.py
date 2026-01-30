@@ -1,15 +1,23 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-
-class ConfigValidationException(Exception):
-    pass
+import click
 
 
-class InvalidInputException(Exception):
-    pass
+class MissingConfigException(click.ClickException): ...
 
 
-class MissingToken(Exception):
+class ConfigValidationException(click.ClickException): ...
+
+
+class InvalidInputException(click.ClickException): ...
+
+
+class MissingToken(click.ClickException):
     def __init__(self):
         super().__init__("Authorization token not configured")
+
+
+class UnknownSnippet(click.ClickException):
+    def __init__(self, name: str):
+        super().__init__(f"Unknown GraphQL snippet: {name}")

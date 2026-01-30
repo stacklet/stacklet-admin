@@ -3,11 +3,11 @@
 
 import click
 
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
-@StackletGraphqlExecutor.registry.register("list-bindings")
+@GRAPHQL_SNIPPETS.register("list-bindings")
 class QueryBindingsSnippet(StackletGraphqlSnippet):
     name = "list-bindings"
     snippet = """
@@ -50,7 +50,7 @@ class QueryBindingsSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@StackletGraphqlExecutor.registry.register("show-binding")
+@GRAPHQL_SNIPPETS.register("show-binding")
 class ShowBindingSnippet(StackletGraphqlSnippet):
     name = "show-binding"
     snippet = """
@@ -80,7 +80,7 @@ class ShowBindingSnippet(StackletGraphqlSnippet):
     required = {"uuid": "Binding UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("add-binding")
+@GRAPHQL_SNIPPETS.register("add-binding")
 class AddBindingSnippet(StackletGraphqlSnippet):
     name = "add-binding"
     snippet = """
@@ -128,7 +128,7 @@ class AddBindingSnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("update-binding")
+@GRAPHQL_SNIPPETS.register("update-binding")
 class UpdateBindingSnippet(StackletGraphqlSnippet):
     name = "update-binding"
     snippet = """
@@ -170,7 +170,7 @@ class UpdateBindingSnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("remove-binding")
+@GRAPHQL_SNIPPETS.register("remove-binding")
 class RemoveBindingSnippet(StackletGraphqlSnippet):
     name = "remove-binding"
     snippet = """
@@ -199,7 +199,7 @@ class RemoveBindingSnippet(StackletGraphqlSnippet):
     required = {"uuid": "Binding UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("deploy-binding")
+@GRAPHQL_SNIPPETS.register("deploy-binding")
 class DeployBindingSnippet(StackletGraphqlSnippet):
     name = "deploy-binding"
     snippet = """
@@ -228,7 +228,7 @@ class DeployBindingSnippet(StackletGraphqlSnippet):
     required = {"uuid": "Binding UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("run-binding")
+@GRAPHQL_SNIPPETS.register("run-binding")
 class RunBindingSnippet(StackletGraphqlSnippet):
     name = "run-binding"
     snippet = """
@@ -264,71 +264,15 @@ def binding(*args, **kwargs):
     """
 
 
-@binding.command()
-@snippet_options("list-bindings")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List bindings in Stacklet
-    """
-    click.echo(run_graphql(obj, name="list-bindings", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("show-binding")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="show-binding", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("add-binding")
-@click.pass_obj
-def add(obj, **kwargs):
-    """
-    Add binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="add-binding", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("update-binding")
-@click.pass_obj
-def update(obj, **kwargs):
-    """
-    Update binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="update-binding", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("remove-binding")
-@click.pass_obj
-def remove(obj, **kwargs):
-    """
-    Remove binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="remove-binding", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("deploy-binding")
-@click.pass_obj
-def deploy(obj, **kwargs):
-    """
-    Deploy binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="deploy-binding", variables=kwargs))
-
-
-@binding.command()
-@snippet_options("run-binding")
-@click.pass_obj
-def run(obj, **kwargs):
-    """
-    Run a binding in Stacklet
-    """
-    click.echo(run_graphql(obj, name="run-binding", variables=kwargs))
+register_graphql_commands(
+    binding,
+    [
+        GraphQLCommand("list", "list-bindings", "List bindings in Stacklet"),
+        GraphQLCommand("show", "show-binding", "Show binding in Stacklet"),
+        GraphQLCommand("add", "add-binding", "Add binding in Stacklet"),
+        GraphQLCommand("update", "update-binding", "Update binding in Stacklet"),
+        GraphQLCommand("remove", "remove-binding", "Remove binding in Stacklet"),
+        GraphQLCommand("deploy", "deploy-binding", "Deploy binding in Stacklet"),
+        GraphQLCommand("run", "run-binding", "Run a binding in Stacklet"),
+    ],
+)

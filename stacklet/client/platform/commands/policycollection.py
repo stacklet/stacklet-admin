@@ -3,11 +3,11 @@
 
 import click
 
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
-@StackletGraphqlExecutor.registry.register("list-policy-collections")
+@GRAPHQL_SNIPPETS.register("list-policy-collections")
 class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
     name = "list-policy-collections"
     snippet = """
@@ -42,7 +42,7 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@StackletGraphqlExecutor.registry.register("show-policy-collection")
+@GRAPHQL_SNIPPETS.register("show-policy-collection")
 class ShowPolicyCollection(StackletGraphqlSnippet):
     name = "show-policy-collection"
     snippet = """
@@ -68,7 +68,7 @@ class ShowPolicyCollection(StackletGraphqlSnippet):
     required = {"uuid": "Policy Collection UUID"}
 
 
-@StackletGraphqlExecutor.registry.register("add-policy-collection")
+@GRAPHQL_SNIPPETS.register("add-policy-collection")
 class AddPolicyCollection(StackletGraphqlSnippet):
     name = "add-policy-collection"
     snippet = """
@@ -107,7 +107,7 @@ class AddPolicyCollection(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
-@StackletGraphqlExecutor.registry.register("update-policy-collection")
+@GRAPHQL_SNIPPETS.register("update-policy-collection")
 class UpdatePolicyCollection(StackletGraphqlSnippet):
     name = "update-policy-collection"
     snippet = """
@@ -144,7 +144,7 @@ class UpdatePolicyCollection(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("add-policy-collection-item")
+@GRAPHQL_SNIPPETS.register("add-policy-collection-item")
 class AddPolicyCollectionItem(StackletGraphqlSnippet):
     name = "add-policy-collection-item"
     snippet = """
@@ -184,7 +184,7 @@ class AddPolicyCollectionItem(StackletGraphqlSnippet):
     variable_transformers = {"policy_version": lambda x: x and int(x)}
 
 
-@StackletGraphqlExecutor.registry.register("remove-policy-collection-item")
+@GRAPHQL_SNIPPETS.register("remove-policy-collection-item")
 class RemovePolicyCollectionItem(StackletGraphqlSnippet):
     name = "remove-policy-collection-item"
     snippet = """
@@ -223,7 +223,7 @@ class RemovePolicyCollectionItem(StackletGraphqlSnippet):
     optional = {"policy_version": "Policy Version"}
 
 
-@StackletGraphqlExecutor.registry.register("remove-policy-collection")
+@GRAPHQL_SNIPPETS.register("remove-policy-collection")
 class RemovePolicyCollection(StackletGraphqlSnippet):
     name = "remove-policy-collection"
     snippet = """
@@ -258,71 +258,25 @@ def policy_collection(*args, **kwargs):
     """
 
 
-@policy_collection.command()
-@snippet_options("list-policy-collections")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List policy collections in Stacklet
-    """
-    click.echo(run_graphql(obj, name="list-policy-collections", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("add-policy-collection")
-@click.pass_obj
-def add(obj, **kwargs):
-    """
-    Add policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="add-policy-collection", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("show-policy-collection")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="show-policy-collection", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("update-policy-collection")
-@click.pass_obj
-def update(obj, **kwargs):
-    """
-    Update policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="update-policy-collection", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("add-policy-collection-item")
-@click.pass_obj
-def add_item(obj, **kwargs):
-    """
-    Add item to policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="add-policy-collection-item", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("remove-policy-collection")
-@click.pass_obj
-def remove(obj, **kwargs):
-    """
-    Remove policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="remove-policy-collection", variables=kwargs))
-
-
-@policy_collection.command()
-@snippet_options("remove-policy-collection-item")
-@click.pass_obj
-def remove_item(obj, **kwargs):
-    """
-    Remove item from a policy collection in Stacklet
-    """
-    click.echo(run_graphql(obj, name="remove-policy-collection-item", variables=kwargs))
+register_graphql_commands(
+    policy_collection,
+    [
+        GraphQLCommand("list", "list-policy-collections", "List policy collections in Stacklet"),
+        GraphQLCommand("add", "add-policy-collection", "Add policy collection in Stacklet"),
+        GraphQLCommand("show", "show-policy-collection", "Show policy collection in Stacklet"),
+        GraphQLCommand(
+            "update", "update-policy-collection", "Update policy collection in Stacklet"
+        ),
+        GraphQLCommand(
+            "add-item", "add-policy-collection-item", "Add item to policy collection in Stacklet"
+        ),
+        GraphQLCommand(
+            "remove", "remove-policy-collection", "Remove policy collection in Stacklet"
+        ),
+        GraphQLCommand(
+            "remove-item",
+            "remove-policy-collection-item",
+            "Remove item from a policy collection in Stacklet",
+        ),
+    ],
+)

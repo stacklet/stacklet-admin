@@ -5,11 +5,11 @@ import json
 
 import click
 
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 
 
-@StackletGraphqlExecutor.registry.register("list-accounts")
+@GRAPHQL_SNIPPETS.register("list-accounts")
 class ListAccountsSnippet(StackletGraphqlSnippet):
     name = "list-accounts"
     snippet = """
@@ -51,7 +51,7 @@ class ListAccountsSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@StackletGraphqlExecutor.registry.register("show-account")
+@GRAPHQL_SNIPPETS.register("show-account")
 class QueryAccountSnippet(StackletGraphqlSnippet):
     name = "show-account"
     snippet = """
@@ -87,7 +87,7 @@ class QueryAccountSnippet(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
-@StackletGraphqlExecutor.registry.register("update-account")
+@GRAPHQL_SNIPPETS.register("update-account")
 class UpdateAccountSnippet(StackletGraphqlSnippet):
     name = "update-account"
     snippet = """
@@ -140,7 +140,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     variable_transformers = {"tags": lambda x: json.loads(x) if x is not None else []}
 
 
-@StackletGraphqlExecutor.registry.register("add-account")
+@GRAPHQL_SNIPPETS.register("add-account")
 class AddAccountSnippet(StackletGraphqlSnippet):
     name = "add-account"
     snippet = """
@@ -194,7 +194,7 @@ class AddAccountSnippet(StackletGraphqlSnippet):
     variable_transformers = {"tags": lambda x: json.loads(x) if x is not None else []}
 
 
-@StackletGraphqlExecutor.registry.register("remove-account")
+@GRAPHQL_SNIPPETS.register("remove-account")
 class RemoveAccountSnippet(StackletGraphqlSnippet):
     name = "remove-account"
     snippet = """
@@ -230,7 +230,7 @@ class RemoveAccountSnippet(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
-@StackletGraphqlExecutor.registry.register("validate-account")
+@GRAPHQL_SNIPPETS.register("validate-account")
 class ValidateAccountSnippet(StackletGraphqlSnippet):
     name = "validate-account"
     snippet = """
@@ -272,94 +272,35 @@ class ValidateAccountSnippet(StackletGraphqlSnippet):
 
 @click.group(short_help="Run account queries/mutations")
 def account(*args, **kwargs):
-    """
-    Query against and Run mutations against Account objects in Stacklet.
-
-    Define a custom config file with the --config option
-
-    Specify a different output format with the --output option
-
-    Example:
-
-        $ stacklet account --output json list
-
-    """
+    """Query against and Run mutations against Account objects in Stacklet."""
 
 
-@account.command()
-@snippet_options("list-accounts")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List cloud accounts in Stacklet
-    """
-    click.echo(run_graphql(obj, name="list-accounts", variables=kwargs))
-
-
-@account.command()
-@snippet_options("add-account")
-@click.pass_obj
-def add(obj, **kwargs):
-    """
-    Add an account to Stacklet
-    """
-    click.echo(run_graphql(obj, name="add-account", variables=kwargs))
-
-
-@account.command()
-@snippet_options("remove-account")
-@click.pass_obj
-def remove(obj, **kwargs):
-    """
-    Remove an account from Stacklet
-    """
-    click.echo(run_graphql(obj, name="remove-account", variables=kwargs))
-
-
-@account.command()
-@snippet_options("update-account")
-@click.pass_obj
-def update(obj, **kwargs):
-    """
-    Update an account in platform
-    """
-    click.echo(run_graphql(obj, name="update-account", variables=kwargs))
-
-
-@account.command()
-@snippet_options("show-account")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show an account in Stacklet
-    """
-    click.echo(run_graphql(obj, name="show-account", variables=kwargs))
-
-
-@account.command()
-@snippet_options("validate-account")
-@click.pass_obj
-def validate(obj, **kwargs):
-    """
-    Validate an account in Stacklet
-    """
-    click.echo(run_graphql(obj, name="validate-account", variables=kwargs))
+register_graphql_commands(
+    account,
+    [
+        GraphQLCommand("list", "list-accounts", "List cloud accounts in Stacklet"),
+        GraphQLCommand("add", "add-account", "Add an account to Stacklet"),
+        GraphQLCommand("remove", "remove-account", "Remove an account from Stacklet"),
+        GraphQLCommand("update", "update-account", "Update an account in Stacklet"),
+        GraphQLCommand("show", "show-account", "Show an account in Stacklet"),
+        GraphQLCommand("validate", "validate-account", "Validate an account in Stacklet"),
+    ],
+)
 
 
 @account.command()
 @snippet_options("list-accounts")
 @click.pass_obj
 def validate_all(obj, **kwargs):
-    """
-    Validate all accounts in Stacklet
-    """
-    result = run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
+    """Validate all accounts in Stacklet"""
+    executor = obj.executor
+    result = executor.run("list-accounts", variables=kwargs)
 
     # get all the accounts
     count = result["data"]["accounts"]["pageInfo"]["total"]
     kwargs["last"] = count
 
-    result = run_graphql(obj, name="list-accounts", variables=kwargs, raw=True)
+    result = executor.run("list-accounts", variables=kwargs)
     account_provider_pairs = [
         {"provider": r["node"]["provider"], "key": r["node"]["key"]}
         for r in result["data"]["accounts"]["edges"]

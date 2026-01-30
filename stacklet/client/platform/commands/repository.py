@@ -2,15 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from typing import Any
 
 import click
 
+from ..context import StackletContext
 from ..exceptions import InvalidInputException
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
-@StackletGraphqlExecutor.registry.register("add-repository")
+@GRAPHQL_SNIPPETS.register("add-repository")
 class AddRepositorySnippet(StackletGraphqlSnippet):
     name = "add-repository"
     snippet = """
@@ -62,7 +64,7 @@ class AddRepositorySnippet(StackletGraphqlSnippet):
     variable_transformers = {"deep_import": lambda x: x and x.lower() in ("true", "t", "yes", "y")}
 
 
-@StackletGraphqlExecutor.registry.register("process-repository")
+@GRAPHQL_SNIPPETS.register("process-repository")
 class ProcessRepositorySnippet(StackletGraphqlSnippet):
     name = "process-repository"
     snippet = """
@@ -73,7 +75,7 @@ class ProcessRepositorySnippet(StackletGraphqlSnippet):
     required = {"url": "Repository URL to process"}
 
 
-@StackletGraphqlExecutor.registry.register("list-repository")
+@GRAPHQL_SNIPPETS.register("list-repository")
 class ListRepositorySnippet(StackletGraphqlSnippet):
     name = "list-repository"
     snippet = """
@@ -106,7 +108,7 @@ class ListRepositorySnippet(StackletGraphqlSnippet):
     """
 
 
-@StackletGraphqlExecutor.registry.register("remove-repository")
+@GRAPHQL_SNIPPETS.register("remove-repository")
 class RemoveRepositorySnippet(StackletGraphqlSnippet):
     name = "remove-repository"
     snippet = """
@@ -126,7 +128,7 @@ class RemoveRepositorySnippet(StackletGraphqlSnippet):
     }
 
 
-@StackletGraphqlExecutor.registry.register("scan-repository")
+@GRAPHQL_SNIPPETS.register("scan-repository")
 class ScanRepositorySnippet(StackletGraphqlSnippet):
     name = "scan-repository"
     snippet = """
@@ -146,21 +148,10 @@ class ScanRepositorySnippet(StackletGraphqlSnippet):
 
 @click.group(short_help="Run repository queries/mutations")
 def repository(*args, **kwargs):
-    """
-    Query against and Run mutations against Repository objects in Stacklet
-
-    Define a custom config file with the --config option
-
-    Specify a different output format with the --output option
-
-    Example:
-
-        $ stacklet repository --output json list
-
-    """
+    """Query against and Run mutations against Repository objects in Stacklet"""
 
 
-@StackletGraphqlExecutor.registry.register("show-repository")
+@GRAPHQL_SNIPPETS.register("show-repository")
 class ShowRepositorySnippet(StackletGraphqlSnippet):
     name = "show-repository"
     snippet = """
@@ -206,68 +197,28 @@ class ShowRepositorySnippet(StackletGraphqlSnippet):
     required = {"url": "Repository URL to process"}
 
 
-@repository.command()
-@snippet_options("add-repository")
-@click.pass_obj
-def add(obj, **kwargs):
-    """
-    Add a Policy Repository to Stacklet
-    """
-    private_key = kwargs.get("ssh_private_key")
-    auth_user = kwargs.get("auth_user")
+def _add_pre_check(context: StackletContext, cli_args: dict[str, Any]) -> dict[str, Any]:
+    private_key = cli_args.get("ssh_private_key")
+    auth_user = cli_args.get("auth_user")
     if private_key:
         if auth_user is None:
             raise InvalidInputException("Both --auth-user and --ssh-private-key are required")
         with open(os.path.expanduser(private_key), "r") as f:
-            kwargs["ssh_private_key"] = f.read().strip("\n")
-    click.echo(run_graphql(obj, name="add-repository", variables=kwargs))
+            cli_args["ssh_private_key"] = f.read().strip("\n")
+
+    return cli_args
 
 
-@repository.command()
-@snippet_options("process-repository")
-@click.pass_obj
-def process(obj, **kwargs):
-    """
-    Process a Policy Repository in Stacklet
-    """
-    click.echo(run_graphql(obj, name="process-repository", variables=kwargs))
-
-
-@repository.command()
-@snippet_options("list-repository")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List repositories
-    """
-    click.echo(run_graphql(obj, name="list-repository", variables=kwargs))
-
-
-@repository.command()
-@snippet_options("remove-repository")
-@click.pass_obj
-def remove(obj, **kwargs):
-    """
-    Remove a Policy Repository to Stacklet
-    """
-    click.echo(run_graphql(obj, name="remove-repository", variables=kwargs))
-
-
-@repository.command()
-@snippet_options("scan-repository")
-@click.pass_obj
-def scan(obj, **kwargs):
-    """
-    Scan a repository for policies
-    """
-    click.echo(run_graphql(obj, name="scan-repository", variables=kwargs))
-
-
-@repository.command()
-@snippet_options("show-repository")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show a repository
-    """
-    click.echo(run_graphql(obj, name="show-repository", variables=kwargs))
+register_graphql_commands(
+    repository,
+    [
+        GraphQLCommand("process", "process-repository", "Process a Policy Repository in Stacklet"),
+        GraphQLCommand("list", "list-repository", "List repositories"),
+        GraphQLCommand(
+            "add", "add-repository", "Add a Policy repository to Stacklet", pre_check=_add_pre_check
+        ),
+        GraphQLCommand("remove", "remove-repository", "Remove a Policy Repository to Stacklet"),
+        GraphQLCommand("scan", "scan-repository", "Scan a repository for policies"),
+        GraphQLCommand("show", "show-repository", "Show a repository"),
+    ],
+)

@@ -3,29 +3,23 @@
 
 import pytest
 import requests_mock
-import yaml
 
 from stacklet.client.platform.context import StackletContext
-from stacklet.client.platform.exceptions import MissingToken
-from stacklet.client.platform.executor import StackletGraphqlExecutor
+from stacklet.client.platform.graphql import StackletGraphqlExecutor, StackletGraphqlSnippet
 
 
 @pytest.fixture
 def executor(api_token_in_file, sample_config_file) -> StackletGraphqlExecutor:
     context = StackletContext(config_file=sample_config_file)
-    return StackletGraphqlExecutor(context)
+    return StackletGraphqlExecutor(context.config.api, context.credentials.api_token())
 
 
 class TestGraphqlExecutor:
-    def test_missing_token(self, sample_config_file):
-        context = StackletContext(config_file=sample_config_file)
-        with pytest.raises(MissingToken):
-            StackletGraphqlExecutor(context)
-
-    def test_executor_run(self, requests_adapter, api_token_in_file, executor):
+    def test_config(self, api_token_in_file, executor):
         assert executor.api == "mock://stacklet.acme.org/api"
         assert executor.session.headers["authorization"] == f"Bearer {api_token_in_file}"
 
+    def test_executor_run(self, requests_adapter, executor):
         requests_adapter.register_uri(
             "POST",
             "mock://stacklet.acme.org/api",
@@ -49,10 +43,8 @@ class TestGraphqlExecutor:
             },
         )
 
-        snippet = executor.registry.get("list-accounts")
-
         results = executor.run(
-            snippet,
+            "list-accounts",
             variables={
                 "provider": "AWS",
                 "first": 1,
@@ -81,17 +73,62 @@ class TestGraphqlExecutor:
             }
         }
 
-    def test_graphql_executor(
-        self, requests_adapter, sample_config_file, api_token_in_file, invoke_cli
-    ):
+    def test_executor_run_query(self, requests_adapter, executor):
         snippet = '{ platform { dashboardDefinition(name:"cis-v140") } }'
 
         payload = {"data": {"platform": {"version": "1.2.3+git.abcdef0"}}}
         requests_adapter.post(requests_mock.ANY, json=payload)
-        res = invoke_cli(
-            "graphql",
-            "run",
-            f"--snippet={snippet}",
+        assert executor.run_query(snippet) == payload
+
+    @pytest.mark.parametrize("transform_variables", [False, True])
+    def test_executor_run_snippet(self, requests_adapter, executor, transform_variables):
+        class TransformSnippet(StackletGraphqlSnippet):
+            name = "test-transform-snippet"
+            snippet = """
+            query {
+              sample(somevar: $somevar) {
+                foo
+                bar
+              }
+            }
+            """
+            variable_transformers = {"somevar": lambda x: x.upper()}
+
+        requests_adapter.register_uri(
+            "POST",
+            "mock://stacklet.acme.org/api",
+            json={"data": {"sample": {"foo": "bar"}}},
         )
-        assert res.exit_code == 0, f"CLI failed: {res.output}"
-        assert yaml.safe_load(res.output) == payload
+
+        executor.run_snippet(
+            TransformSnippet, variables={"somevar": "test"}, transform_variables=transform_variables
+        )
+
+        payload = requests_adapter.last_request.json()
+        assert payload["variables"]["somevar"] == ("TEST" if transform_variables else "test")
+
+
+class TestStackletGraphqlSnippet:
+    def test_build(self):
+        class Snippet(StackletGraphqlSnippet):
+            name = "sample"
+            snippet = """
+            query {
+              sample(somevar: $somevar) {
+                foo
+                bar
+              }
+            }
+            """
+
+        result = Snippet.build({"somevar": "test"})
+        assert result == {
+            "query": """query ($somevar: String!) {
+              sample(somevar: $somevar) {
+                foo
+                bar
+              }
+            }
+            """,
+            "variables": {"somevar": "test"},
+        }

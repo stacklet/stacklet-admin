@@ -1,6 +1,18 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+import logging
+
+import requests
+
+from .config import JSONDict
+from .exceptions import UnknownSnippet
+from .registry import PluginRegistry
+from .utils import USER_AGENT
+
+GRAPHQL_SNIPPETS = PluginRegistry()
+
 
 class StackletGraphqlSnippet:
     """
@@ -58,7 +70,10 @@ class StackletGraphqlSnippet:
     variable_transformers = {}
 
     @classmethod
-    def build(cls, variables):
+    def build(cls, variables: JSONDict | None):
+        if variables is None:
+            variables = {}
+
         if cls.snippet:
             split_snippet = list(filter(None, cls.snippet.split("\n")))
         else:
@@ -73,10 +88,9 @@ class StackletGraphqlSnippet:
         d = {}
         if variables:
             d["variables"] = {k: v for k, v in variables.items() if v is not None and v != ()}
-        var_names = d.get("variables", ())
 
-        if var_names:
-            qtype, bracked = split_snippet[0].strip().split(" ", 1)
+        if var_names := d.get("variables", ()):
+            qtype, _ = split_snippet[0].strip().split(" ", 1)
             split_snippet[0] = "%s (%s) {" % (
                 qtype,
                 (
@@ -88,8 +102,18 @@ class StackletGraphqlSnippet:
                     )
                 )[:-1],
             )
-        d["query"] = ("\n".join(split_snippet)).replace('"', "")
+        d["query"] = "\n".join(split_snippet).replace('"', "")
         return d
+
+    @classmethod
+    def transform_variables(cls, variables: JSONDict | None) -> JSONDict:
+        variables = variables.copy() if variables else {}
+
+        for name, value in variables.items():
+            if transformer := cls.variable_transformers.get(name):
+                variables[name] = transformer(value)
+
+        return variables
 
 
 class AdHocSnippet(StackletGraphqlSnippet):
@@ -120,3 +144,52 @@ def gql_type(v, snippet_type=None):
         return "[%s]" % (gql_type(v[0]))
     else:
         raise ValueError("unsupported %s" % (type(v)))
+
+
+class StackletGraphqlExecutor:
+    """Execute Graphql queries against the API."""
+
+    def __init__(self, api: str, token: str):
+        self.api = api
+        self.token = token
+        self.log = logging.getLogger("StackletGraphqlExecutor")
+
+        self.session = requests.Session()
+        self.session.headers.update(
+            {
+                "Authorization": f"Bearer {token}",
+                "User-Agent": USER_AGENT,
+            }
+        )
+
+    def run(
+        self, name: str, variables: JSONDict | None = None, transform_variables: bool = False
+    ) -> JSONDict:
+        """Run a named graphql snippet by name."""
+        snippet = GRAPHQL_SNIPPETS.get(name)
+        if not snippet:
+            raise UnknownSnippet(name)
+
+        return self.run_snippet(
+            snippet, variables=variables, transform_variables=transform_variables
+        )
+
+    def run_query(self, query: str) -> JSONDict:
+        """Run a literal GraphQL query string."""
+        snippet = type("AdHocSnippet", (AdHocSnippet,), {"snippet": query})
+        return self.run_snippet(snippet)
+
+    def run_snippet(
+        self,
+        snippet: type[StackletGraphqlSnippet],
+        variables: JSONDict | None = None,
+        transform_variables: bool = False,
+    ) -> JSONDict:
+        """Run a graphql snippet."""
+        if transform_variables:
+            variables = snippet.transform_variables(variables)
+        request = snippet.build(variables)
+        self.log.debug("Request: %s" % json.dumps(request, indent=2))
+        res = self.session.post(self.api, json=request)
+        self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
+        return res.json()

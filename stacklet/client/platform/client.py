@@ -12,7 +12,8 @@ from . import (
     config,
 )
 from .context import StackletContext
-from .executor import StackletGraphqlExecutor
+from .exceptions import MissingConfigException
+from .graphql import GRAPHQL_SNIPPETS
 from .utils import PAGINATION_OPTIONS
 
 
@@ -21,14 +22,13 @@ def platform_client(pager=False, expr=False):
     # for automatic pagination handling, pass pager=True
     context = StackletContext(config_file=config.DEFAULT_CONFIG_FILE)
     if not context.config_file.exists() or not context.credentials.api_token():
-        raise ValueError("Please configure and authenticate on stacklet-admin cli")
+        raise MissingConfigException("Please configure and authenticate on stacklet-admin cli")
 
     d = {}
 
-    executor = StackletGraphqlExecutor(context)
+    executor = context.executor
 
-    for k, snippet in StackletGraphqlExecutor.registry.items():
-        # assert k == snippet.name, f"{k} mismatch {snippet.name}"
+    for k, snippet in GRAPHQL_SNIPPETS.items():
         method_name = k.replace("-", "_")
         d[method_name] = _method(executor, method_name, snippet, pager, expr)
 
@@ -96,7 +96,7 @@ def _method(executor, function_name, snippet, pager, expr):
         params = dict(defaults)
         params.update(kw)
 
-        result = executor.run(snippet=snippet, variables=params)
+        result = executor.run_snippet(snippet, variables=params)
         if result == {"message": "The incoming token has expired"}:
             # would be nicer off the 401 status code
             raise PlatformTokenExpired()
@@ -113,7 +113,7 @@ def _method(executor, function_name, snippet, pager, expr):
 
         while page_info["hasNextPage"]:
             params["after"] = page_info["endCursor"]
-            result = executor.run(snippet=snippet, variables=params)
+            result = executor.run_snippet(snippet, variables=params)
             if result.get("errors"):
                 raise PlatformApiError(result["errors"])
             pages.append(result)

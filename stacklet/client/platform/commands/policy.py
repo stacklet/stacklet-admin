@@ -1,14 +1,17 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import Any
+
 import click
 
+from ..context import StackletContext
 from ..exceptions import InvalidInputException
-from ..executor import StackletGraphqlExecutor, run_graphql, snippet_options
-from ..graphql import StackletGraphqlSnippet
+from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql_cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 
 
-@StackletGraphqlExecutor.registry.register("list-policies")
+@GRAPHQL_SNIPPETS.register("list-policies")
 class QueryPolicies(StackletGraphqlSnippet):
     name = "list-policies"
     snippet = """
@@ -65,7 +68,7 @@ class QueryPolicies(StackletGraphqlSnippet):
     pagination = True
 
 
-@StackletGraphqlExecutor.registry.register("show-policy")
+@GRAPHQL_SNIPPETS.register("show-policy")
 class ShowPolicy(StackletGraphqlSnippet):
     name = "show-policy"
     snippet = """
@@ -146,32 +149,27 @@ def policy(*args, **kwargs):
     """
 
 
-@policy.command()
-@snippet_options("list-policies")
-@click.pass_obj
-def list(obj, **kwargs):
-    """
-    List policies in Stacklet
-    """
-    click.echo(run_graphql(obj, name="list-policies", variables=kwargs))
-
-
-def check_show_input(kwargs):
-    if all([kwargs["name"], kwargs["uuid"]]):
+def _show_policy_pre_check(context: StackletContext, cli_args: dict[str, Any]) -> dict[str, Any]:
+    """Validate that either name or uuid is provided, but not both."""
+    if all([cli_args.get("name"), cli_args.get("uuid")]):
         raise InvalidInputException("Either name or uuid can be set, but not both")
-    if not any([kwargs["name"], kwargs["uuid"]]):
+    if not any([cli_args.get("name"), cli_args.get("uuid")]):
         raise InvalidInputException("Either name or uuid must be set")
+    return cli_args
 
 
-@policy.command()
-@snippet_options("show-policy")
-@click.pass_obj
-def show(obj, **kwargs):
-    """
-    Show policy in Stacklet by either name or uuid
-    """
-    check_show_input(kwargs)
-    click.echo(run_graphql(obj, name="show-policy", variables=kwargs))
+register_graphql_commands(
+    policy,
+    [
+        GraphQLCommand("list", "list-policies", "List policies in Stacklet"),
+        GraphQLCommand(
+            "show",
+            "show-policy",
+            "Show policy in Stacklet by either name or uuid",
+            pre_check=_show_policy_pre_check,
+        ),
+    ],
+)
 
 
 @policy.command()
@@ -181,7 +179,7 @@ def show_source(obj, **kwargs):
     """
     Show policy source in Stacklet by either name or uuid
     """
-    check_show_input(kwargs)
+    _show_policy_pre_check(obj, kwargs)
     click.echo(
         run_graphql(obj, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
             "sourceYAML"

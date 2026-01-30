@@ -10,7 +10,7 @@ from .registry import PluginRegistry
 
 
 class Formatter:
-    registry = PluginRegistry("formats")
+    registry = PluginRegistry()
 
     @abstractmethod
     def __call__(self, value): ...
