@@ -80,11 +80,10 @@ class TestGraphqlExecutor:
         requests_adapter.post(requests_mock.ANY, json=payload)
         assert executor.run_query(snippet) == payload
 
-
-class TestStackletGraphqlSnippet:
-    def test_build_expands_variables(self):
-        class Snippet(StackletGraphqlSnippet):
-            name = "sample"
+    @pytest.mark.parametrize("transform_variables", [False, True])
+    def test_executor_run_snippet(self, requests_adapter, executor, transform_variables):
+        class TransformSnippet(StackletGraphqlSnippet):
+            name = "test-transform-snippet"
             snippet = """
             query {
               sample(somevar: $somevar) {
@@ -95,6 +94,33 @@ class TestStackletGraphqlSnippet:
             """
             variable_transformers = {"somevar": lambda x: x.upper()}
 
+        requests_adapter.register_uri(
+            "POST",
+            "mock://stacklet.acme.org/api",
+            json={"data": {"sample": {"foo": "bar"}}},
+        )
+
+        executor.run_snippet(
+            TransformSnippet, variables={"somevar": "test"}, transform_variables=transform_variables
+        )
+
+        payload = requests_adapter.last_request.json()
+        assert payload["variables"]["somevar"] == "TEST" if transform_variables else "test"
+
+
+class TestStackletGraphqlSnippet:
+    def test_build(self):
+        class Snippet(StackletGraphqlSnippet):
+            name = "sample"
+            snippet = """
+            query {
+              sample(somevar: $somevar) {
+                foo
+                bar
+              }
+            }
+            """
+
         result = Snippet.build({"somevar": "test"})
         assert result == {
             "query": """query ($somevar: String!) {
@@ -104,5 +130,5 @@ class TestStackletGraphqlSnippet:
               }
             }
             """,
-            "variables": {"somevar": "TEST"},
+            "variables": {"somevar": "test"},
         }

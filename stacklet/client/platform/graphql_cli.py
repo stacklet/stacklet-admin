@@ -30,7 +30,7 @@ def run_graphql(context: StackletContext, name=None, variables=None, snippet=Non
     if snippet:
         res = context.executor.run_query(snippet)
     else:
-        res = context.executor.run(name, variables=variables)
+        res = context.executor.run(name, variables=variables, transform_variables=True)
     if raw:
         return res
     fmt = context.formatter()
@@ -39,7 +39,7 @@ def run_graphql(context: StackletContext, name=None, variables=None, snippet=Non
 
 @dataclass
 class GraphQLCommand:
-    """A GraphlQL-based CLI command."""
+    """A GraphQL-based CLI command."""
 
     name: str
     snippet_name: str

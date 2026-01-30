@@ -71,7 +71,8 @@ class StackletGraphqlSnippet:
 
     @classmethod
     def build(cls, variables: JSONDict | None):
-        variables = cls._transform_variables(variables)
+        if variables is None:
+            variables = {}
 
         if cls.snippet:
             split_snippet = list(filter(None, cls.snippet.split("\n")))
@@ -89,7 +90,7 @@ class StackletGraphqlSnippet:
             d["variables"] = {k: v for k, v in variables.items() if v is not None and v != ()}
 
         if var_names := d.get("variables", ()):
-            qtype, bracked = split_snippet[0].strip().split(" ", 1)
+            qtype, _ = split_snippet[0].strip().split(" ", 1)
             split_snippet[0] = "%s (%s) {" % (
                 qtype,
                 (
@@ -105,9 +106,8 @@ class StackletGraphqlSnippet:
         return d
 
     @classmethod
-    def _transform_variables(cls, variables: JSONDict | None) -> JSONDict:
-        if not variables:
-            return {}
+    def transform_variables(cls, variables: JSONDict | None) -> JSONDict:
+        variables = variables.copy() if variables else {}
 
         for name, value in variables.items():
             if transformer := cls.variable_transformers.get(name):
@@ -162,22 +162,32 @@ class StackletGraphqlExecutor:
             }
         )
 
-    def run(self, name: str, variables: JSONDict | None = None) -> JSONDict:
-        """Run a named graphql snippet."""
+    def run(
+        self, name: str, variables: JSONDict | None = None, transform_variables: bool = False
+    ) -> JSONDict:
+        """Run a named graphql snippet by name."""
         snippet = GRAPHQL_SNIPPETS.get(name)
         if not snippet:
             raise UnknownSnippet(name)
 
-        return self._run_snippet(snippet, variables=variables)
+        return self.run_snippet(
+            snippet, variables=variables, transform_variables=transform_variables
+        )
 
     def run_query(self, query: str) -> JSONDict:
         """Run a literal GraphQL query string."""
         snippet = type("AdHocSnippet", (AdHocSnippet,), {"snippet": query})
-        return self._run_snippet(snippet)
+        return self.run_snippet(snippet)
 
-    def _run_snippet(
-        self, snippet: type[StackletGraphqlSnippet], variables: JSONDict | None = None
+    def run_snippet(
+        self,
+        snippet: type[StackletGraphqlSnippet],
+        variables: JSONDict | None = None,
+        transform_variables: bool = False,
     ) -> JSONDict:
+        """Run a graphql snippet."""
+        if transform_variables:
+            variables = snippet.transform_variables(variables)
         request = snippet.build(variables)
         self.log.debug("Request: %s" % json.dumps(request, indent=2))
         res = self.session.post(self.api, json=request)

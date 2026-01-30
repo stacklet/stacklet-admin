@@ -92,13 +92,11 @@ def _method(executor, function_name, snippet, pager, expr):
     for k, v in snippet.optional.items():
         defaults[k] = None
 
-    snippet_name = snippet.name
-
     def api_func(self, **kw):
         params = dict(defaults)
         params.update(kw)
 
-        result = executor.run(snippet_name, variables=params)
+        result = executor.run_snippet(snippet, variables=params)
         if result == {"message": "The incoming token has expired"}:
             # would be nicer off the 401 status code
             raise PlatformTokenExpired()
@@ -115,7 +113,7 @@ def _method(executor, function_name, snippet, pager, expr):
 
         while page_info["hasNextPage"]:
             params["after"] = page_info["endCursor"]
-            result = executor.run(snippet_name, variables=params)
+            result = executor.run_snippet(snippet, variables=params)
             if result.get("errors"):
                 raise PlatformApiError(result["errors"])
             pages.append(result)
