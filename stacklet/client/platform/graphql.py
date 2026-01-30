@@ -11,7 +11,7 @@ from .exceptions import UnknownSnippet
 from .registry import PluginRegistry
 from .utils import USER_AGENT
 
-GRAPHQL_SNIPPETS = PluginRegistry("StackletGraphqlSnippets")
+GRAPHQL_SNIPPETS = PluginRegistry()
 
 
 class StackletGraphqlSnippet:

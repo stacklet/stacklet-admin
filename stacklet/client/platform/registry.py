@@ -3,9 +3,6 @@
 
 
 class PluginRegistry(dict):
-    def __init__(self, plugin_type):
-        self.plugin_type = plugin_type
-
     def register(self, name):
         # invoked as class decorator
         def _register_class(klass):

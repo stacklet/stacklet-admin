@@ -11,8 +11,7 @@ from .graphql import GRAPHQL_SNIPPETS
 from .utils import PAGINATION_OPTIONS, wrap_command
 
 
-def snippet_options(*args, **kwargs):
-    snippet_name = args[0]
+def snippet_options(snippet_name):
     snippet = GRAPHQL_SNIPPETS.get(snippet_name)
 
     def wrapper(func):
@@ -71,8 +70,7 @@ def _graphql_snippet_command(cmd: GraphQLCommand):
     def command(context: StackletContext, **cli_args):
         if cmd.pre_check:
             cli_args = cmd.pre_check(context, cli_args)
-        result = context.executor.run(cmd.snippet_name, variables=cli_args)
-        fmt = context.formatter()
-        click.echo(fmt(result))
+
+        click.echo(run_graphql(context, name=cmd.snippet_name, variables=cli_args))
 
     return click.command(name=cmd.name, help=cmd.help)(command)
