@@ -1,14 +1,10 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import click
-
-from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
+from ..snippet import GraphQLSnippet
 
 
-@GRAPHQL_SNIPPETS.register("list-policy-collections")
-class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
+class ListPolicyCollections(GraphQLSnippet):
     name = "list-policy-collections"
     snippet = """
         query {
@@ -42,8 +38,7 @@ class QueryPolicyCollectionSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@GRAPHQL_SNIPPETS.register("show-policy-collection")
-class ShowPolicyCollection(StackletGraphqlSnippet):
+class ShowPolicyCollection(GraphQLSnippet):
     name = "show-policy-collection"
     snippet = """
         query {
@@ -68,8 +63,7 @@ class ShowPolicyCollection(StackletGraphqlSnippet):
     required = {"uuid": "Policy Collection UUID"}
 
 
-@GRAPHQL_SNIPPETS.register("add-policy-collection")
-class AddPolicyCollection(StackletGraphqlSnippet):
+class AddPolicyCollection(GraphQLSnippet):
     name = "add-policy-collection"
     snippet = """
     mutation {
@@ -107,8 +101,7 @@ class AddPolicyCollection(StackletGraphqlSnippet):
     parameter_types = {"provider": "CloudProvider!"}
 
 
-@GRAPHQL_SNIPPETS.register("update-policy-collection")
-class UpdatePolicyCollection(StackletGraphqlSnippet):
+class UpdatePolicyCollection(GraphQLSnippet):
     name = "update-policy-collection"
     snippet = """
     mutation {
@@ -144,8 +137,7 @@ class UpdatePolicyCollection(StackletGraphqlSnippet):
     }
 
 
-@GRAPHQL_SNIPPETS.register("add-policy-collection-item")
-class AddPolicyCollectionItem(StackletGraphqlSnippet):
+class AddPolicyCollectionItem(GraphQLSnippet):
     name = "add-policy-collection-item"
     snippet = """
         mutation {
@@ -184,8 +176,7 @@ class AddPolicyCollectionItem(StackletGraphqlSnippet):
     variable_transformers = {"policy_version": lambda x: x and int(x)}
 
 
-@GRAPHQL_SNIPPETS.register("remove-policy-collection-item")
-class RemovePolicyCollectionItem(StackletGraphqlSnippet):
+class RemovePolicyCollectionItem(GraphQLSnippet):
     name = "remove-policy-collection-item"
     snippet = """
         mutation {
@@ -223,8 +214,7 @@ class RemovePolicyCollectionItem(StackletGraphqlSnippet):
     optional = {"policy_version": "Policy Version"}
 
 
-@GRAPHQL_SNIPPETS.register("remove-policy-collection")
-class RemovePolicyCollection(StackletGraphqlSnippet):
+class RemovePolicyCollection(GraphQLSnippet):
     name = "remove-policy-collection"
     snippet = """
     mutation {
@@ -249,34 +239,3 @@ class RemovePolicyCollection(StackletGraphqlSnippet):
     }
     """
     required = {"uuid": "Policy Collection UUID"}
-
-
-@click.group(short_help="Run policy collection queries/mutations")
-def policy_collection(*args, **kwargs):
-    """
-    Manage policy collections
-    """
-
-
-register_graphql_commands(
-    policy_collection,
-    [
-        GraphQLCommand("list", "list-policy-collections", "List policy collections in Stacklet"),
-        GraphQLCommand("add", "add-policy-collection", "Add policy collection in Stacklet"),
-        GraphQLCommand("show", "show-policy-collection", "Show policy collection in Stacklet"),
-        GraphQLCommand(
-            "update", "update-policy-collection", "Update policy collection in Stacklet"
-        ),
-        GraphQLCommand(
-            "add-item", "add-policy-collection-item", "Add item to policy collection in Stacklet"
-        ),
-        GraphQLCommand(
-            "remove", "remove-policy-collection", "Remove policy collection in Stacklet"
-        ),
-        GraphQLCommand(
-            "remove-item",
-            "remove-policy-collection-item",
-            "Remove item from a policy collection in Stacklet",
-        ),
-    ],
-)

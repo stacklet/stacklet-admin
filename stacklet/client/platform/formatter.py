@@ -6,29 +6,29 @@ from abc import abstractmethod
 
 import yaml
 
-from .registry import PluginRegistry
-
 
 class Formatter:
-    registry = PluginRegistry()
-
     @abstractmethod
     def __call__(self, value): ...
 
 
-@Formatter.registry.register("plain")
 class RawFormatter(Formatter):
     def __call__(self, value):
         return str(value)
 
 
-@Formatter.registry.register("json")
-class JsonFormatter(Formatter):
+class JSONFormatter(Formatter):
     def __call__(self, value):
         return json.dumps(value, indent=2)
 
 
-@Formatter.registry.register("yaml")
-class YamlFormatter(Formatter):
+class YAMLFormatter(Formatter):
     def __call__(self, value):
         return yaml.safe_dump(value, indent=2)
+
+
+FORMATTERS = {
+    "plain": RawFormatter,
+    "json": JSONFormatter,
+    "yaml": YAMLFormatter,
+}

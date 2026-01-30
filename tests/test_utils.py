@@ -4,9 +4,9 @@
 import pytest
 
 from stacklet.client.platform.formatter import (
-    JsonFormatter,
+    JSONFormatter,
     RawFormatter,
-    YamlFormatter,
+    YAMLFormatter,
 )
 from stacklet.client.platform.utils import get_log_level
 
@@ -33,8 +33,8 @@ class TestUtils:
         "formatter,expected_output",
         [
             (RawFormatter, "{'foo': 'bar'}"),
-            (JsonFormatter, '{\n  "foo": "bar"\n}'),
-            (YamlFormatter, "foo: bar\n"),
+            (JSONFormatter, '{\n  "foo": "bar"\n}'),
+            (YAMLFormatter, "foo: bar\n"),
         ],
     )
     def test_formatters(self, formatter, expected_output):

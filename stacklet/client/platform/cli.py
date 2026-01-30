@@ -12,7 +12,7 @@ from .cognito import CognitoUserManager
 from .commands import commands
 from .config import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_FORMAT, StackletConfig
 from .context import StackletContext
-from .formatter import Formatter
+from .formatter import FORMATTERS
 from .utils import expand_user_path, setup_logging
 
 
@@ -28,7 +28,7 @@ from .utils import expand_user_path, setup_logging
 )
 @click.option(
     "--output",
-    type=click.Choice(list(Formatter.registry.keys()), case_sensitive=False),
+    type=click.Choice(list(FORMATTERS), case_sensitive=False),
     default=DEFAULT_OUTPUT_FORMAT,
     envvar="STACKLET_OUTPUT",
     show_envvar=True,

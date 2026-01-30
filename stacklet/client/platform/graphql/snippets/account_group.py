@@ -1,14 +1,10 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import click
-
-from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
+from ..snippet import GraphQLSnippet
 
 
-@GRAPHQL_SNIPPETS.register("list-account-groups")
-class QueryAccountGroupSnippet(StackletGraphqlSnippet):
+class ListAccountGroups(GraphQLSnippet):
     name = "list-account-groups"
     snippet = """
         query {
@@ -45,8 +41,7 @@ class QueryAccountGroupSnippet(StackletGraphqlSnippet):
     pagination = True
 
 
-@GRAPHQL_SNIPPETS.register("add-account-group")
-class AddAccountGroupSnippet(StackletGraphqlSnippet):
+class AddAccountGroup(GraphQLSnippet):
     name = "add-account-group"
     snippet = """
     mutation {
@@ -99,8 +94,7 @@ class AddAccountGroupSnippet(StackletGraphqlSnippet):
     }
 
 
-@GRAPHQL_SNIPPETS.register("update-account-group")
-class UpdateAccountSnippet(StackletGraphqlSnippet):
+class UpdateAccountGroup(GraphQLSnippet):
     name = "update-account-group"
     snippet = """
     mutation {
@@ -149,8 +143,7 @@ class UpdateAccountSnippet(StackletGraphqlSnippet):
     }
 
 
-@GRAPHQL_SNIPPETS.register("show-account-group")
-class ShowAccountGroup(StackletGraphqlSnippet):
+class ShowAccountGroup(GraphQLSnippet):
     name = "show-account-group"
     snippet = """
         query {
@@ -180,8 +173,7 @@ class ShowAccountGroup(StackletGraphqlSnippet):
     required = {"uuid": "Account group UUID"}
 
 
-@GRAPHQL_SNIPPETS.register("remove-account-group")
-class RemoveAccountGroup(StackletGraphqlSnippet):
+class RemoveAccountGroup(GraphQLSnippet):
     name = "remove-account-group"
     snippet = """
         mutation {
@@ -213,8 +205,7 @@ class RemoveAccountGroup(StackletGraphqlSnippet):
     required = {"uuid": "Account group UUID"}
 
 
-@GRAPHQL_SNIPPETS.register("add-account-group-item")
-class AddAccountGroupItem(StackletGraphqlSnippet):
+class AddAccountGroupItem(GraphQLSnippet):
     name = "add-account-group-item"
     snippet = """
         mutation {
@@ -258,8 +249,7 @@ class AddAccountGroupItem(StackletGraphqlSnippet):
     optional = {"regions": "Account Regions"}
 
 
-@GRAPHQL_SNIPPETS.register("remove-account-group-item")
-class RemoveAccountGroupItem(StackletGraphqlSnippet):
+class RemoveAccountGroupItem(GraphQLSnippet):
     name = "remove-account-group-item"
     snippet = """
         mutation {
@@ -301,24 +291,3 @@ class RemoveAccountGroupItem(StackletGraphqlSnippet):
     }
 
     parameter_types = {"provider": "CloudProvider!"}
-
-
-@click.group("account-group", short_help="Run account group queries/mutations")
-def account_group(*args, **kwargs):
-    """
-    Manage account groups
-    """
-
-
-register_graphql_commands(
-    account_group,
-    [
-        GraphQLCommand("list", "list-account-groups", "List account groups in Stacklet"),
-        GraphQLCommand("add", "add-account-group", "Add account group"),
-        GraphQLCommand("update", "update-account-group", "Update account group"),
-        GraphQLCommand("show", "show-account-group", "Show account group"),
-        GraphQLCommand("remove", "remove-account-group", "Remove account group"),
-        GraphQLCommand("add-item", "add-account-group-item", "Add account group item"),
-        GraphQLCommand("remove-item", "remove-account-group-item", "Remove account group item"),
-    ],
-)

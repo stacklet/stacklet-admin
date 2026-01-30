@@ -1,22 +1,12 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import logging
-
-import requests
-
-from .config import JSONDict
-from .exceptions import UnknownSnippet
-from .registry import PluginRegistry
-from .utils import USER_AGENT
-
-GRAPHQL_SNIPPETS = PluginRegistry()
+from ..config import JSONDict
 
 
-class StackletGraphqlSnippet:
+class GraphQLSnippet:
     """
-    A reusable Graphql Snippet
+    A reusable GraphQL Snippet
 
     Define required variables with the required class attribute and optional
     variables with the optional class attribute. The value can either be a string
@@ -25,7 +15,7 @@ class StackletGraphqlSnippet:
 
     .. code-block:: python
 
-        class MySnippet(StackletGraphqlSnippet):
+        class MySnippet(GraphQLSnippet):
 
             name = 'my-snippet'
             snippet = '''
@@ -57,17 +47,17 @@ class StackletGraphqlSnippet:
             }
     """
 
-    def __init__(self):
-        raise RuntimeError("instances don't do anything")
-
-    name = None
-    snippet = None
+    name: str
+    snippet: str
     required = {}
     optional = {}
     pagination = False
     input_variables = None
     parameter_types = {}
     variable_transformers = {}
+
+    def __init__(self):
+        raise RuntimeError("instances don't do anything")
 
     @classmethod
     def build(cls, variables: JSONDict | None):
@@ -116,9 +106,9 @@ class StackletGraphqlSnippet:
         return variables
 
 
-class AdHocSnippet(StackletGraphqlSnippet):
+class AdHocSnippet(GraphQLSnippet):
     """
-    This exists to work around the mangling in StackletGraphQLSnippet which
+    This exists to work around the mangling in GraphQLSnippet which
     is inconvenient when trying to run simple queries that use e.g. quotes.
 
     We can worry about variable support when we need it.
@@ -144,52 +134,3 @@ def gql_type(v, snippet_type=None):
         return "[%s]" % (gql_type(v[0]))
     else:
         raise ValueError("unsupported %s" % (type(v)))
-
-
-class StackletGraphqlExecutor:
-    """Execute Graphql queries against the API."""
-
-    def __init__(self, api: str, token: str):
-        self.api = api
-        self.token = token
-        self.log = logging.getLogger("StackletGraphqlExecutor")
-
-        self.session = requests.Session()
-        self.session.headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-                "User-Agent": USER_AGENT,
-            }
-        )
-
-    def run(
-        self, name: str, variables: JSONDict | None = None, transform_variables: bool = False
-    ) -> JSONDict:
-        """Run a named graphql snippet by name."""
-        snippet = GRAPHQL_SNIPPETS.get(name)
-        if not snippet:
-            raise UnknownSnippet(name)
-
-        return self.run_snippet(
-            snippet, variables=variables, transform_variables=transform_variables
-        )
-
-    def run_query(self, query: str) -> JSONDict:
-        """Run a literal GraphQL query string."""
-        snippet = type("AdHocSnippet", (AdHocSnippet,), {"snippet": query})
-        return self.run_snippet(snippet)
-
-    def run_snippet(
-        self,
-        snippet: type[StackletGraphqlSnippet],
-        variables: JSONDict | None = None,
-        transform_variables: bool = False,
-    ) -> JSONDict:
-        """Run a graphql snippet."""
-        if transform_variables:
-            variables = snippet.transform_variables(variables)
-        request = snippet.build(variables)
-        self.log.debug("Request: %s" % json.dumps(request, indent=2))
-        res = self.session.post(self.api, json=request)
-        self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))
-        return res.json()

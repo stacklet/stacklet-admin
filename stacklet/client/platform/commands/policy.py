@@ -7,139 +7,8 @@ import click
 
 from ..context import StackletContext
 from ..exceptions import InvalidInputException
-from ..graphql import GRAPHQL_SNIPPETS, StackletGraphqlSnippet
+from ..graphql.snippets import ListPolicies, ShowPolicy
 from ..graphql_cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
-
-
-@GRAPHQL_SNIPPETS.register("list-policies")
-class QueryPolicies(StackletGraphqlSnippet):
-    name = "list-policies"
-    snippet = """
-        query {
-          policies(
-            first: $first
-            last: $last
-            before: "$before"
-            after: "$after"
-          ) {
-            edges {
-              node {
-                id
-                uuid
-                version
-                name
-                description
-                category
-                compliance
-                severity
-                resourceType
-                provider
-                resource
-                mode
-                tags {
-                 key
-                  value
-                }
-                commit {
-                    hash
-                    author
-                    msg
-                }
-                repository {
-                    id
-                    url
-                    name
-                }
-                path
-                source
-                validationError
-              }
-            }
-            pageInfo {
-              hasPreviousPage
-              hasNextPage
-              startCursor
-              endCursor
-              total
-            }
-          }
-        }
-    """
-    pagination = True
-
-
-@GRAPHQL_SNIPPETS.register("show-policy")
-class ShowPolicy(StackletGraphqlSnippet):
-    name = "show-policy"
-    snippet = """
-        query {
-          policy(
-            name: "$name"
-            uuid: "$uuid"
-          ) {
-            id
-            uuid
-            version
-            name
-            description
-            category
-            compliance
-            severity
-            resourceType
-            provider
-            resource
-            mode
-            tags {
-              key
-              value
-            }
-            commit {
-                hash
-                author
-                msg
-            }
-            repository {
-                id
-                url
-                name
-            }
-            path
-            source
-            sourceYAML
-            lastExecution {
-              id
-              uuid
-              account {
-                id
-                key
-                name
-                path
-                email
-                status
-                status_message
-                validated_at
-              }
-              start
-              end
-              status
-              issues
-              metricResources
-              metricDuration
-              metricApiCalls
-              metricException
-              metricRateLimitExceeded
-              paramCache
-              paramRegion
-              paramDryrun
-              runner
-            }
-          }
-      }
-    """
-    optional = {
-        "name": "Policy Name",
-        "uuid": "Policy UUID",
-    }
 
 
 @click.group(short_help="Run policy queries")
@@ -161,10 +30,10 @@ def _show_policy_pre_check(context: StackletContext, cli_args: dict[str, Any]) -
 register_graphql_commands(
     policy,
     [
-        GraphQLCommand("list", "list-policies", "List policies in Stacklet"),
+        GraphQLCommand("list", ListPolicies, "List policies in Stacklet"),
         GraphQLCommand(
             "show",
-            "show-policy",
+            ShowPolicy,
             "Show policy in Stacklet by either name or uuid",
             pre_check=_show_policy_pre_check,
         ),
@@ -173,7 +42,7 @@ register_graphql_commands(
 
 
 @policy.command()
-@snippet_options("show-policy")
+@snippet_options(ShowPolicy)
 @click.pass_obj
 def show_source(obj, **kwargs):
     """
@@ -181,7 +50,7 @@ def show_source(obj, **kwargs):
     """
     _show_policy_pre_check(obj, kwargs)
     click.echo(
-        run_graphql(obj, name="show-policy", variables=kwargs, raw=True)["data"]["policy"][
+        run_graphql(obj, snippet_class=ShowPolicy, variables=kwargs, raw=True)["data"]["policy"][
             "sourceYAML"
         ]
     )
