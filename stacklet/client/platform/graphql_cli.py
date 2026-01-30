@@ -27,7 +27,7 @@ def snippet_options(snippet_name):
 
 
 def run_graphql(context: StackletContext, name=None, variables=None, snippet=None, raw=False):
-    if snippet:
+    if snippet is not None:
         res = context.executor.run_query(snippet)
     else:
         res = context.executor.run(name, variables=variables, transform_variables=True)
