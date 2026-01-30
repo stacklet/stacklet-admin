@@ -105,7 +105,7 @@ class TestGraphqlExecutor:
         )
 
         payload = requests_adapter.last_request.json()
-        assert payload["variables"]["somevar"] == "TEST" if transform_variables else "test"
+        assert payload["variables"]["somevar"] == ("TEST" if transform_variables else "test")
 
 
 class TestStackletGraphqlSnippet:
