@@ -10,16 +10,6 @@ from . import __version__
 
 USER_AGENT = f"stacklet.client.platform/{__version__}"
 
-
-def expand_user_path(ctx, param, value):
-    """Callback for click options to expand user paths."""
-    if value is None:
-        return value
-    if not isinstance(value, Path):
-        value = Path(value)
-    return value.expanduser()
-
-
 PAGINATION_OPTIONS = {
     "first": {
         "help": "For use with pagination. Return the first n results.",
@@ -38,6 +28,15 @@ PAGINATION_OPTIONS = {
         "default": "",
     },
 }
+
+
+def expand_user_path(ctx, param, value):
+    """Callback for click options to expand user paths."""
+    if value is None:
+        return value
+    if not isinstance(value, Path):
+        value = Path(value)
+    return value.expanduser()
 
 
 def wrap_command(func, options, required=False, prompt=False):
