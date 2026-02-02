@@ -71,38 +71,18 @@ def platform_client(pager: bool = False, expr: bool = False) -> StackletPlatform
 
 
 class _SnippetMethod:
-    _page_exprs = {
-        "list_accounts": "data.accounts.pageInfo",
-        "list_policies": "data.policies.pageInfo",
-    }
-
-    _result_exprs = {
-        "list_account_groups": "data.accountGroups.edges[].node",
-        "list_accounts": "data.accounts.edges[].node",
-        "list_bindings": "data.bindings.edges[].node",
-        "list_repository": "data.repositories.edges[].node",
-        "list_policies": "data.policies.edges[].node",
-        "list_policy_collections": "data.policyCollections.edges[].node",
-        "add_account": "data.addAccount.account",
-        "add_account_group": "data.addAccountGroup.group",
-        "add_policy_collection": "data.addPolicyCollection.collection",
-        "add_repository": "data.addRepository.repository",
-        "remove_repository": "data.removeRepository.repository",
-        "show_policy_collection": "data.policyCollection",
-    }
-
     def __init__(
         self,
-        snippet: GraphQLSnippet,
+        snippet_class: type[GraphQLSnippet],
         executor: GraphQLExecutor,
         pager: bool,
         expr: bool,
     ):
-        self.name = snippet.name.replace("-", "_")
-        self.snippet = snippet
+        self.name = snippet_class.name.replace("-", "_")
+        self.snippet_class = snippet_class
         self.executor = executor
-        self._page_expr = self._page_exprs.get(self.name) if pager else None
-        self._result_expr = self._result_exprs.get(self.name) if expr else None
+        self._page_expr = snippet_class.pagination_expr if pager else None
+        self._result_expr = snippet_class.result_expr if expr else None
 
         self.__name__ = self.name
         self.__doc__ = self._doc()
@@ -134,10 +114,10 @@ class _SnippetMethod:
     def _defaults(self) -> dict[str, Any]:
         """Default parameters."""
         defaults = {}
-        if self.snippet.pagination:
+        if self.snippet_class.pagination_expr is not None:
             for option, details in PAGINATION_OPTIONS.items():
                 defaults[option] = details["default"]
-        for option in self.snippet.optional:
+        for option in self.snippet_class.optional:
             defaults[option] = None
 
         return defaults
@@ -147,7 +127,7 @@ class _SnippetMethod:
         Run the snippet, returning the pagination info (if available) and
         possibly filtered result.
         """
-        result = self.executor.run_snippet(self.snippet, variables=params)
+        result = self.executor.run_snippet(self.snippet_class, variables=params)
         if result == {"message": "The incoming token has expired"}:
             # would be nicer off the 401 status code
             raise PlatformTokenExpired()
@@ -165,21 +145,21 @@ class _SnippetMethod:
 
     def _doc(self) -> str:
         lines = []
-        if self.snippet.required:
+        if self.snippet_class.required:
             lines.append("Required parameters: ")
-            for param, desc in self.snippet.required.items():
+            for param, desc in self.snippet_class.required.items():
                 lines.append(f" {param}: {desc}")
             lines.append("")
-        if self.snippet.optional:
+        if self.snippet_class.optional:
             lines.append("Optional parameters: ")
-            for param, details in self.snippet.optional.items():
+            for param, details in self.snippet_class.optional.items():
                 if isinstance(details, str):
                     desc = details
                 else:
                     desc = details["help"]
                 lines.append(f" {param}: {desc}")
             lines.append("")
-        if self.snippet.pagination:
+        if self.snippet_class.pagination_expr is not None:
             lines.append("pagination: ")
             for param, details in PAGINATION_OPTIONS.items():
                 lines.append(f" - {param}: {details['help']}")

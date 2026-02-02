@@ -57,7 +57,8 @@ class ListPolicies(GraphQLSnippet):
           }
         }
     """
-    pagination = True
+    pagination_expr = "data.policies.pageInfo"
+    result_expr = "data.policies.edges[].node"
 
 
 class ShowPolicy(GraphQLSnippet):

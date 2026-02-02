@@ -6,9 +6,9 @@ from typing import Any, Callable
 
 import click
 
-from .context import StackletContext
-from .graphql import GraphQLSnippet
-from .utils import PAGINATION_OPTIONS, wrap_command
+from ..context import StackletContext
+from ..utils import PAGINATION_OPTIONS, wrap_command
+from .snippet import GraphQLSnippet
 
 
 def snippet_options(snippet_class: type[GraphQLSnippet]):
@@ -17,7 +17,7 @@ def snippet_options(snippet_class: type[GraphQLSnippet]):
             return func
         func = wrap_command(func, snippet_class.required, required=True)
         func = wrap_command(func, snippet_class.optional)
-        if snippet_class.pagination:
+        if snippet_class.pagination_expr is not None:
             func = wrap_command(func, PAGINATION_OPTIONS)
         return func
 

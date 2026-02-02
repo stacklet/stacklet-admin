@@ -7,8 +7,8 @@ import click
 
 from ..context import StackletContext
 from ..exceptions import InvalidInputException
+from ..graphql.cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 from ..graphql.snippets import ListPolicies, ShowPolicy
-from ..graphql_cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 
 
 @click.group(short_help="Run policy queries")

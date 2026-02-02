@@ -1,6 +1,8 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import Any, Callable, ClassVar
+
 from ..config import JSONDict
 
 
@@ -47,20 +49,29 @@ class GraphQLSnippet:
             }
     """
 
-    name: str
-    snippet: str
-    required = {}
-    optional = {}
-    pagination = False
-    input_variables = None
-    parameter_types = {}
-    variable_transformers = {}
+    name: ClassVar[str]
+    # the GraphQL query/mutation
+    snippet: ClassVar[str]
+
+    # Map required parameters names to their help text
+    required: ClassVar[dict[str, str]] = {}
+    # Map optional parameters names to their help text
+    optional: ClassVar[dict[str, str]] = {}
+    # Map parameter names to their GraphQL type
+    parameter_types: ClassVar[dict[str, str]] = {}
+    # Functions for transforming input variables from CLI input (always a
+    # string) to the expected input type for the Graphql call
+    variable_transformers: ClassVar[dict[str, Callable[[str], Any]]] = {}
+    # JMESPath expression for extracting pagination info from response
+    pagination_expr: ClassVar[str | None] = None
+    # JMESPath expression for extracting result data from response
+    result_expr: ClassVar[str | None] = None
 
     def __init__(self):
         raise RuntimeError("instances don't do anything")
 
     @classmethod
-    def build(cls, variables: JSONDict | None):
+    def build(cls, variables: JSONDict | None = None) -> JSONDict:
         if variables is None:
             variables = {}
 

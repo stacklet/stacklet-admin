@@ -8,6 +8,7 @@ import click
 
 from ..context import StackletContext
 from ..exceptions import InvalidInputException
+from ..graphql.cli import GraphQLCommand, register_graphql_commands
 from ..graphql.snippets import (
     AddRepository,
     ListRepository,
@@ -16,7 +17,6 @@ from ..graphql.snippets import (
     ScanRepository,
     ShowRepository,
 )
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
 @click.group(short_help="Run repository queries/mutations")

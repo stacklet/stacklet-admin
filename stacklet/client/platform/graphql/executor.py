@@ -34,14 +34,14 @@ class GraphQLExecutor:
 
     def run_snippet(
         self,
-        snippet: type[GraphQLSnippet],
+        snippet_class: type[GraphQLSnippet],
         variables: JSONDict | None = None,
         transform_variables: bool = False,
     ) -> JSONDict:
         """Run a graphql snippet."""
         if transform_variables:
-            variables = snippet.transform_variables(variables)
-        request = snippet.build(variables)
+            variables = snippet_class.transform_variables(variables)
+        request = snippet_class.build(variables)
         self.log.debug("Request: %s" % json.dumps(request, indent=2))
         res = self.session.post(self.api, json=request)
         self.log.debug("Response: %s" % json.dumps(res.json(), indent=2))

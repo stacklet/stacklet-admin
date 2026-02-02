@@ -3,6 +3,7 @@
 
 import click
 
+from ..graphql.cli import GraphQLCommand, register_graphql_commands
 from ..graphql.snippets import (
     AddBinding,
     DeployBinding,
@@ -12,7 +13,6 @@ from ..graphql.snippets import (
     ShowBinding,
     UpdateBinding,
 )
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
 @click.group(short_help="Run binding queries/mutations")
