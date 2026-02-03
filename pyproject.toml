@@ -56,6 +56,10 @@ include = [
     "stacklet/client/platform/vendored/auth_landing_pages/fail.html",
 ]
 
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
 [tool.ruff]
 line-length = 100
 
