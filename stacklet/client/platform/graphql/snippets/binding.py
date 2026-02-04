@@ -11,8 +11,8 @@ class ListBindings(GraphQLSnippet):
           bindings(
             first: $first
             last: $last
-            before: "$before"
-            after: "$after"
+            before: $before
+            after: $after
           ) {
             edges {
               node {
@@ -51,7 +51,7 @@ class ShowBinding(GraphQLSnippet):
     snippet = """
         query {
           binding(
-            uuid: "$uuid"
+            uuid: $uuid
           ) {
             uuid
             name
@@ -80,12 +80,12 @@ class AddBinding(GraphQLSnippet):
     snippet = """
     mutation {
         addBinding(input:{
-            name: "$name"
-            accountGroupUUID: "$account_group_uuid"
-            policyCollectionUUID: "$policy_collection_uuid"
-            description: "$description"
-            schedule: "$schedule"
-            variables: "$variables"
+            name: $name
+            accountGroupUUID: $account_group_uuid
+            policyCollectionUUID: $policy_collection_uuid
+            description: $description
+            schedule: $schedule
+            variables: $variables
             deploy: $deploy
         }){
             binding {
@@ -127,11 +127,11 @@ class UpdateBinding(GraphQLSnippet):
     snippet = """
     mutation {
         updateBinding(input:{
-            uuid: "$uuid"
-            name: "$name"
-            description: "$description"
-            schedule: "$schedule"
-            variables: "$variables"
+            uuid: $uuid
+            name: $name
+            description: $description
+            schedule: $schedule
+            variables: $variables
         }){
             binding {
                 uuid
@@ -167,7 +167,7 @@ class RemoveBinding(GraphQLSnippet):
     name = "remove-binding"
     snippet = """
     mutation {
-        removeBinding(uuid: "$uuid"){
+        removeBinding(uuid: $uuid){
             binding {
                 id
                 uuid
@@ -195,7 +195,7 @@ class DeployBinding(GraphQLSnippet):
     name = "deploy-binding"
     snippet = """
     mutation {
-        deployBinding(uuid: "$uuid"){
+        deployBinding(uuid: $uuid){
             binding {
                 uuid
                 name
@@ -223,7 +223,7 @@ class RunBinding(GraphQLSnippet):
     name = "run-binding"
     snippet = """
     mutation {
-        runBinding(input:{uuid: "$uuid"}){
+        runBinding(input:{uuid: $uuid}){
             binding {
                 uuid
                 name

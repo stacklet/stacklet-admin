@@ -11,8 +11,8 @@ class ListPolicies(GraphQLSnippet):
           policies(
             first: $first
             last: $last
-            before: "$before"
-            after: "$after"
+            before: $before
+            after: $after
           ) {
             edges {
               node {
@@ -65,8 +65,8 @@ class ShowPolicy(GraphQLSnippet):
     snippet = """
         query {
           policy(
-            name: "$name"
-            uuid: "$uuid"
+            name: $name
+            uuid: $uuid
           ) {
             id
             uuid

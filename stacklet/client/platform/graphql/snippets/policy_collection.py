@@ -11,8 +11,8 @@ class ListPolicyCollections(GraphQLSnippet):
           policyCollections(
             first: $first
             last: $last
-            before: "$before"
-            after: "$after"
+            before: $before
+            after: $after
           ) {
             edges {
               node {
@@ -43,7 +43,7 @@ class ShowPolicyCollection(GraphQLSnippet):
     snippet = """
         query {
           policyCollection(
-            uuid: "$uuid"
+            uuid: $uuid
           ) {
             id
             uuid
@@ -68,9 +68,9 @@ class AddPolicyCollection(GraphQLSnippet):
     snippet = """
     mutation {
       addPolicyCollection(input:{
-        name: "$name"
+        name: $name
         provider: $provider
-        description: "$description"
+        description: $description
       }){
         collection {
             id
@@ -106,10 +106,10 @@ class UpdatePolicyCollection(GraphQLSnippet):
     snippet = """
     mutation {
       updatePolicyCollection(input:{
-        uuid: "$uuid"
-        name: "$name"
+        uuid: $uuid
+        name: $name
         provider: $provider
-        description: "$description"
+        description: $description
       }){
         collection {
             id
@@ -142,10 +142,10 @@ class AddPolicyCollectionItem(GraphQLSnippet):
     snippet = """
         mutation {
           addPolicyCollectionItems(input:{
-            uuid: "$uuid"
+            uuid: $uuid
             items: [
                 {
-                    policyUUID: "$policy_uuid"
+                    policyUUID: $policy_uuid
                     policyVersion: $policy_version
                 }
             ]
@@ -181,10 +181,10 @@ class RemovePolicyCollectionItem(GraphQLSnippet):
     snippet = """
         mutation {
           removePolicyCollectionItems(input:{
-            uuid: "$uuid"
+            uuid: $uuid
             items: [
                 {
-                    policyUUID: "$policy_uuid"
+                    policyUUID: $policy_uuid
                     policyVersion: $policy_version
                 }
             ]
@@ -219,7 +219,7 @@ class RemovePolicyCollection(GraphQLSnippet):
     snippet = """
     mutation {
       removePolicyCollection(
-        uuid: "$uuid"
+        uuid: $uuid
       ){
         collection {
             id

@@ -10,14 +10,14 @@ class AddRepository(GraphQLSnippet):
     mutation {
       addRepository(
         input: {
-          url: "$url"
-          name: "$name"
-          description: "$description"
-          sshPassphrase: "$ssh_passphrase"
-          sshPrivateKey: "$ssh_private_key"
-          authUser: "$auth_user"
-          authToken: "$auth_token"
-          branchName: "$branch_name"
+          url: $url
+          name: $name
+          description: $description
+          sshPassphrase: $ssh_passphrase
+          sshPrivateKey: $ssh_private_key
+          authUser: $auth_user
+          authToken: $auth_token
+          branchName: $branch_name
           policyFileSuffix: $policy_file_suffix
           policyDirectories: $policy_directory
           deepImport: $deep_import
@@ -59,7 +59,7 @@ class ProcessRepository(GraphQLSnippet):
     name = "process-repository"
     snippet = """
     mutation {
-      processRepository(input:{url: "$url"})
+      processRepository(input:{url: $url})
     }
     """
     required = {"url": "Repository URL to process"}
@@ -102,7 +102,7 @@ class RemoveRepository(GraphQLSnippet):
     snippet = """
     mutation {
       removeRepository(
-          url: "$url"
+          url: $url
       ) {
         repository {
             url
@@ -121,8 +121,8 @@ class ScanRepository(GraphQLSnippet):
     snippet = """
     mutation {
       processRepository(input:{
-          url: "$url"
-          startRevSpec: "$start_rev_spec"
+          url: $url
+          startRevSpec: $start_rev_spec
       })
     }
     """
@@ -137,7 +137,7 @@ class ShowRepository(GraphQLSnippet):
     name = "show-repository"
     snippet = """
     query {
-      repository(url: "$url") {
+      repository(url: $url) {
         id
         name
         url

@@ -11,8 +11,8 @@ class ListAccountGroups(GraphQLSnippet):
           accountGroups(
             first: $first
             last: $last
-            before: "$before"
-            after: "$after"
+            before: $before
+            after: $after
           ) {
             edges {
               node {
@@ -46,12 +46,12 @@ class AddAccountGroup(GraphQLSnippet):
     snippet = """
     mutation {
       addAccountGroup(input:{
-        name: "$name"
+        name: $name
         provider: $provider
         regions: $region
-        shortName: "$short_name"
-        description: "$description"
-        variables: "$variables"
+        shortName: $short_name
+        description: $description
+        variables: $variables
         priority: $priority
       }){
         group {
@@ -99,12 +99,12 @@ class UpdateAccountGroup(GraphQLSnippet):
     snippet = """
     mutation {
       updateAccountGroup(input:{
-        uuid: "$uuid"
-        name: "$name"
-        shortName: "$short_name"
-        description: "$description"
+        uuid: $uuid
+        name: $name
+        shortName: $short_name
+        description: $description
         regions: $region
-        variables: "$variables"
+        variables: $variables
         priority: $priority
       }){
         group {
@@ -148,7 +148,7 @@ class ShowAccountGroup(GraphQLSnippet):
     snippet = """
         query {
           accountGroup(
-            uuid: "$uuid"
+            uuid: $uuid
           ) {
             name
             uuid
@@ -178,7 +178,7 @@ class RemoveAccountGroup(GraphQLSnippet):
     snippet = """
         mutation {
           removeAccountGroup(
-            uuid: "$uuid"
+            uuid: $uuid
           ) {
               group {
                 name
@@ -210,10 +210,10 @@ class AddAccountGroupItem(GraphQLSnippet):
     snippet = """
         mutation {
           addAccountGroupItems(input:{
-            uuid: "$uuid"
+            uuid: $uuid
             items: [
                 {
-                    key: "$key"
+                    key: $key
                     provider: $provider
                 }
             ]
@@ -254,10 +254,10 @@ class RemoveAccountGroupItem(GraphQLSnippet):
     snippet = """
         mutation {
           removeAccountGroupItems(input:{
-            uuid: "$uuid"
+            uuid: $uuid
             items: [
                 {
-                    key: "$key"
+                    key: $key
                     provider: $provider
                 }
             ]

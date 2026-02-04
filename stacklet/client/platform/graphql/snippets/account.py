@@ -13,8 +13,8 @@ class ListAccounts(GraphQLSnippet):
           accounts(
             first: $first
             last: $last
-            before: "$before"
-            after: "$after"
+            before: $before
+            after: $after
           ) {
             edges {
               node {
@@ -53,7 +53,7 @@ class ShowAccount(GraphQLSnippet):
         query {
           account(
             provider: $provider
-            key: "$key"
+            key: $key
           ) {
             id
             key
@@ -88,14 +88,14 @@ class UpdateAccount(GraphQLSnippet):
     mutation {
       updateAccount(input:{
         provider:$provider
-        key: "$key"
-        name: "$name"
-        email: "$email"
-        description: "$description"
-        shortName: "$short_name"
+        key: $key
+        name: $name
+        email: $email
+        description: $description
+        shortName: $short_name
         tags: $tags
-        variables: "$variables"
-        securityContext: "$security_context"
+        variables: $variables
+        securityContext: $security_context
       }){
         account {
             id
@@ -140,15 +140,15 @@ class AddAccount(GraphQLSnippet):
     mutation {
       addAccount(input:{
         provider: $provider
-        key:"$key"
-        name:"$name"
-        path:"$path"
-        email:"$email"
-        securityContext:"$security_context"
-        shortName: "$short_name"
-        description: "$description"
+        key: $key
+        name: $name
+        path: $path
+        email: $email
+        securityContext: $security_context
+        shortName: $short_name
+        description: $description
         tags: $tags
-        variables: "$variables"
+        variables: $variables
       }){
         account {
             id
@@ -193,7 +193,7 @@ class RemoveAccount(GraphQLSnippet):
     mutation {
       removeAccount(
         provider: $provider,
-        key:"$key",
+        key: $key,
       ){
         account {
             id
@@ -229,7 +229,7 @@ class ValidateAccount(GraphQLSnippet):
       validateAccount(
         input: {
           provider: $provider,
-          key:"$key",
+          key: $key,
         }
       ){
         account {
