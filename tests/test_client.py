@@ -30,8 +30,8 @@ class TestPlatformClient:
     def test_snippets_as_methods(self):
         client = platform_client()
 
-        for name in GRAPHQL_SNIPPETS:
-            method_name = name.replace("-", "_")
+        for snippet in GRAPHQL_SNIPPETS:
+            method_name = snippet.name.replace("-", "_")
             method = getattr(client, method_name)
             assert method is not None, f"client is missing method {method}"
             assert callable(method)

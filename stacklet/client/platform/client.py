@@ -9,15 +9,11 @@ from typing import Any
 
 import jmespath
 
-# import the commands so the registry is populated when the client is instantiated
-from . import (
-    commands,  # noqa
-    config,
-)
+from . import config
 from .config import JSONDict
 from .context import StackletContext
 from .exceptions import MissingConfigException
-from .graphql import GRAPHQL_SNIPPETS, StackletGraphqlExecutor, StackletGraphqlSnippet
+from .graphql import GRAPHQL_SNIPPETS, GraphQLExecutor, GraphQLSnippet
 from .utils import PAGINATION_OPTIONS
 
 
@@ -32,8 +28,8 @@ class PlatformTokenExpired(PlatformApiError):
 class StackletPlatformClient:
     """Client to the Stacklet Platform API."""
 
-    def __init__(self, executor: StackletGraphqlExecutor, pager: bool = False, expr: bool = False):
-        for name, snippet in GRAPHQL_SNIPPETS.items():
+    def __init__(self, executor: GraphQLExecutor, pager: bool = False, expr: bool = False):
+        for snippet in GRAPHQL_SNIPPETS:
             method = _SnippetMethod(snippet, executor, pager, expr)
             setattr(self, method.name, method)
 
@@ -97,8 +93,8 @@ class _SnippetMethod:
 
     def __init__(
         self,
-        snippet: StackletGraphqlSnippet,
-        executor: StackletGraphqlExecutor,
+        snippet: GraphQLSnippet,
+        executor: GraphQLExecutor,
         pager: bool,
         expr: bool,
     ):
@@ -176,7 +172,11 @@ class _SnippetMethod:
             lines.append("")
         if self.snippet.optional:
             lines.append("Optional parameters: ")
-            for param, desc in self.snippet.optional.items():
+            for param, details in self.snippet.optional.items():
+                if isinstance(details, str):
+                    desc = details
+                else:
+                    desc = details["help"]
                 lines.append(f" {param}: {desc}")
             lines.append("")
         if self.snippet.pagination:

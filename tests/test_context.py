@@ -4,7 +4,7 @@ import pytest
 
 from stacklet.client.platform.context import StackletContext
 from stacklet.client.platform.exceptions import MissingToken
-from stacklet.client.platform.graphql import StackletGraphqlExecutor
+from stacklet.client.platform.graphql import GraphQLExecutor
 
 
 class TestStackletContext:
@@ -17,7 +17,7 @@ class TestStackletContext:
         config_file.write_text(json.dumps(sample_config))
         context = StackletContext(config_file=config_file)
         executor = context.executor
-        assert isinstance(executor, StackletGraphqlExecutor)
+        assert isinstance(executor, GraphQLExecutor)
         assert executor.api == "mock://stacklet.acme.org/api"
         assert executor.token == api_token_in_file
 
