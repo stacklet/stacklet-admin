@@ -35,7 +35,8 @@ class ListPolicyCollections(GraphQLSnippet):
           }
         }
     """
-    pagination = True
+    pagination_expr = "data.policyCollections.pageInfo"
+    result_expr = "data.policyCollections.edges[].node"
 
 
 class ShowPolicyCollection(GraphQLSnippet):
@@ -61,6 +62,7 @@ class ShowPolicyCollection(GraphQLSnippet):
       }
     """
     required = {"uuid": "Policy Collection UUID"}
+    result_expr = "data.policyCollection"
 
 
 class AddPolicyCollection(GraphQLSnippet):
@@ -97,8 +99,8 @@ class AddPolicyCollection(GraphQLSnippet):
     optional = {
         "description": "Policy Collection Description",
     }
-
     parameter_types = {"provider": "CloudProvider!"}
+    result_expr = "data.addPolicyCollection.collection"
 
 
 class UpdatePolicyCollection(GraphQLSnippet):

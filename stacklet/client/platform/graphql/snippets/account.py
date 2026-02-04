@@ -44,7 +44,8 @@ class ListAccounts(GraphQLSnippet):
           }
         }
     """
-    pagination = True
+    pagination_expr = "data.accounts.pageInfo"
+    result_expr = "data.accounts.edges[].node"
 
 
 class ShowAccount(GraphQLSnippet):
@@ -73,12 +74,10 @@ class ShowAccount(GraphQLSnippet):
           }
         }
     """
-
     required = {
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
-
     parameter_types = {"provider": "CloudProvider!"}
 
 
@@ -169,7 +168,6 @@ class AddAccount(GraphQLSnippet):
       }
     }
     """
-    parameter_types = {"provider": "CloudProvider!", "tags": "[TagInput!]"}
     required = {
         "name": "Account Name in Stacklet",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
@@ -184,7 +182,9 @@ class AddAccount(GraphQLSnippet):
         "tags": 'List of tags for Account, e.g. --tags "[{key: \\"department\\", value: \\"marketing\\"}]"',  # noqa
         "variables": 'JSON encoded string of variables e.g. --variables \'{"foo": "bar"}\'',  # noqa
     }
+    parameter_types = {"provider": "CloudProvider!", "tags": "[TagInput!]"}
     variable_transformers = {"tags": lambda x: json.loads(x) if x is not None else []}
+    result_expr = "data.addAccount.account"
 
 
 class RemoveAccount(GraphQLSnippet):
@@ -218,7 +218,6 @@ class RemoveAccount(GraphQLSnippet):
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
-
     parameter_types = {"provider": "CloudProvider!"}
 
 
@@ -257,5 +256,4 @@ class ValidateAccount(GraphQLSnippet):
         "provider": "Account Provider: AWS | Azure | GCP | Kubernetes",
         "key": "Account key -- Account ID for AWS, Subscription ID for Azure, Project ID for GCP",
     }
-
     parameter_types = {"provider": "CloudProvider!"}

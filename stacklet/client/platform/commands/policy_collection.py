@@ -3,6 +3,7 @@
 
 import click
 
+from ..graphql.cli import GraphQLCommand, register_graphql_commands
 from ..graphql.snippets import (
     AddPolicyCollection,
     AddPolicyCollectionItem,
@@ -12,7 +13,6 @@ from ..graphql.snippets import (
     ShowPolicyCollection,
     UpdatePolicyCollection,
 )
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
 @click.group(short_help="Run policy collection queries/mutations")

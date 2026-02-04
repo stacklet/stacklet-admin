@@ -53,6 +53,7 @@ class AddRepository(GraphQLSnippet):
         "deep_import": "Deep Import Repository true | false",
     }
     variable_transformers = {"deep_import": lambda x: x and x.lower() in ("true", "t", "yes", "y")}
+    result_expr = "data.addRepository.repository"
 
 
 class ProcessRepository(GraphQLSnippet):
@@ -95,6 +96,7 @@ class ListRepository(GraphQLSnippet):
       }
     }
     """
+    result_expr = "data.repositories.edges[].node"
 
 
 class RemoveRepository(GraphQLSnippet):
@@ -114,6 +116,7 @@ class RemoveRepository(GraphQLSnippet):
     required = {
         "url": "Policy Repository URL",
     }
+    result_expr = "data.removeRepository.repository"
 
 
 class ScanRepository(GraphQLSnippet):

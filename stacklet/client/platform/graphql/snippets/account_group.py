@@ -38,7 +38,8 @@ class ListAccountGroups(GraphQLSnippet):
           }
         }
     """
-    pagination = True
+    pagination_expr = "data.accountGroups.pageInfo"
+    result_expr = "data.accountGroups.edges[].node"
 
 
 class AddAccountGroup(GraphQLSnippet):
@@ -80,11 +81,6 @@ class AddAccountGroup(GraphQLSnippet):
         "name": "Account Name in Stacklet",
         "provider": "Cloud Provider",
     }
-
-    parameter_types = {
-        "provider": "CloudProvider!",
-    }
-
     optional = {
         "description": "Account Group Description",
         "short_name": "Account Group Short Name",
@@ -92,6 +88,10 @@ class AddAccountGroup(GraphQLSnippet):
         "priority": "Account Group priority (0-99)",
         "region": {"help": "Cloud Regions", "multiple": True},
     }
+    parameter_types = {
+        "provider": "CloudProvider!",
+    }
+    result_expr = "data.addAccountGroup.group"
 
 
 class UpdateAccountGroup(GraphQLSnippet):
@@ -129,10 +129,7 @@ class UpdateAccountGroup(GraphQLSnippet):
       }
     }
     """
-    required = {
-        "uuid": "Account Group UUID",
-    }
-
+    required = {"uuid": "Account Group UUID"}
     optional = {
         "region": {"help": "Cloud Regions", "multiple": True},
         "name": "Account Group Name",
@@ -245,8 +242,8 @@ class AddAccountGroupItem(GraphQLSnippet):
         "key": "Account Key",
         "provider": "Account Provider",
     }
-    parameter_types = {"provider": "CloudProvider!"}
     optional = {"regions": "Account Regions"}
+    parameter_types = {"provider": "CloudProvider!"}
 
 
 class RemoveAccountGroupItem(GraphQLSnippet):
@@ -289,5 +286,4 @@ class RemoveAccountGroupItem(GraphQLSnippet):
         "key": "Account Key",
         "provider": "Account Provider",
     }
-
     parameter_types = {"provider": "CloudProvider!"}

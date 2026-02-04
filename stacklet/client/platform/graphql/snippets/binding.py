@@ -43,7 +43,8 @@ class ListBindings(GraphQLSnippet):
           }
         }
     """
-    pagination = True
+    pagination_expr = "data.bindings.pageInfo"
+    result_expr = "data.bindings.edges[].node"
 
 
 class ShowBinding(GraphQLSnippet):
@@ -118,7 +119,7 @@ class AddBinding(GraphQLSnippet):
         "description": "Binding Description",
         "schedule": "Binding Schedule for Pull Mode Policies",
         "variables": "Binding variables (JSON Encoded string)",
-        "deploy": {"help": "Deploy on creation true| false", "type": bool},
+        "deploy": {"help": "Deploy on creation", "type": bool},
     }
 
 

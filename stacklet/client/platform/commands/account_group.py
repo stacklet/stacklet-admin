@@ -3,6 +3,7 @@
 
 import click
 
+from ..graphql.cli import GraphQLCommand, register_graphql_commands
 from ..graphql.snippets import (
     AddAccountGroup,
     AddAccountGroupItem,
@@ -12,7 +13,6 @@ from ..graphql.snippets import (
     ShowAccountGroup,
     UpdateAccountGroup,
 )
-from ..graphql_cli import GraphQLCommand, register_graphql_commands
 
 
 @click.group("account-group", short_help="Run account group queries/mutations")

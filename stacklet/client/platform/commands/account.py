@@ -4,6 +4,7 @@
 
 import click
 
+from ..graphql.cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 from ..graphql.snippets import (
     AddAccount,
     ListAccounts,
@@ -12,7 +13,6 @@ from ..graphql.snippets import (
     UpdateAccount,
     ValidateAccount,
 )
-from ..graphql_cli import GraphQLCommand, register_graphql_commands, run_graphql, snippet_options
 
 
 @click.group(short_help="Run account queries/mutations")

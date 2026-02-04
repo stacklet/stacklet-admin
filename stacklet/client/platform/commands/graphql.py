@@ -6,7 +6,7 @@ import sys
 
 import click
 
-from ..graphql_cli import run_graphql
+from ..graphql.cli import run_graphql
 
 
 @click.group()
