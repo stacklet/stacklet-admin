@@ -17,8 +17,8 @@ format:
 test *flags:
     uv run pytest --cov=stacklet tests {{ flags }}
 
-pkg-prep bump="--bump-patch":
-    uv run python scripts/upgrade.py upgrade {{bump}}
+pkg-prep version="":
+    uv run python scripts/upgrade.py {{version}}
     uv lock --upgrade
-    git add justfile pyproject.toml uv.lock
+    git add stacklet/client/platform/__init__.py uv.lock
     git status

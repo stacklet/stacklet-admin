@@ -1,55 +1,62 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 import sys
+from datetime import date
 
 import click
-import semver
 
-# in python 3.11 we should switch out to tomllib
-import toml
+VERSION_FILE = "stacklet/client/platform/__init__.py"
+VERSION_RE = re.compile(r'^__version__ = "(.+)"$', re.MULTILINE)
 
 
-@click.group()
-def cli():
+def parse_version(v):
+    return tuple(int(x) for x in v.split("."))
+
+
+@click.command()
+@click.argument("version", required=False)
+def upgrade(version):
+    """Set the package version.
+
+    With no argument, bumps the patch component of the current version.
+    Pass 'today' to use today's date (YYYY.MM.DD), or an explicit YYYY.MM.DD.
+    The latter two will error if the result is not greater than the current version.
     """
-    stacklet-admin upgrade tools
-    """
+    with open(VERSION_FILE) as f:
+        content = f.read()
 
-
-@cli.command()
-@click.option("--bump-patch", is_flag=True, default=False)
-@click.option("--bump-minor", is_flag=True, default=False)
-@click.option("--bump-major", is_flag=True, default=False)
-def upgrade(bump_patch, bump_minor, bump_major):
-    if sum([bump_patch, bump_minor, bump_major]) != 1:
-        click.echo("Only one of --bump-patch/mintor/major may be selected")
+    match = VERSION_RE.search(content)
+    if not match:
+        click.echo(f"Could not find __version__ in {VERSION_FILE}")
         sys.exit(1)
 
-    with open("pyproject.toml") as f:
-        pyproject = toml.load(f)
+    current = match.group(1)
 
-    current = pyproject["project"]["version"]
-    current_parsed = semver.VersionInfo.parse(current)
+    if version is None:
+        parts = current.split(".")
+        parts[-1] = str(int(parts[-1]) + 1).zfill(len(parts[-1]))
+        new_version = ".".join(parts)
+    else:
+        if version == "today":
+            new_version = date.today().strftime("%Y.%m.%d")
+        else:
+            new_version = version
 
-    major = current_parsed.major
-    minor = current_parsed.minor
-    patch = current_parsed.patch
+        if not re.match(r"^\d{4}\.\d{2}\.\d{2}$", new_version):
+            click.echo(f"Invalid version: {new_version!r}. Expected YYYY.MM.DD or 'today'.")
+            sys.exit(1)
 
-    if bump_patch:
-        patch += 1
-    elif bump_minor:
-        minor += 1
-    elif bump_major:
-        major += 1
+        if parse_version(new_version) <= parse_version(current):
+            click.echo(f"Version {new_version!r} is not greater than current {current!r}.")
+            sys.exit(1)
 
-    upgraded = ".".join([str(x) for x in (major, minor, patch)])
-    click.echo(f"stacklet-admin: {current_parsed} -> {upgraded}")
-    pyproject["project"]["version"] = upgraded
+    with open(VERSION_FILE, "w") as f:
+        f.write(VERSION_RE.sub(f'__version__ = "{new_version}"', content))
 
-    with open("pyproject.toml", "w+") as f:
-        toml.dump(pyproject, f)
+    click.echo(f"{current} -> {new_version}")
 
 
 if __name__ == "__main__":
-    cli()
+    upgrade()
