@@ -23,6 +23,7 @@ class ListAccountGroups(GraphQLSnippet):
                 provider
                 description
                 regions
+                system
                 variables
                 priority
                 itemCount
