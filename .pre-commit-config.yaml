@@ -21,3 +21,8 @@ repos:
     rev: v1.7.9
     hooks:
       - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.19.0
+    hooks:
+      - id: zizmor
