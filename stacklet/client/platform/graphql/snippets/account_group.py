@@ -155,6 +155,7 @@ class ShowAccountGroup(GraphQLSnippet):
             provider
             description
             regions
+            system
             variables
             priority
             itemCount
