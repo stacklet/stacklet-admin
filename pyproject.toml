@@ -11,13 +11,13 @@ requires-python = ">=3.10,<3.15"
 readme = "README.md"
 license = "Apache-2.0"
 dependencies = [
-    "click>=8.0.1,<9",
-    "requests>=2.32.4,<3",
-    "jsonschema>=4.9.0,<5",
-    "PyYAML~=6.0",
     "PyJWT>=2.4.0,<3",
+    "PyYAML~=6.0",
     "boto3>=1.39.16,<2",
+    "click>=8.0.1,<9",
     "jmespath>=1.0.1,<2",
+    "jsonschema>=4.9.0,<5",
+    "requests>=2.32.4,<3",
 ]
 dynamic = [ "version" ]
 
@@ -26,16 +26,20 @@ stacklet-admin = "stacklet.client.platform.cli:cli"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14,<0.15",
+    "deptry>=0.23.1,<0.24",
     "moto[cognitoidp]>=5.1.9,<6",
-    "pytest~=8.4",
-    "pytest-cov>=7,<8",
-    "requests-mock>=1.8.0,<2",
     "pre-commit>=4,<5",
+    "pytest-cov>=7,<8",
+    "pytest~=8.4",
+    "requests-mock>=1.8.0,<2",
+    "ruff>=0.14,<0.15",
     "semver>=3,<4",
     "toml>=0.10.2,<0.11",
-    "deptry>=0.23.1,<0.24",
+    "ty>=0.0.34",
 ]
+
+[tool.uv]
+exclude-newer = "7 days"
 
 [tool.hatch.version]
 path = "stacklet/client/platform/__init__.py"
@@ -68,3 +72,6 @@ extend-select = ["E501", "I", "F"]
 [tool.deptry]
 known_first_party = ["stacklet"]
 per_rule_ignores = { "DEP004" = ["toml", "semver"] }
+
+[tool.ty]
+src.include = ["stacklet"]

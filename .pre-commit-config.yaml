@@ -1,28 +1,53 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.14.10
+    rev: 6fec9b7edb08fd9989088709d864a7826dc74e80 # frozen: v0.15.12
     hooks:
       # Run the linter.
       - id: ruff
       # Run the formatter.
       - id: ruff-format
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
-      - id: trailing-whitespace
-        exclude: ^tests/.*/fixtures/.*
+      - id: check-toml
+      - id: check-yaml
+      - id: debug-statements
       - id: end-of-file-fixer
         exclude: ^tests/.*/fixtures/.*
-      - id: debug-statements
-
+      - id: trailing-whitespace
+        exclude: ^tests/.*/fixtures/.*
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.9
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca # frozen: v1.7.12
     hooks:
       - id: actionlint
-
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.19.0
+    rev: a4727cbbcd26d7098e96b9cb738169b59711ae51 # frozen: v1.24.1
     hooks:
       - id: zizmor
+  - repo: https://github.com/codespell-project/codespell
+    rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a # frozen: v2.4.2
+    hooks:
+      - id: codespell
+  - repo: https://github.com/crate-ci/typos
+    rev: bbaefadf97b0ec5fdc942684b647f1a6ab250274 # frozen: v1.46.0
+    hooks:
+      - id: typos
+  # Type checking with ty (scope configured in pyproject.toml)
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty
+        entry: uv run ty check
+        language: system
+        files: ^stacklet/
+        types: [python]
+        pass_filenames: false
+  - repo: https://github.com/google/yamlfmt
+    rev: 21ca5323a9c87ee37a434e0ca908efc0a89daa07 # frozen: v0.21.0
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7 # frozen: v0.25
+    hooks:
+      - id: validate-pyproject

@@ -126,7 +126,7 @@ class AdHocSnippet(GraphQLSnippet):
     """
 
     @classmethod
-    def build(cls, variables):
+    def build(cls, variables: JSONDict | None = None) -> JSONDict:
         if variables:
             raise NotImplementedError("AdHocSnippet needs variables support")
         return {"query": cls.snippet}

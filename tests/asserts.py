@@ -16,7 +16,7 @@ def assert_config_has(config_file: Path, expected: JSONDict):
 
 
 def assert_query(body: JSONDict, query: str):
-    """Assert GraphQL query from a response body matches ignorning spaces."""
+    """Assert GraphQL query from a response body matches ignoring spaces."""
     space_re = re.compile(r"\s+")
 
     def clean(s):

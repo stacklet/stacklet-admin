@@ -34,6 +34,7 @@ def run_graphql(
     if snippet is not None:
         res = context.executor.run_query(snippet)
     else:
+        assert snippet_class is not None, "must provide either snippet_class or snippet"
         res = context.executor.run_snippet(
             snippet_class, variables=variables, transform_variables=True
         )

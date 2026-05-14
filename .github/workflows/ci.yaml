@@ -1,5 +1,4 @@
 name: "CI"
-
 on:
   push:
     branches:
@@ -7,9 +6,7 @@ on:
   pull_request:
     branches:
       - main
-
 permissions: {}
-
 jobs:
   Lint:
     runs-on: ubuntu-latest
@@ -22,14 +19,15 @@ jobs:
       - uses: wistia/parse-tool-versions@32f568a4ffd4bfa7720ebf93f171597d1ebc979a # v2.1.1
         with:
           postfix: _TOOL_VERSION
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
-          python-version: ${{ env.PYTHON_TOOL_VERSION }}
+          version: ${{ env.UV_TOOL_VERSION }}
+          activate-environment: true
+          enable-cache: true
       - name: Linting
         run: |
-          pip install pre-commit
-          pre-commit run --all-files
-
+          uv run pre-commit run --all-files
   Tests:
     needs: Lint
     runs-on: ubuntu-latest
@@ -55,13 +53,10 @@ jobs:
           version: ${{ env.UV_TOOL_VERSION }}
           activate-environment: true
           enable-cache: true
-
       - name: Install Python
         run: uv python install ${{ matrix.python-version }}
-
       - name: Install dependencies
         shell: bash
         run: uv sync
-
       - name: Pytest run
         run: just test -v
