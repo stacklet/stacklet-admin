@@ -13,7 +13,7 @@ from .graphql import GraphQLExecutor
 class StackletContext:
     """CLI Execution Context."""
 
-    formatter: Formatter
+    formatter: type[Formatter]
     credentials: StackletCredentials
 
     def __init__(
@@ -22,7 +22,7 @@ class StackletContext:
         output_format: str = DEFAULT_OUTPUT_FORMAT,
     ):
         self.config_file = config_file
-        self.formatter = FORMATTERS.get(output_format)
+        self.formatter = FORMATTERS[output_format]
         self.credentials = StackletCredentials()
 
     @cached_property

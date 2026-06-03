@@ -24,7 +24,7 @@ PAGINATION_OPTIONS = {
         "default": "",
     },
     "after": {
-        "help": "For use with pagination. Return the results after a given page curosr.",
+        "help": "For use with pagination. Return the results after a given page cursor.",
         "default": "",
     },
 }

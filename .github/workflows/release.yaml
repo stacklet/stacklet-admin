@@ -1,9 +1,6 @@
 name: Publish Python distribution to PyPI
-
 on: push
-
 permissions: {}
-
 jobs:
   build:
     name: Build distribution
@@ -27,21 +24,17 @@ jobs:
           version: ${{ env.UV_TOOL_VERSION }}
           activate-environment: true
           enable-cache: true
-
       - name: Install Python
         env:
           PYTHON_TOOL_VERSION: ${{ env.PYTHON_TOOL_VERSION }}
         run: uv python install "$PYTHON_TOOL_VERSION"
-
       - name: Build a binary wheel and a source tarball
         run: uv build
-
       - name: Store the distribution packages
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: python-package-distributions
           path: dist/
-
   publish-to-pypi:
     name: >-
       Publish Python distribution to PyPI
@@ -66,11 +59,9 @@ jobs:
           skip-existing: true
           verbose: true
           print-hash: true
-
   github-release:
     name: >-
-      Sign the Python distribution with Sigstore
-      and upload to GitHub Release
+      Sign the Python distribution with Sigstore and upload to GitHub Release
     needs:
       - publish-to-pypi
     runs-on: ubuntu-latest
@@ -87,8 +78,7 @@ jobs:
         uses: sigstore/gh-action-sigstore-python@04cffa1d795717b140764e8b640de88853c92acc # v3.3.0
         with:
           inputs: >-
-            ./dist/*.tar.gz
-            ./dist/*.whl
+            ./dist/*.tar.gz ./dist/*.whl
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -98,6 +88,4 @@ jobs:
         # `dist/` contains the built packages, and the
         # sigstore-produced signatures and certificates.
         run: >-
-          gh release create
-          "$REF_NAME" dist/**
-          --repo "$REPOSITORY"
+          gh release create "$REF_NAME" dist/** --repo "$REPOSITORY"

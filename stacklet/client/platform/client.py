@@ -92,14 +92,14 @@ class _SnippetMethod:
         params = self._defaults | kwargs
         page_info, result = self._run_snippet(params)
 
-        # no pagination, just return the reuslt
+        # no pagination, just return the result
         if not page_info:
             return result
 
         # pagination enabled, collect all pages
         pages = [result]
 
-        while page_info["hasNextPage"]:
+        while page_info and page_info["hasNextPage"]:
             params["after"] = page_info["endCursor"]
             page_info, result = self._run_snippet(params)
             pages.append(result)

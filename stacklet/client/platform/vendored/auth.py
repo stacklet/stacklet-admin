@@ -34,7 +34,7 @@ import os
 import platform
 import socket
 import subprocess
-import urllib
+import urllib.parse
 import webbrowser
 
 import click
@@ -65,6 +65,9 @@ class ClientRedirectServer(http.server.HTTPServer):
 
 
 class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
+    # set on the class by ClientRedirectServer before any requests are handled
+    auth_url: str = ""
+
     def get_request_body(self):
         token = self.rfile.read(int(self.headers["Content-length"]))
         res = token.decode("utf-8")
@@ -80,6 +83,7 @@ class ClientRedirectHandler(http.server.BaseHTTPRequestHandler):
         res = json.loads(res)
         StackletCredentials().write(res["id_token"], res["access_token"])
         self.send_response(200)
+        assert isinstance(self.server, ClientRedirectServer)
         self.server.completed = True
 
     def route_stacklet_auth_shortlink(self):

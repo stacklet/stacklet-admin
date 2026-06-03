@@ -12,7 +12,7 @@ from stacklet.client.platform.graphql import GRAPHQL_SNIPPETS
 class TestPlatformClient:
     @pytest.fixture(autouse=True)
     def _setup(self, requests_adapter, default_config_file, sample_config, api_token_in_file):
-        # confiuration is looked up in the default path
+        # configuration is looked up in the default path
         default_config_file.write_text(json.dumps(sample_config))
 
         self.requests_adapter = requests_adapter
