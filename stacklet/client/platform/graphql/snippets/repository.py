@@ -8,24 +8,27 @@ class AddRepository(GraphQLSnippet):
     name = "add-repository"
     snippet = """
     mutation {
-      addRepository(
+      addRepositoryConfig(
         input: {
           url: $url
           name: $name
           description: $description
-          sshPassphrase: $ssh_passphrase
-          sshPrivateKey: $ssh_private_key
-          authUser: $auth_user
-          authToken: $auth_token
-          branchName: $branch_name
-          policyFileSuffix: $policy_file_suffix
-          policyDirectories: $policy_directory
-          deepImport: $deep_import
+          auth: {
+            authUser: $auth_user
+            authToken: $auth_token
+            sshPrivateKey: $ssh_private_key
+            sshPassphrase: $ssh_passphrase
+          }
+          webhookSecret: $webhook_secret
         }
       ) {
-        repository {
+        repositoryConfig {
+            uuid
             url
             name
+        }
+        problems {
+            message
         }
       }
     }
@@ -41,49 +44,64 @@ class AddRepository(GraphQLSnippet):
         "ssh_private_key": "Path to a SSH Private Key",
         "auth_user": "Auth User for repository access",
         "auth_token": "Auth token for repository access",
-        "branch_name": "Git Branch Name",
-        "policy_file_suffix": {
-            "help": 'List of Policy File Suffixes e.g. [".json", ".yaml", ".yml"]',
-            "multiple": True,
-        },
-        "policy_directory": {
-            "help": 'Policy Directories e.g. ["policies", "some/path"]',
-            "multiple": True,
-        },
-        "deep_import": "Deep Import Repository true | false",
+        "webhook_secret": "Secret used to validate repository webhook payloads",
     }
-    variable_transformers = {"deep_import": lambda x: x and x.lower() in ("true", "t", "yes", "y")}
-    result_expr = "data.addRepository.repository"
+    result_expr = "data.addRepositoryConfig.repositoryConfig"
 
 
 class ProcessRepository(GraphQLSnippet):
     name = "process-repository"
     snippet = """
     mutation {
-      processRepository(input:{url: $url})
+      triggerRepositoryScan(input:{uuid: $uuid}) {
+        problems {
+            message
+        }
+      }
     }
     """
-    required = {"url": "Repository URL to process"}
+    required = {"uuid": "Repository Config UUID"}
+    result_expr = "data.triggerRepositoryScan"
+
+
+class ScanRepository(GraphQLSnippet):
+    name = "scan-repository"
+    snippet = """
+    mutation {
+      triggerRepositoryScan(input:{uuid: $uuid}) {
+        problems {
+            message
+        }
+      }
+    }
+    """
+    required = {"uuid": "Repository Config UUID"}
+    result_expr = "data.triggerRepositoryScan"
 
 
 class ListRepository(GraphQLSnippet):
     name = "list-repository"
     snippet = """
     query {
-      repositories {
+      repositoryConfigs {
         edges {
           node {
             id
+            uuid
             name
             url
-            policyFileSuffix
-            policyDirectories
-            branchName
-            authUser
-            sshPublicKey
-            head
-            lastScanned
             provider
+            auth {
+                authUser
+                sshPublicKey
+            }
+            globalView {
+                branchName
+                policyFileSuffix
+                policyDirectories
+                head
+                lastScanned
+            }
           }
         }
         pageInfo {
@@ -96,86 +114,126 @@ class ListRepository(GraphQLSnippet):
       }
     }
     """
-    result_expr = "data.repositories.edges[].node"
+    result_expr = "data.repositoryConfigs.edges[].node"
 
 
 class RemoveRepository(GraphQLSnippet):
     name = "remove-repository"
     snippet = """
     mutation {
-      removeRepository(
-          url: $url
+      removeRepositoryConfig(
+          input: {
+              uuid: $uuid
+              cascade: $cascade
+          }
       ) {
-        repository {
-            url
-            name
+        removed {
+            id
+        }
+        problems {
+            message
         }
       }
     }
     """
     required = {
-        "url": "Policy Repository URL",
+        "uuid": "Repository Config UUID",
     }
-    result_expr = "data.removeRepository.repository"
-
-
-class ScanRepository(GraphQLSnippet):
-    name = "scan-repository"
-    snippet = """
-    mutation {
-      processRepository(input:{
-          url: $url
-          startRevSpec: $start_rev_spec
-      })
+    optional = {
+        "cascade": {
+            "help": (
+                "Also remove bindings and policy collections tied to this repository (true|false)"
+            ),
+            "default": "false",
+        },
     }
-    """
-    required = {
-        "url": "Policy Repository URL",
+    variable_transformers = {
+        "cascade": lambda x: x is not None and x.lower() in ("true", "t", "yes", "y")
     }
-
-    optional = {"start_rev_spec": "Start Rev Spec"}
+    result_expr = "data.removeRepositoryConfig"
 
 
 class ShowRepository(GraphQLSnippet):
     name = "show-repository"
     snippet = """
     query {
-      repository(url: $url) {
-        id
-        name
-        url
-        policyFileSuffix
-        policyDirectories
-        branchName
-        authUser
-        sshPublicKey
-        head
-        lastScanned
-        provider
-        scans {
-          edges {
-            node {
-              started
-              completed
-              head
-              error
-              commitsProcessed
-              policiesAdded
-              policiesModified
-              policiesRemoved
-              policiesInvalid
+      repositoryConfig(uuid: $uuid) {
+        repositoryConfig {
+            id
+            uuid
+            name
+            url
+            provider
+            webhookURL
+            hasWebhookSecret
+            created
+            modified
+            auth {
+                authUser
+                sshPublicKey
+                hasAuthToken
+                hasSshPrivateKey
+                hasSshPassphrase
+                connectStatus
+                connectError
             }
-          }
-          pageInfo {
-            hasPreviousPage
-            hasNextPage
-            startCursor
-            endCursor
-            total
-          }
+            globalView {
+                uuid
+                branchName
+                policyFileSuffix
+                policyDirectories
+                head
+                lastScanned
+                scans {
+                    edges {
+                        node {
+                            started
+                            completed
+                            head
+                            errors {
+                                ... on SimpleScanError {
+                                    type
+                                    messages
+                                }
+                                ... on DuplicatePolicyError {
+                                    type
+                                    policyName
+                                    path
+                                    otherRepository
+                                    otherPath
+                                    commitHash
+                                }
+                                ... on DashboardError {
+                                    type
+                                    issues {
+                                        title
+                                        message
+                                    }
+                                }
+                            }
+                            commitsProcessed
+                            policiesAdded
+                            policiesModified
+                            policiesRemoved
+                            policiesInvalid
+                        }
+                    }
+                    pageInfo {
+                        hasPreviousPage
+                        hasNextPage
+                        startCursor
+                        endCursor
+                        total
+                    }
+                }
+            }
+        }
+        problems {
+            message
         }
       }
     }
     """
 
-    required = {"url": "Repository URL to process"}
+    required = {"uuid": "Repository Config UUID"}
+    result_expr = "data.repositoryConfig.repositoryConfig"

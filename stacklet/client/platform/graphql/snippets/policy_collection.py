@@ -22,7 +22,11 @@ class ListPolicyCollections(GraphQLSnippet):
                 description
                 provider
                 repository
-                itemCount
+                policyMappings(first: 0) {
+                    pageInfo {
+                        total
+                    }
+                }
               }
             }
             pageInfo {
@@ -52,11 +56,20 @@ class ShowPolicyCollection(GraphQLSnippet):
             description
             provider
             repository
-            itemCount
-            items {
-                uuid
-                name
-                version
+            policyMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        policy {
+                            uuid
+                            name
+                            version
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
           }
       }
@@ -81,11 +94,20 @@ class AddPolicyCollection(GraphQLSnippet):
             description
             provider
             repository
-            itemCount
-            items {
-                uuid
-                name
-                version
+            policyMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        policy {
+                            uuid
+                            name
+                            version
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
         }
       }
@@ -120,11 +142,20 @@ class UpdatePolicyCollection(GraphQLSnippet):
             description
             provider
             repository
-            itemCount
-            items {
-                uuid
-                name
-                version
+            policyMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        policy {
+                            uuid
+                            name
+                            version
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
         }
       }
@@ -159,11 +190,20 @@ class AddPolicyCollectionItem(GraphQLSnippet):
                 description
                 provider
                 repository
-                itemCount
-                items {
-                    uuid
-                    name
-                    version
+                policyMappings(first: 1000) {
+                    edges {
+                        node {
+                            id
+                            policy {
+                                uuid
+                                name
+                                version
+                            }
+                        }
+                    }
+                    pageInfo {
+                        total
+                    }
                 }
             }
           }
@@ -198,11 +238,20 @@ class RemovePolicyCollectionItem(GraphQLSnippet):
                 description
                 provider
                 repository
-                itemCount
-                items {
-                    uuid
-                    name
-                    version
+                policyMappings(first: 1000) {
+                    edges {
+                        node {
+                            id
+                            policy {
+                                uuid
+                                name
+                                version
+                            }
+                        }
+                    }
+                    pageInfo {
+                        total
+                    }
                 }
             }
           }
@@ -230,11 +279,20 @@ class RemovePolicyCollection(GraphQLSnippet):
             description
             provider
             repository
-            itemCount
-            items {
-                uuid
-                name
-                version
+            policyMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        policy {
+                            uuid
+                            name
+                            version
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
         }
       }
