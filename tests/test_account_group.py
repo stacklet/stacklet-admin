@@ -93,7 +93,8 @@ class TestAccountGroup:
                                                 },
                                             }
                                         }
-                                    ]
+                                    ],
+                                    "pageInfo": {"hasNextPage": False, "endCursor": None},
                                 }
                             }
                         }
@@ -124,7 +125,9 @@ class TestAccountGroup:
             """
             query ($uuid: String!) {
               accountGroup(uuid: $uuid) {
-                accountMappings(first: 1000) {
+                accountMappings(
+                    first: 1000
+                ) {
                     edges {
                         node {
                             id
@@ -133,6 +136,10 @@ class TestAccountGroup:
                                 provider
                             }
                         }
+                    }
+                    pageInfo {
+                        hasNextPage
+                        endCursor
                     }
                 }
               }
@@ -156,6 +163,84 @@ class TestAccountGroup:
             """,
         )
         assert requests[1]["variables"] == {"mapping_id": "mapping:1"}
+
+    def test_remove_item_paginates(
+        self, requests_adapter, sample_config_file, api_token_in_file, invoke_cli
+    ):
+        """The lookup must page through accountMappings, not just the first page."""
+        requests_adapter.register_uri(
+            "POST",
+            "mock://stacklet.acme.org/api",
+            [
+                {
+                    "json": {
+                        "data": {
+                            "accountGroup": {
+                                "accountMappings": {
+                                    "edges": [
+                                        {
+                                            "node": {
+                                                "id": "mapping:1",
+                                                "account": {
+                                                    "key": "111111111111",
+                                                    "provider": "AWS",
+                                                },
+                                            }
+                                        }
+                                    ],
+                                    "pageInfo": {"hasNextPage": True, "endCursor": "cursor-1"},
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "json": {
+                        "data": {
+                            "accountGroup": {
+                                "accountMappings": {
+                                    "edges": [
+                                        {
+                                            "node": {
+                                                "id": "mapping:2",
+                                                "account": {
+                                                    "key": "222222222222",
+                                                    "provider": "AWS",
+                                                },
+                                            }
+                                        }
+                                    ],
+                                    "pageInfo": {"hasNextPage": False, "endCursor": None},
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "json": {
+                        "data": {"removeAccountGroupMappings": {"removed": [{"id": "mapping:2"}]}}
+                    }
+                },
+            ],
+        )
+
+        res = invoke_cli(
+            "account-group",
+            "remove-item",
+            "--uuid=11111111-1111-1111-1111-111111111111",
+            "--key=222222222222",
+            "--provider=AWS",
+        )
+        assert res.exit_code == 0, res.output
+
+        requests = [json.loads(r.body.decode()) for r in requests_adapter.request_history]
+        assert len(requests) == 3
+        assert requests[0]["variables"] == {"uuid": "11111111-1111-1111-1111-111111111111"}
+        assert requests[1]["variables"] == {
+            "uuid": "11111111-1111-1111-1111-111111111111",
+            "after": "cursor-1",
+        }
+        assert requests[2]["variables"] == {"mapping_id": "mapping:2"}
 
     def test_remove_item_not_found(
         self, requests_adapter, sample_config_file, api_token_in_file, invoke_cli

@@ -35,7 +35,10 @@ class _FindAccountGroupMapping(GraphQLSnippet):
     snippet = """
         query {
           accountGroup(uuid: $uuid) {
-            accountMappings(first: 1000) {
+            accountMappings(
+                first: 1000
+                after: $after
+            ) {
                 edges {
                     node {
                         id
@@ -45,28 +48,44 @@ class _FindAccountGroupMapping(GraphQLSnippet):
                         }
                     }
                 }
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
             }
           }
       }
     """
     required = {"uuid": "Account group UUID"}
+    optional = {"after": "Pagination cursor"}
 
 
 def _remove_item_pre_check(context: StackletContext, cli_args: dict[str, Any]) -> dict[str, Any]:
     """
     removeAccountGroupMappings needs the mapping's node id, but the CLI still accepts
-    the account's key/provider, so look up the id before running the mutation.
+    the account's key/provider, so look up the id before running the mutation. The
+    lookup pages through all mappings, since an account group can hold more than a
+    single page's worth.
     """
     group_uuid = cli_args["uuid"]
     key = cli_args["key"]
     provider = cli_args["provider"]
 
-    res = context.executor.run_snippet(_FindAccountGroupMapping, variables={"uuid": group_uuid})
-    edges = jmespath.search("data.accountGroup.accountMappings.edges", res) or []
-    for edge in edges:
-        account = edge["node"]["account"]
-        if account["key"] == key and account["provider"].upper() == provider.upper():
-            return {"mapping_id": edge["node"]["id"]}
+    after = None
+    while True:
+        res = context.executor.run_snippet(
+            _FindAccountGroupMapping, variables={"uuid": group_uuid, "after": after}
+        )
+        connection = jmespath.search("data.accountGroup.accountMappings", res) or {}
+        for edge in connection.get("edges") or []:
+            account = edge["node"]["account"]
+            if account["key"] == key and account["provider"].upper() == provider.upper():
+                return {"mapping_id": edge["node"]["id"]}
+
+        page_info = connection.get("pageInfo") or {}
+        if not page_info.get("hasNextPage"):
+            break
+        after = page_info["endCursor"]
 
     raise InvalidInputException(
         f"No account with key={key!r} provider={provider!r} found in account group {group_uuid!r}"
