@@ -20,7 +20,9 @@ class ListBindings(GraphQLSnippet):
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 system
                 accountGroup {
@@ -58,7 +60,9 @@ class ShowBinding(GraphQLSnippet):
             name
             description
             schedule
-            variables
+            executionConfig {
+                variables
+            }
             lastDeployed
             system
             accountGroup {
@@ -86,7 +90,7 @@ class AddBinding(GraphQLSnippet):
             policyCollectionUUID: $policy_collection_uuid
             description: $description
             schedule: $schedule
-            variables: $variables
+            executionConfig: { variables: $variables }
             deploy: $deploy
         }){
             binding {
@@ -94,7 +98,9 @@ class AddBinding(GraphQLSnippet):
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 accountGroup {
                     uuid
@@ -132,14 +138,16 @@ class UpdateBinding(GraphQLSnippet):
             name: $name
             description: $description
             schedule: $schedule
-            variables: $variables
+            executionConfig: { variables: $variables }
         }){
             binding {
                 uuid
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 accountGroup {
                     uuid
@@ -175,7 +183,9 @@ class RemoveBinding(GraphQLSnippet):
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 accountGroup {
                     uuid
@@ -202,7 +212,9 @@ class DeployBinding(GraphQLSnippet):
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 accountGroup {
                     uuid
@@ -230,7 +242,9 @@ class RunBinding(GraphQLSnippet):
                 name
                 description
                 schedule
-                variables
+                executionConfig {
+                    variables
+                }
                 lastDeployed
                 accountGroup {
                     uuid

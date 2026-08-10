@@ -26,7 +26,11 @@ class ListAccountGroups(GraphQLSnippet):
                 system
                 variables
                 priority
-                itemCount
+                accountMappings(first: 0) {
+                    pageInfo {
+                        total
+                    }
+                }
               }
             }
             pageInfo {
@@ -66,13 +70,21 @@ class AddAccountGroup(GraphQLSnippet):
             regions
             variables
             priority
-            itemCount
-            items {
-                uuid
-                key
-                provider
-                name
-                regions
+            accountMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        regions
+                        account {
+                            key
+                            provider
+                            name
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
         }
       }
@@ -118,13 +130,21 @@ class UpdateAccountGroup(GraphQLSnippet):
             regions
             variables
             priority
-            itemCount
-            items {
-                uuid
-                key
-                provider
-                name
-                regions
+            accountMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        regions
+                        account {
+                            key
+                            provider
+                            name
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
         }
       }
@@ -158,13 +178,21 @@ class ShowAccountGroup(GraphQLSnippet):
             system
             variables
             priority
-            itemCount
-            items {
-                uuid
-                key
-                provider
-                name
-                regions
+            accountMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        regions
+                        account {
+                            key
+                            provider
+                            name
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
             }
           }
       }
@@ -189,13 +217,21 @@ class RemoveAccountGroup(GraphQLSnippet):
                 regions
                 variables
                 priority
-                itemCount
-                items {
-                    uuid
-                    key
-                    provider
-                    name
-                    regions
+                accountMappings(first: 1000) {
+                    edges {
+                        node {
+                            id
+                            regions
+                            account {
+                                key
+                                provider
+                                name
+                            }
+                        }
+                    }
+                    pageInfo {
+                        total
+                    }
                 }
             }
           }
@@ -208,32 +244,26 @@ class AddAccountGroupItem(GraphQLSnippet):
     name = "add-account-group-item"
     snippet = """
         mutation {
-          addAccountGroupItems(input:{
-            uuid: $uuid
-            items: [
+          upsertAccountGroupMappings(input:{
+            mappings: [
                 {
-                    key: $key
-                    provider: $provider
+                    accountKey: $key
+                    groupUUID: $uuid
+                    regions: $regions
                 }
             ]
           }) {
-              group {
-                name
-                uuid
+              mappings {
                 id
-                shortName
-                provider
-                description
                 regions
-                variables
-                priority
-                itemCount
-                items {
-                    uuid
+                account {
                     key
                     provider
                     name
-                    regions
+                }
+                group {
+                    uuid
+                    name
                 }
             }
           }
@@ -242,43 +272,19 @@ class AddAccountGroupItem(GraphQLSnippet):
     required = {
         "uuid": "Account group UUID",
         "key": "Account Key",
-        "provider": "Account Provider",
     }
-    optional = {"regions": "Account Regions"}
-    parameter_types = {"provider": "CloudProvider!"}
+    optional = {"regions": {"help": "Account Regions", "multiple": True}}
 
 
 class RemoveAccountGroupItem(GraphQLSnippet):
     name = "remove-account-group-item"
     snippet = """
         mutation {
-          removeAccountGroupItems(input:{
-            uuid: $uuid
-            items: [
-                {
-                    key: $key
-                    provider: $provider
-                }
-            ]
+          removeAccountGroupMappings(input:{
+            ids: [$mapping_id]
           }) {
-              group {
-                name
-                uuid
+              removed {
                 id
-                shortName
-                provider
-                description
-                regions
-                variables
-                priority
-                itemCount
-                items {
-                    uuid
-                    key
-                    provider
-                    name
-                    regions
-                }
             }
           }
       }
@@ -288,4 +294,4 @@ class RemoveAccountGroupItem(GraphQLSnippet):
         "key": "Account Key",
         "provider": "Account Provider",
     }
-    parameter_types = {"provider": "CloudProvider!"}
+    parameter_types = {"mapping_id": "ID!"}

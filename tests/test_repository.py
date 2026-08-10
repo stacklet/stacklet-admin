@@ -17,9 +17,13 @@ class TestRepository:
             ],
             response={
                 "data": {
-                    "addRepository": {
-                        "url": "mock://git.acme.org/stacklet/policies.git",
-                        "name": "test-policies",
+                    "addRepositoryConfig": {
+                        "repositoryConfig": {
+                            "uuid": "34c10c3e-d841-4e63-9d51-01b92f36c502",
+                            "url": "mock://git.acme.org/stacklet/policies.git",
+                            "name": "test-policies",
+                        },
+                        "problems": [],
                     }
                 }
             },
@@ -27,9 +31,12 @@ class TestRepository:
         assert res.output == dedent(
             """\
             data:
-              addRepository:
-                name: test-policies
-                url: mock://git.acme.org/stacklet/policies.git
+              addRepositoryConfig:
+                problems: []
+                repositoryConfig:
+                  name: test-policies
+                  url: mock://git.acme.org/stacklet/policies.git
+                  uuid: 34c10c3e-d841-4e63-9d51-01b92f36c502
 
             """
         )
@@ -38,73 +45,83 @@ class TestRepository:
             body,
             """
             mutation ($url: String!, $name: String!) {
-              addRepository(
+              addRepositoryConfig(
                 input: {
                   url: $url
                   name: $name
+                  auth: {
+                  }
                 }
               ) {
-                repository {
-                  url
-                  name
+                repositoryConfig {
+                    uuid
+                    url
+                    name
+                }
+                problems {
+                    message
                 }
               }
             }
             """,
         )
 
-    def test_add_repository_deep(self, run_query):
+    def test_add_repository_with_auth(self, run_query):
         res, body = run_query(
             "repository",
             [
                 "add",
                 "--url=mock://git.acme.org/stacklet/policies.git",
                 "--name=test-policies",
-                "--deep-import=true",
+                "--auth-user=someuser",
+                "--auth-token=sometoken",
             ],
             response={
                 "data": {
-                    "addRepository": {
-                        "url": "mock://git.acme.org/stacklet/policies.git",
-                        "name": "test-policies",
+                    "addRepositoryConfig": {
+                        "repositoryConfig": {
+                            "uuid": "34c10c3e-d841-4e63-9d51-01b92f36c502",
+                            "url": "mock://git.acme.org/stacklet/policies.git",
+                            "name": "test-policies",
+                        },
+                        "problems": [],
                     }
                 }
             },
         )
-        assert res.output == dedent(
-            """\
-            data:
-              addRepository:
-                name: test-policies
-                url: mock://git.acme.org/stacklet/policies.git
-
-            """
-        )
+        assert res.exit_code == 0
 
         assert_query(
             body,
             """
-            mutation ($url: String!, $name: String!, $deep_import: Boolean!) {
-              addRepository(
+            mutation ($url: String!, $name: String!, $auth_user: String!, $auth_token: String!) {
+              addRepositoryConfig(
                 input: {
                   url: $url
                   name: $name
-                  deepImport: $deep_import
+                  auth: {
+                    authUser: $auth_user
+                    authToken: $auth_token
+                  }
                 }
               ) {
-                repository {
-                  url
-                  name
+                repositoryConfig {
+                    uuid
+                    url
+                    name
+                }
+                problems {
+                    message
                 }
               }
             }
             """,
         )
-        # Check the conversion of string to bool.
         assert body["variables"] == {
-            "deep_import": True,
-            "name": "test-policies",
             "url": "mock://git.acme.org/stacklet/policies.git",
+            "name": "test-policies",
+            "auth_user": "someuser",
+            "auth_token": "sometoken",
         }
 
     def test_process_repository(self, run_query):
@@ -112,16 +129,20 @@ class TestRepository:
             "repository",
             [
                 "process",
-                "--url=mock://git.acme.org/stacklet/policies.git",
+                "--uuid=34c10c3e-d841-4e63-9d51-01b92f36c502",
             ],
-            response={"data": {"processRepository": "34c10c3e-d841-4e63-9d51-01b92f36c502"}},
+            response={"data": {"triggerRepositoryScan": {"problems": []}}},
         )
-        assert res.output == "data:\n  processRepository: 34c10c3e-d841-4e63-9d51-01b92f36c502\n\n"
+        assert res.output == "data:\n  triggerRepositoryScan:\n    problems: []\n\n"
         assert_query(
             body,
             """
-            mutation ($url: String!) {
-              processRepository(input:{url: $url})
+            mutation ($uuid: String!) {
+              triggerRepositoryScan(input:{uuid: $uuid}) {
+                problems {
+                    message
+                }
+              }
             }
             """,
         )
