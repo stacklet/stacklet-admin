@@ -2,7 +2,32 @@
 
 ### Features
 
+- **Dynamic policy collections**: `policy-collection add` accepts `--repository-uuid`,
+  which makes the collection dynamic — its policies always match the latest scan of
+  that repository. The repository view that does the scanning is configured with
+  `--branch-name`, `--policy-file-suffix`, `--policy-directory` and `--start-rev-spec`
+  (`TAIL` for a deep import, settable only at creation time). `policy-collection
+  update` takes the same view options apart from `--start-rev-spec`.
+
+  This restores the capability behind the `repository add` options removed in
+  2026.08.10: the platform moved that configuration onto the repository *view*, which
+  only exists as part of a dynamic policy collection.
+
+- **`repository register`**: registers a repository config and its dynamic policy
+  collection in one command, which is what it takes for a repository's policies to
+  actually get scanned — `addRepositoryConfig` alone creates no view, and policies are
+  scanned per view. Accepts the options of both halves, with `--collection-name` and
+  `--collection-description` for the collection, plus `--deep-import` as shorthand for
+  `--start-rev-spec=TAIL`.
+
+- `repository remove` accepts `--cascade`, to also remove bindings and policy
+  collections tied to the repository. (Added in 2026.08.10 but not noted at the time.)
+
 ### Changes
+
+- `policy-collection` output now includes `autoUpdate`, `isDynamic`, `repositoryConfig`
+  and `repositoryView`, and no longer selects the deprecated `repository` field. Use
+  `repositoryConfig` instead.
 
 ### Fixes
 

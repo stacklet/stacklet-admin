@@ -3,6 +3,99 @@
 
 from ..snippet import GraphQLSnippet
 
+# Shared selection for a policy collection node. `repositoryConfig`/`repositoryView`
+# are only populated for dynamic collections; `repositoryView` is what says where in
+# the repository the collection's policies are taken from.
+FIELDS = """
+            id
+            uuid
+            name
+            description
+            provider
+            autoUpdate
+            isDynamic
+            repositoryConfig {
+                uuid
+                name
+                url
+            }
+            repositoryView {
+                uuid
+                namespace
+                branchName
+                policyFileSuffix
+                policyDirectories
+                head
+                lastScanned
+            }
+"""
+
+# The policies in a collection. Listing only wants the count, so it selects no edges.
+MAPPINGS = """
+            policyMappings(first: 1000) {
+                edges {
+                    node {
+                        id
+                        policy {
+                            uuid
+                            name
+                            version
+                        }
+                    }
+                }
+                pageInfo {
+                    total
+                }
+            }
+"""
+MAPPING_COUNT = """
+            policyMappings(first: 0) {
+                pageInfo {
+                    total
+                }
+            }
+"""
+
+# The view half of a dynamic collection's input. Every field sits on its own line so
+# that unset options drop out individually; when they all drop the block collapses to
+# `repositoryView: {}`, which the platform reads as "no view".
+VIEW_INPUT = """
+            branchName: $branch_name
+            policyFileSuffix: $policy_file_suffix
+            policyDirectories: $policy_directory
+"""
+
+# Options common to creating and updating a dynamic collection's view.
+VIEW_OPTIONS = {
+    "branch_name": "Dynamic collections: branch to take policies from",
+    "policy_file_suffix": {
+        "help": "Dynamic collections: only import policies from files with this suffix",
+        "multiple": True,
+    },
+    "policy_directory": {
+        "help": "Dynamic collections: only scan this directory for policies",
+        "multiple": True,
+    },
+}
+VIEW_TYPES = {
+    "policy_file_suffix": "[String!]",
+    "policy_directory": "[String!]",
+}
+
+
+def to_bool(value: str | None) -> bool | None:
+    """
+    Parse an optional boolean option.
+
+    None has to survive as None: variables are transformed before the query is built,
+    and the builder drops an option's line only when its value is None. Coercing an
+    unset flag to False would send it, and `autoUpdate: false` is an error on a
+    dynamic collection rather than a no-op.
+    """
+    if value is None:
+        return None
+    return value.lower() in ("true", "t", "yes", "y")
+
 
 class ListPolicyCollections(GraphQLSnippet):
     name = "list-policy-collections"
@@ -16,17 +109,8 @@ class ListPolicyCollections(GraphQLSnippet):
           ) {
             edges {
               node {
-                id
-                uuid
-                name
-                description
-                provider
-                repository
-                policyMappings(first: 0) {
-                    pageInfo {
-                        total
-                    }
-                }
+%(fields)s
+%(mappings)s
               }
             }
             pageInfo {
@@ -38,7 +122,7 @@ class ListPolicyCollections(GraphQLSnippet):
             }
           }
         }
-    """
+    """ % {"fields": FIELDS, "mappings": MAPPING_COUNT}
     pagination_expr = "data.policyCollections.pageInfo"
     result_expr = "data.policyCollections.edges[].node"
 
@@ -50,30 +134,11 @@ class ShowPolicyCollection(GraphQLSnippet):
           policyCollection(
             uuid: $uuid
           ) {
-            id
-            uuid
-            name
-            description
-            provider
-            repository
-            policyMappings(first: 1000) {
-                edges {
-                    node {
-                        id
-                        policy {
-                            uuid
-                            name
-                            version
-                        }
-                    }
-                }
-                pageInfo {
-                    total
-                }
-            }
+%(fields)s
+%(mappings)s
           }
       }
-    """
+    """ % {"fields": FIELDS, "mappings": MAPPINGS}
     required = {"uuid": "Policy Collection UUID"}
     result_expr = "data.policyCollection"
 
@@ -86,33 +151,20 @@ class AddPolicyCollection(GraphQLSnippet):
         name: $name
         provider: $provider
         description: $description
+        autoUpdate: $auto_update
+        repositoryUUID: $repository_uuid
+        repositoryView: {
+%(view)s
+            startRevSpec: $start_rev_spec
+        }
       }){
         collection {
-            id
-            uuid
-            name
-            description
-            provider
-            repository
-            policyMappings(first: 1000) {
-                edges {
-                    node {
-                        id
-                        policy {
-                            uuid
-                            name
-                            version
-                        }
-                    }
-                }
-                pageInfo {
-                    total
-                }
-            }
+%(fields)s
+%(mappings)s
         }
       }
     }
-    """
+    """ % {"view": VIEW_INPUT, "fields": FIELDS, "mappings": MAPPINGS}
     required = {
         "name": "Policy Collection Name in Stacklet",
         "provider": "Cloud Provider",
@@ -120,8 +172,20 @@ class AddPolicyCollection(GraphQLSnippet):
 
     optional = {
         "description": "Policy Collection Description",
+        "auto_update": "Bump policies to their latest version as they are scanned (true|false)",
+        "repository_uuid": (
+            "Repository config UUID. Setting it makes this a dynamic collection, whose "
+            "policies always match the latest scan of that repository"
+        ),
+        **VIEW_OPTIONS,
+        "start_rev_spec": (
+            "Dynamic collections: revision the first scan starts from. TAIL scans the "
+            "whole history, recording a policy version per change -- a deep import. "
+            "Only settable when the collection is created"
+        ),
     }
-    parameter_types = {"provider": "CloudProvider!"}
+    parameter_types = {"provider": "CloudProvider!", **VIEW_TYPES}
+    variable_transformers = {"auto_update": to_bool}
     result_expr = "data.addPolicyCollection.collection"
 
 
@@ -134,40 +198,29 @@ class UpdatePolicyCollection(GraphQLSnippet):
         name: $name
         provider: $provider
         description: $description
+        autoUpdate: $auto_update
+        repositoryView: {
+%(view)s
+        }
       }){
         collection {
-            id
-            uuid
-            name
-            description
-            provider
-            repository
-            policyMappings(first: 1000) {
-                edges {
-                    node {
-                        id
-                        policy {
-                            uuid
-                            name
-                            version
-                        }
-                    }
-                }
-                pageInfo {
-                    total
-                }
-            }
+%(fields)s
+%(mappings)s
         }
       }
     }
-    """
+    """ % {"view": VIEW_INPUT, "fields": FIELDS, "mappings": MAPPINGS}
     required = {"uuid": "Policy Collection UUID"}
 
     optional = {
         "name": "Policy Collection Name in Stacklet",
         "provider": "Cloud Provider",
         "description": "Policy Collection Description",
+        "auto_update": "Bump policies to their latest version as they are scanned (true|false)",
+        **VIEW_OPTIONS,
     }
+    parameter_types = dict(VIEW_TYPES)
+    variable_transformers = {"auto_update": to_bool}
 
 
 class AddPolicyCollectionItem(GraphQLSnippet):
@@ -184,31 +237,12 @@ class AddPolicyCollectionItem(GraphQLSnippet):
             ]
           }) {
               collection {
-                id
-                uuid
-                name
-                description
-                provider
-                repository
-                policyMappings(first: 1000) {
-                    edges {
-                        node {
-                            id
-                            policy {
-                                uuid
-                                name
-                                version
-                            }
-                        }
-                    }
-                    pageInfo {
-                        total
-                    }
-                }
+%(fields)s
+%(mappings)s
             }
           }
       }
-    """
+    """ % {"fields": FIELDS, "mappings": MAPPINGS}
     required = {
         "uuid": "Account group UUID",
         "policy_uuid": "Policy UUID",
@@ -232,31 +266,12 @@ class RemovePolicyCollectionItem(GraphQLSnippet):
             ]
           }) {
               collection {
-                id
-                uuid
-                name
-                description
-                provider
-                repository
-                policyMappings(first: 1000) {
-                    edges {
-                        node {
-                            id
-                            policy {
-                                uuid
-                                name
-                                version
-                            }
-                        }
-                    }
-                    pageInfo {
-                        total
-                    }
-                }
+%(fields)s
+%(mappings)s
             }
           }
       }
-    """
+    """ % {"fields": FIELDS, "mappings": MAPPINGS}
     required = {
         "uuid": "Account group UUID",
         "policy_uuid": "Policy UUID",
@@ -273,29 +288,10 @@ class RemovePolicyCollection(GraphQLSnippet):
         uuid: $uuid
       ){
         collection {
-            id
-            uuid
-            name
-            description
-            provider
-            repository
-            policyMappings(first: 1000) {
-                edges {
-                    node {
-                        id
-                        policy {
-                            uuid
-                            name
-                            version
-                        }
-                    }
-                }
-                pageInfo {
-                    total
-                }
-            }
+%(fields)s
+%(mappings)s
         }
       }
     }
-    """
+    """ % {"fields": FIELDS, "mappings": MAPPINGS}
     required = {"uuid": "Policy Collection UUID"}
