@@ -31,6 +31,10 @@
 
 ### Fixes
 
+- `repository remove --cascade` now rejects a value that isn't `true` or `false`.
+  Previously anything unrecognised was taken as `false`, so a typo silently skipped
+  the cascade instead of reporting the mistake.
+
 ---
 
 ## August 10, 2026

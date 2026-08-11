@@ -250,6 +250,25 @@ class TestRepository:
             "auth_token": "sometoken",
         }
 
+    def test_remove_repository_cascade(self, run_query):
+        res, body = run_query(
+            "repository",
+            ["remove", f"--uuid={REPO_UUID}", "--cascade=true"],
+            response={"data": {"removeRepositoryConfig": {"removed": [], "problems": []}}},
+        )
+        assert body["variables"] == {"uuid": REPO_UUID, "cascade": True}
+
+    def test_remove_repository_cascade_rejects_nonsense(self, run_queries):
+        "A misspelling has to fail, not quietly leave the cascade off."
+        res, bodies = run_queries(
+            "repository",
+            ["remove", f"--uuid={REPO_UUID}", "--cascade=treu"],
+            [],
+        )
+        assert res.exit_code != 0
+        assert "'treu' is not one of 'true', 'false'" in res.output
+        assert bodies == []
+
     def test_process_repository(self, run_query):
         res, body = run_query(
             "repository",

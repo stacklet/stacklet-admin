@@ -111,11 +111,31 @@ class TestPolicyCollection:
         pc_uuid = str(uuid.uuid4())
         res, body = run_query(
             "policy-collection",
-            ["add", "--name=c", "--provider=AWS", "--auto-update=true"],
+            ["add", "--name=c", "--provider=AWS", "--auto-update=TRUE"],
             collection_response("addPolicyCollection", pc_uuid),
         )
         assert body["variables"]["auto_update"] is True
         assert_query_contains(body, "$auto_update: Boolean!")
+
+    def test_add_auto_update_false(self, run_query):
+        pc_uuid = str(uuid.uuid4())
+        res, body = run_query(
+            "policy-collection",
+            ["add", "--name=c", "--provider=AWS", "--auto-update=false"],
+            collection_response("addPolicyCollection", pc_uuid),
+        )
+        assert body["variables"]["auto_update"] is False
+
+    def test_add_auto_update_rejects_nonsense(self, run_queries):
+        "A misspelling has to fail, not quietly turn into false."
+        res, bodies = run_queries(
+            "policy-collection",
+            ["add", "--name=c", "--provider=AWS", "--auto-update=treu"],
+            [],
+        )
+        assert res.exit_code != 0
+        assert "'treu' is not one of 'true', 'false'" in res.output
+        assert bodies == []
 
     def test_add_view_option_without_repository(self, run_queries):
         "View options are meaningless without a repository, so say so up front."

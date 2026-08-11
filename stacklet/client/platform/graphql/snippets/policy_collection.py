@@ -1,6 +1,7 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+from ...utils import BOOL_CHOICE, to_bool
 from ..snippet import GraphQLSnippet
 
 # Shared selection for a policy collection node. `repositoryConfig`/`repositoryView`
@@ -82,19 +83,12 @@ VIEW_TYPES = {
     "policy_directory": "[String!]",
 }
 
-
-def to_bool(value: str | None) -> bool | None:
-    """
-    Parse an optional boolean option.
-
-    None has to survive as None: variables are transformed before the query is built,
-    and the builder drops an option's line only when its value is None. Coercing an
-    unset flag to False would send it, and `autoUpdate: false` is an error on a
-    dynamic collection rather than a no-op.
-    """
-    if value is None:
-        return None
-    return value.lower() in ("true", "t", "yes", "y")
+AUTO_UPDATE_OPTION = {
+    "auto_update": {
+        "help": "Bump policies to their latest version as they are scanned",
+        "type": BOOL_CHOICE,
+    },
+}
 
 
 class ListPolicyCollections(GraphQLSnippet):
@@ -172,7 +166,7 @@ class AddPolicyCollection(GraphQLSnippet):
 
     optional = {
         "description": "Policy Collection Description",
-        "auto_update": "Bump policies to their latest version as they are scanned (true|false)",
+        **AUTO_UPDATE_OPTION,
         "repository_uuid": (
             "Repository config UUID. Setting it makes this a dynamic collection, whose "
             "policies always match the latest scan of that repository"
@@ -216,7 +210,7 @@ class UpdatePolicyCollection(GraphQLSnippet):
         "name": "Policy Collection Name in Stacklet",
         "provider": "Cloud Provider",
         "description": "Policy Collection Description",
-        "auto_update": "Bump policies to their latest version as they are scanned (true|false)",
+        **AUTO_UPDATE_OPTION,
         **VIEW_OPTIONS,
     }
     parameter_types = dict(VIEW_TYPES)

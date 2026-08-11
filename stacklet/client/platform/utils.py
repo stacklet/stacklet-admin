@@ -10,6 +10,26 @@ from . import __version__
 
 USER_AGENT = f"stacklet.client.platform/{__version__}"
 
+# Type for an optional boolean option. Constraining the values matters: these are sent
+# on to the API, where a wrong one is a rejected mutation or a silently different
+# setting rather than something the user gets told about.
+BOOL_CHOICE = click.Choice(["true", "false"], case_sensitive=False)
+
+
+def to_bool(value: str | None) -> bool | None:
+    """
+    Parse an optional boolean option, as constrained by BOOL_CHOICE.
+
+    None has to survive as None: variables are transformed before the query is built,
+    and the builder drops an option's line only when its value is None. Coercing an
+    unset option to False would send it, and `autoUpdate: false` is an error on a
+    dynamic policy collection rather than a no-op.
+    """
+    if value is None:
+        return None
+    return value.lower() == "true"
+
+
 PAGINATION_OPTIONS = {
     "first": {
         "help": "For use with pagination. Return the first n results.",

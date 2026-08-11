@@ -1,6 +1,7 @@
 # Copyright Stacklet, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+from ...utils import BOOL_CHOICE, to_bool
 from ..snippet import GraphQLSnippet
 
 
@@ -141,15 +142,12 @@ class RemoveRepository(GraphQLSnippet):
     }
     optional = {
         "cascade": {
-            "help": (
-                "Also remove bindings and policy collections tied to this repository (true|false)"
-            ),
+            "help": "Also remove bindings and policy collections tied to this repository",
             "default": "false",
+            "type": BOOL_CHOICE,
         },
     }
-    variable_transformers = {
-        "cascade": lambda x: x is not None and x.lower() in ("true", "t", "yes", "y")
-    }
+    variable_transformers = {"cascade": to_bool}
     result_expr = "data.removeRepositoryConfig"
 
 
