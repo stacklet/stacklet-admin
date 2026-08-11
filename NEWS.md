@@ -4,6 +4,14 @@
 
 ### Changes
 
+### Fixes
+
+---
+
+## August 10, 2026
+
+### Changes
+
 - **Migrated off deprecated GraphQL APIs**: `stacklet-admin` no longer uses GraphQL
   fields/mutations that are deprecated in the platform schema. This includes some
   breaking changes:
@@ -22,8 +30,6 @@
     flat `items`/`itemCount` fields.
   - `binding` commands now return execution variables nested under
     `executionConfig` instead of a top-level `variables` field.
-
-### Fixes
 
 ---
 
