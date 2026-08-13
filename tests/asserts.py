@@ -15,11 +15,18 @@ def assert_config_has(config_file: Path, expected: JSONDict):
         assert config[key] == value
 
 
+def _clean(s: str) -> str:
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def assert_query(body: JSONDict, query: str):
     """Assert GraphQL query from a response body matches ignoring spaces."""
-    space_re = re.compile(r"\s+")
+    assert _clean(body["query"]) == _clean(query)
 
-    def clean(s):
-        return space_re.sub(" ", s).strip()
 
-    assert clean(body["query"]) == clean(query)
+def assert_query_contains(body: JSONDict, fragment: str):
+    """Assert a GraphQL query contains a fragment, ignoring spaces.
+
+    For queries whose selection is too big to be worth spelling out in full.
+    """
+    assert _clean(fragment) in _clean(body["query"])

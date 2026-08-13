@@ -88,6 +88,30 @@ def invoke_cli(config_file):
 
 
 @pytest.fixture
+def run_queries(requests_adapter, sample_config_file, api_token_in_file, invoke_cli):
+    """Invoke a command that makes more than one API call.
+
+    Responses are returned in order, and every request body is handed back. The exit
+    code isn't asserted, so failure paths can be tested too.
+    """
+
+    def run(
+        base_command: str, args: list[str], responses: list[JSONDict]
+    ) -> tuple[Result, list[JSONDict]]:
+        requests_adapter.register_uri(
+            "POST",
+            "mock://stacklet.acme.org/api",
+            [{"json": response} for response in responses],
+        )
+
+        res = invoke_cli(base_command, *args)
+        bodies = [json.loads(request.body.decode()) for request in requests_adapter.request_history]
+        return res, bodies
+
+    return run
+
+
+@pytest.fixture
 def run_query(requests_adapter, sample_config_file, api_token_in_file, invoke_cli):
     def run(base_command: str, args: list[str], response: JSONDict) -> tuple[Result, JSONDict]:
         requests_adapter.register_uri(
