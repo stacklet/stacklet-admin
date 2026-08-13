@@ -2,6 +2,16 @@
 
 ### Features
 
+### Changes
+
+### Fixes
+
+---
+
+## August 13, 2026
+
+### Features
+
 - **Dynamic policy collections**: `policy-collection add` accepts `--repository-uuid`,
   which makes the collection dynamic — its policies always match the latest scan of
   that repository. The repository view that does the scanning is configured with
