@@ -9,3 +9,4 @@ build/*
 .coverage
 stacklet-admin
 .python-version
+*~
