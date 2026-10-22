@@ -11,13 +11,15 @@ requires-python = ">=3.10,<3.15"
 readme = "README.md"
 license = "Apache-2.0"
 dependencies = [
-    "PyJWT>=2.4.0,<3",
+    "PyJWT>=2.15.0,<3",
     "PyYAML~=6.0",
     "boto3>=1.39.16,<2",
+    "certifi>=2026.10.19",  # requests' and botocore's CA bundle; earlier releases trust the compromised eMudhra CA
     "click>=8.0.1,<9",
     "jmespath>=1.0.1,<2",
     "jsonschema>=4.9.0,<5",
     "requests>=2.32.4,<3",
+    "urllib3>=2.8.0,<3",  # requests' and botocore's HTTP client; earlier releases have known CVEs
 ]
 dynamic = [ "version" ]
 
@@ -40,6 +42,9 @@ dev = [
 
 [tool.uv]
 exclude-newer = "7 days"
+# Admit the eMudhra CA fix release (certifi 2026.10.19, uploaded 2026-10-20) ahead of
+# the window; remove once "7 days" covers it (after 2026-10-27).
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z" }
 
 [tool.hatch.version]
 path = "stacklet/client/platform/__init__.py"
@@ -71,7 +76,10 @@ extend-select = ["E501", "I", "F"]
 
 [tool.deptry]
 known_first_party = ["stacklet"]
-per_rule_ignores = { "DEP004" = ["toml", "semver"] }
+per_rule_ignores = { "DEP002" = ["certifi", "urllib3"], "DEP004" = ["toml", "semver"] }
+
+[tool.typos]
+default.extend-words.certifi = "certifi"
 
 [tool.ty]
 src.include = ["stacklet"]

@@ -8,6 +8,16 @@
 
 ---
 
+## October 22, 2026
+
+### Fixes
+
+- **Security fixes**: stacklet-admin no longer trusts the compromised eMudhra
+  certificate authority, and picks up fixes for known vulnerabilities in the libraries
+  it uses to sign in and connect to Stacklet.
+
+---
+
 ## August 13, 2026
 
 ### Features
